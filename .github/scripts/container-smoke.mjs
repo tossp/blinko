@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import * as zlib from 'node:zlib';
 import sharp from 'sharp';
 import sqlite3 from 'sqlite3';
+import Parser from 'tree-sitter';
 import { PrismaClient } from '@prisma/client';
 
 // Run through stdin inside the final image, without networking or a database.
@@ -23,6 +24,8 @@ const row = await new Promise((resolve, reject) => {
 });
 assert.equal(row.value, 1);
 await new Promise((resolve, reject) => database.close(error => error ? reject(error) : resolve()));
+
+assert.ok(new Parser());
 
 const prisma = new PrismaClient();
 await prisma.$disconnect();
