@@ -39,6 +39,15 @@ gh run list --repo tossp/blinko --workflow docker-build.yml --branch ts
 
 以上命令会实际触发发布，需要发布授权；发布过程不自动执行部署。
 
+## 首次发布验收（2026-11-06 UTC）
+
+- [Actions run 42264800925](https://github.com/tossp/blinko/actions/runs/42264800925) 的安全检查、原生 amd64/arm64 构建、离线运行时检查和合并发布全部成功。
+- 发布源码提交：`151ae311ef5815de044345cdd8853f430125edb2`；两种架构的 OCI revision 均与之相符。
+- `:ts` 与 `:sha-151ae311ef5815de044345cdd8853f430125edb2` 指向同一双架构 manifest：`sha256:b7c1e5f0e59fe98f9c27de2893d8edd99b1bac46317e5424d0937eb3f2b83534`。
+- 使用全新、无登录凭据的 Docker 配置读取两种架构的 manifest/config，匿名拉取该 digest 的 amd64 镜像，并重新运行最终镜像离线检查，均通过。
+- 本次实际验证的触发方式为 `workflow_dispatch`；配置中的 push 自动触发尚未观察到成功运行，后续使用自动发布前需核验，不将其视为已验收。
+- 未变更现有部署，未连接真实数据库；发布成功不代表线上已更新。
+
 ## 使用自有镜像
 
 仓库中的 `docker-compose.prod.yml`、`install.sh`、`update.sh` 默认使用 `ghcr.io/tossp/blinko:ts`，支持 `BLINKO_IMAGE` 覆盖。Helm 默认 repository 为 `ghcr.io/tossp/blinko`、tag 为 `ts`，使用 `Always` 拉取策略；固定提交时可覆盖 `image.tag`。
