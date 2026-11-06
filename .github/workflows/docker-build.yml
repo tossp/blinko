@@ -52,6 +52,8 @@ jobs:
           context: .
           file: dockerfile
           platforms: linux/${{ matrix.arch }}
+          # GitHub runners pull directly; the local Dockerfile default retains the mirror.
+          build-args: NODE_IMAGE=docker.io/library/node:24.22.2-alpine
           load: true
           tags: ${{ env.ARCH_IMAGE }}
           labels: |

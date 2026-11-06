@@ -1,3 +1,5 @@
+ARG NODE_IMAGE=dp.tossp.com/library/node:24.22.2-alpine
+
 # Build Stage
 FROM oven/bun:1.2.8 AS builder
 
@@ -46,7 +48,7 @@ RUN printf '#!/bin/sh\necho "Current Environment: $NODE_ENV"\nnpx prisma migrate
 
 
 # Node 24.22.1+ backports CVE-2026-111497; Brotli may still report 1.2.0.
-FROM dp.tossp.com/library/node:24.22.2-alpine AS init-downloader
+FROM ${NODE_IMAGE} AS init-downloader
 
 WORKDIR /app
 
@@ -56,7 +58,7 @@ RUN wget -qO /app/dumb-init https://github.com/Yelp/dumb-init/releases/download/
 
 
 # Runtime Stage - Using Alpine as required
-FROM dp.tossp.com/library/node:24.22.2-alpine AS runner
+FROM ${NODE_IMAGE} AS runner
 
 # Add Build Arguments
 ARG USE_MIRROR=false

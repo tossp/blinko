@@ -19,7 +19,7 @@
 
 1. 推送到 `tossp/blinko` 的 `ts` 分支，或选择该分支手动触发。仅修改 Markdown 不触发自动发布；可手动重新构建。
 2. 复用 `security-checks.yml`，运行锁定依赖安装、安全回归、定向类型检查和前后端构建。检查失败不构建发布镜像。
-3. 分别使用原生 amd64、arm64 GitHub Runner 构建最终镜像。
+3. 分别使用原生 amd64、arm64 GitHub Runner 构建最终镜像。CI 通过 `NODE_IMAGE=docker.io/library/node:24.22.2-alpine` 直连官方源；本地默认仍为 `dp.tossp.com/library/node:24.22.2-alpine`。首次远端构建确认代理在基础镜像层下载时返回 525，因此仅按构建环境切换来源，不更改 Node 版本。
 4. 在各自架构上以 `--network none` 执行 `.github/scripts/container-smoke.mjs`，验证 Node/Brotli、sharp、sqlite3、Prisma 客户端构造和静态首页存在。不连接数据库、不启动业务、不挂载生产数据。
 5. 单架构检查通过后，使用 `GITHUB_TOKEN` 推送相应架构镜像，并传递其 digest。
 6. 两个架构均成功后合并 manifest，生成完整提交标签和 `:ts` 标签。运行摘要提供发布地址与 digest；镜像附带源码 repository、revision 标签。
