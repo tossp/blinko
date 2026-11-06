@@ -3,6 +3,8 @@
 
 <h1 align="center">Blinko</h1>
 
+> **TS 自维护 fork：**源码分支为 `ts`，容器镜像为 `ghcr.io/tossp/blinko:ts`，详见 [自有镜像发布与部署说明](docs/ts-container-release.md)。下方徽章及托管服务属于上游项目。
+
 <div align="center">
 
 ![Docker Pulls](https://img.shields.io/docker/pulls/blinkospace/blinko?color=ff4444&labelColor=black&logo=docker&logoColor=white&style=flat-square)
@@ -62,9 +64,13 @@ Blinko 是一个AI驱动的卡片笔记项目，专为那些想要快速捕捉�
 
 ## 📦快速开始（Docker Compose）
 
+拉取 TS fork 镜像：
+
 ```bash
-curl -s https://raw.githubusercontent.com/blinko-space/blinko/main/install.sh | bash
+docker pull ghcr.io/tossp/blinko:ts
 ```
+
+部署前先配置环境并完成备份，步骤见 [自有容器使用说明](docs/ts-container-release.md)。仅拉取镜像不会更新正在运行的服务。
 
 ## 👨🏼‍💻贡献
 贡献是开源社区充满活力、创造力和学习机会的核心。你的参与有助于推动创新和发展。我们深深感谢任何形式的贡献，并很高兴有你成为我们社区的一部分。感谢你的支持！🙌

@@ -41,9 +41,9 @@ The following table lists the configurable parameters and their default values.
 | Parameter | Description | Default |
 |-----------|-------------|---------|
 | `replicaCount` | Number of Blinko replicas | `1` |
-| `image.repository` | Blinko image repository | `blinko` |
-| `image.tag` | Blinko image tag | `""` (uses appVersion) |
-| `image.pullPolicy` | Image pull policy | `IfNotPresent` |
+| `image.repository` | Blinko image repository | `ghcr.io/tossp/blinko` |
+| `image.tag` | Blinko image tag | `ts` |
+| `image.pullPolicy` | Image pull policy | `Always` |
 | `nameOverride` | Override the name of the chart | `""` |
 | `fullnameOverride` | Override the full name of the chart | `""` |
 

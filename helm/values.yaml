@@ -5,10 +5,10 @@
 replicaCount: 1
 
 image:
-  repository: blinko
-  pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  repository: ghcr.io/tossp/blinko
+  pullPolicy: Always
+  # Use a sha-<full-commit> tag to pin a published source revision.
+  tag: "ts"
 
 imagePullSecrets: []
 nameOverride: ""

@@ -6,6 +6,13 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
+image_name="${BLINKO_IMAGE:-ghcr.io/tossp/blinko:ts}"
+
+if ! docker pull "$image_name"; then
+    echo -e "${RED}Failed to pull Docker image: $image_name${NC}"
+    exit 1
+fi
+
 # Check if the network 'blinko-network' already exists
 if [ ! "$(docker network ls -q -f name=blinko-network)" ]; then
     echo -e "${YELLOW}Network 'blinko-network' does not exist. Creating network...${NC}"
@@ -84,7 +91,7 @@ docker run -d \
   -e DATABASE_URL=postgresql://postgres:mysecretpassword@blinko-postgres:5432/postgres \
   $volume_mount \
   --restart always \
-  blinkospace/blinko:latest
+  "$image_name"
 
 if [ $? -ne 0 ]; then
   echo -e "${RED}Failed to start BlinkOS container.${NC}"

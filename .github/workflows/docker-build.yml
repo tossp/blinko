@@ -1,46 +1,124 @@
-name: Build and Push Docker Image
+name: Publish TS container
 
 on:
   push:
-    branches:
-      - fix/multi-select-duplicate-and-export-auth
+    branches: [ts]
+    paths-ignore:
+      - '**/*.md'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ts-container-release
+  cancel-in-progress: false
+
 env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE: ghcr.io/tossp/blinko
 
 jobs:
+  security:
+    if: github.repository == 'tossp/blinko' && github.ref == 'refs/heads/ts'
+    uses: ./.github/workflows/security-checks.yml
+
   build:
-    runs-on: ubuntu-latest
+    needs: security
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-latest
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
     permissions:
       contents: read
       packages: write
-
+    env:
+      ARCH_IMAGE: ghcr.io/tossp/blinko:sha-${{ github.sha }}-${{ matrix.arch }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
+      - uses: actions/checkout@v7
         with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=raw,value=fixed
-            type=sha,prefix={{branch}}-
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+          persist-credentials: false
+      - name: Validate deployment example without starting services
+        run: docker compose -f docker-compose.prod.yml config --quiet
+      - uses: docker/setup-buildx-action@v4
+      - name: Build final image for native architecture
+        uses: docker/build-push-action@v7
         with:
           context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          file: dockerfile
+          platforms: linux/${{ matrix.arch }}
+          load: true
+          tags: ${{ env.ARCH_IMAGE }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.title=Blinko TS fork
+          cache-from: type=gha,scope=blinko-ts-${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=blinko-ts-${{ matrix.arch }}
+      - name: Verify final image runtime without a database
+        run: >-
+          docker run --rm --network none -i --entrypoint node
+          "$ARCH_IMAGE" --input-type=module < .github/scripts/container-smoke.mjs
+      - name: Log in to GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Push verified architecture and record digest
+        env:
+          ARCH: ${{ matrix.arch }}
+        run: |
+          docker push "$ARCH_IMAGE"
+          mkdir -p digests
+          docker image inspect "$ARCH_IMAGE" --format '{{index .RepoDigests 0}}' > "digests/$ARCH.txt"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: blinko-digest-${{ matrix.arch }}
+          path: digests/${{ matrix.arch }}.txt
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      packages: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: blinko-digest-*
+          path: digests
+          merge-multiple: true
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish multi-platform commit and branch tags
+        run: |
+          sources=()
+          for file in digests/*.txt; do sources+=("$(< "$file")"); done
+          docker buildx imagetools create \
+            -t "$IMAGE:sha-$GITHUB_SHA" -t "$IMAGE:ts" "${sources[@]}"
+          docker buildx imagetools inspect --raw "$IMAGE:sha-$GITHUB_SHA" > manifest.json
+          jq -e '[.manifests[].platform | "\(.os)/\(.architecture)"] | sort == ["linux/amd64", "linux/arm64"]' manifest.json
+          digest=$(docker buildx imagetools inspect "$IMAGE:sha-$GITHUB_SHA" --format '{{json .Manifest}}' | jq -r '.digest')
+          branch_digest=$(docker buildx imagetools inspect "$IMAGE:ts" --format '{{json .Manifest}}' | jq -r '.digest')
+          test "$digest" = "$branch_digest"
+          {
+            echo '## Published Blinko TS container'
+            echo "- Commit: $GITHUB_SHA"
+            echo "- Image: $IMAGE:sha-$GITHUB_SHA"
+            echo "- Channel: $IMAGE:ts"
+            echo "- Digest: $IMAGE@$digest"
+            echo '- Platforms: linux/amd64, linux/arm64'
+            echo '- Existing deployments were not changed.'
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -4,7 +4,7 @@ networks:
 
 services:
   blinko-website:
-    image: blinkospace/blinko:latest
+    image: ${BLINKO_IMAGE:-ghcr.io/tossp/blinko:ts}
     # container_name: blinko-website
     environment:
       NODE_ENV: production

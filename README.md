@@ -3,6 +3,8 @@
 
 <h1 align="center">Blinko</h1>
 
+> **TS fork:** source branch `ts`, container image `ghcr.io/tossp/blinko:ts`. See [fork release and deployment instructions](docs/ts-container-release.md). Upstream badges and hosted services below refer to the upstream project.
+
 <div align="center">
 
 ![Docker Pulls](https://img.shields.io/docker/pulls/blinkospace/blinko?color=ff4444&labelColor=black&logo=docker&logoColor=white&style=flat-square)
@@ -53,9 +55,13 @@ Blinko is an AI-powered card note-taking project. Designed for individuals who w
 
 ## 📦Start with Docker in seconds
 
+Pull the TS fork image:
+
 ```bash
-curl -s https://raw.githubusercontent.com/blinko-space/blinko/main/install.sh | bash
+docker pull ghcr.io/tossp/blinko:ts
 ```
+
+Configure and back up your environment before deployment; see the [TS container guide](docs/ts-container-release.md). Pulling an image does not update a running service.
 
 ## 👨🏼‍💻Contribution
 Contributions are the heart of what makes the open-source community so dynamic, creative, and full of learning opportunities. Your involvement helps drive innovation and growth. We deeply value any contribution you make, and we're excited to have you as part of our community. Thank you for your support! 🙌
