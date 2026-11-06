@@ -24,7 +24,7 @@
 5. 单架构检查通过后，使用 `GITHUB_TOKEN` 推送相应架构镜像，并传递其 digest。
 6. 两个架构均成功后合并 manifest，生成完整提交标签和 `:ts` 标签。运行摘要提供发布地址与 digest；镜像附带源码 repository、revision 标签。
 
-Node 24 要求原生模块以 C++20 编译；`tree-sitter@0.22.4` 的 arm64/glibc 预构建在 Alpine/musl 下不可用，源码构建又硬编码 C++17。Dockerfile 仅对引入它的运行时安装命令设置 `CXXFLAGS="-std=c++20"`，不升级依赖、不改锁文件；两个架构的最终镜像均检查该模块实际加载。
+Node 24 要求原生模块以 C++20 编译；`tree-sitter@0.22.4` 的 arm64/glibc 预构建在 Alpine/musl 下不可用，源码构建又硬编码 C++17。`--legacy-peer-deps` 安装 llamaindex 时不装 peer 依赖；后续普通 `npm install @libsql/client @libsql/core` 才补装并编译 tree-sitter。Dockerfile 仅对这条最终安装命令设置 `CXXFLAGS="-std=c++20"`，不升级依赖、不改锁文件；两个架构的最终镜像均检查该模块实际加载。
 
 发布工作流仅镜像构建与合并 job 授予 `packages: write`，不需要 Docker Hub 密钥，不修改 Git 分支或现有部署。上游 `build-publish-release.yml` 与 `mark-stable.yml` 的容器发布入口仅允许在 `blinkospace/blinko` 运行，在本 fork 跳过。
 
