@@ -1,5 +1,7 @@
+import { autoSizeTextArea } from '@/lib/autoSizeTextArea';
+import { Button, Card, Chip, Description, Input, Label, ListBox, Select, Spinner, Switch, TextArea, TextField, Tooltip } from '@heroui/react';
 import { observer } from 'mobx-react-lite';
-import { Button, Input, Select, SelectItem, Switch, Chip, Textarea, Divider, Card, CardBody, Tooltip } from '@heroui/react';
+
 import { Icon } from '@/components/Common/Iconify/icons';
 import { CollapsibleCard } from '../../Common/CollapsibleCard';
 import { useTranslation } from 'react-i18next';
@@ -58,7 +60,7 @@ const McpServerDialogContent = observer(({ server, onClose }: { server?: McpServ
 
   const handleSubmit = async () => {
     if (!formData.name.trim()) return;
-    
+
     setIsSubmitting(true);
     try {
       const data: any = {
@@ -102,104 +104,35 @@ const McpServerDialogContent = observer(({ server, onClose }: { server?: McpServ
 
   return (
     <div className="space-y-4">
-      <Input
-        label={t('name')}
-        value={formData.name}
-        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-        placeholder="e.g., GitHub MCP Server"
-        isRequired
-      />
+      <TextField value={formData.name} isRequired><Label>{t('name')}</Label><Input onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder="e.g., GitHub MCP Server" /></TextField>
 
-      <Textarea
-        label={t('description')}
-        value={formData.description}
-        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-        placeholder="Optional description"
-        minRows={2}
-      />
+      <TextField value={formData.description}><Label>{t('description')}</Label><TextArea ref={(element) => {  if (element) return autoSizeTextArea(element, { minRows: 2,  }); }} onChange={(e) => setFormData({ ...formData, description: e.target.value })} placeholder="Optional description" rows={2} /></TextField>
 
-      <Select
-        label={t('transport-type')}
-        selectedKeys={[formData.type]}
-        onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
-      >
-        <SelectItem key="stdio">stdio (Local Process)</SelectItem>
-        <SelectItem key="sse">SSE (Server-Sent Events)</SelectItem>
-        <SelectItem key="streamable-http">Streamable HTTP</SelectItem>
-      </Select>
+      <Select onChange={(selectedValue) => setFormData({ ...formData, type: String(selectedValue ?? '') as any })} value={formData.type}><Label>{t('transport-type')}</Label><Select.Trigger><Select.Value /><Select.Indicator /></Select.Trigger><Select.Popover><ListBox><ListBox.Item key="stdio" id={"stdio"}>stdio (Local Process)</ListBox.Item><ListBox.Item key="sse" id={"sse"}>SSE (Server-Sent Events)</ListBox.Item><ListBox.Item key="streamable-http" id={"streamable-http"}>Streamable HTTP</ListBox.Item></ListBox></Select.Popover></Select>
 
       {formData.type === 'stdio' ? (
         <>
-          <Input
-            label={t('command')}
-            value={formData.command}
-            onChange={(e) => setFormData({ ...formData, command: e.target.value })}
-            placeholder="e.g., npx"
-            description="The command to execute"
-            isRequired
-          />
+          <TextField value={formData.command} isRequired><Label>{t('command')}</Label><Input onChange={(e) => setFormData({ ...formData, command: e.target.value })} placeholder="e.g., npx" /><Description>{"The command to execute"}</Description></TextField>
 
-          <Textarea
-            label={t('arguments')}
-            value={formData.args}
-            onChange={(e) => setFormData({ ...formData, args: e.target.value })}
-            placeholder="-y&#10;@modelcontextprotocol/server-filesystem&#10;/path/to/allowed/directory"
-            description="One argument per line"
-            minRows={3}
-          />
+          <TextField value={formData.args}><Label>{t('arguments')}</Label><TextArea ref={(element) => {  if (element) return autoSizeTextArea(element, { minRows: 3,  }); }} onChange={(e) => setFormData({ ...formData, args: e.target.value })} placeholder="-y&#10;@modelcontextprotocol/server-filesystem&#10;/path/to/allowed/directory" rows={3} /><Description>{"One argument per line"}</Description></TextField>
 
-          <Textarea
-            label={t('environment-variables')}
-            value={formData.env}
-            onChange={(e) => setFormData({ ...formData, env: e.target.value })}
-            placeholder='{"GITHUB_TOKEN": "your-token"}'
-            description="JSON object of environment variables"
-            minRows={3}
-          />
+          <TextField value={formData.env}><Label>{t('environment-variables')}</Label><TextArea ref={(element) => {  if (element) return autoSizeTextArea(element, { minRows: 3,  }); }} onChange={(e) => setFormData({ ...formData, env: e.target.value })} placeholder='{"GITHUB_TOKEN": "your-token"}' rows={3} /><Description>{"JSON object of environment variables"}</Description></TextField>
         </>
       ) : (
         <>
-          <Input
-            label="URL"
-            value={formData.url}
-            onChange={(e) => setFormData({ ...formData, url: e.target.value })}
-            placeholder={endpointPlaceholder}
-            description="The MCP server endpoint URL"
-            isRequired
-          />
+          <TextField value={formData.url} isRequired><Label>{"URL"}</Label><Input onChange={(e) => setFormData({ ...formData, url: e.target.value })} placeholder={endpointPlaceholder} /><Description>{"The MCP server endpoint URL"}</Description></TextField>
 
-          <Textarea
-            label={t('http-headers')}
-            value={formData.headers}
-            onChange={(e) => setFormData({ ...formData, headers: e.target.value })}
-            placeholder='{"Authorization": "Bearer your-token"}'
-            description="JSON object of HTTP headers"
-            minRows={3}
-          />
+          <TextField value={formData.headers}><Label>{t('http-headers')}</Label><TextArea ref={(element) => {  if (element) return autoSizeTextArea(element, { minRows: 3,  }); }} onChange={(e) => setFormData({ ...formData, headers: e.target.value })} placeholder='{"Authorization": "Bearer your-token"}' rows={3} /><Description>{"JSON object of HTTP headers"}</Description></TextField>
         </>
       )}
 
       <div className="flex items-center gap-2">
-        <Switch
-          isSelected={formData.isEnabled}
-          onValueChange={(checked) => setFormData({ ...formData, isEnabled: checked })}
-        >
-          {t('enabled')}
-        </Switch>
+        <Switch isSelected={formData.isEnabled} onChange={(checked) => setFormData({ ...formData, isEnabled: checked })}><Switch.Content><Switch.Control><Switch.Thumb></Switch.Thumb></Switch.Control><Label>{t('enabled')}</Label></Switch.Content></Switch>
       </div>
 
       <div className="flex justify-end gap-2 pt-4">
-        <Button variant="flat" onPress={onClose}>
-          {t('cancel')}
-        </Button>
-        <Button
-          color="primary"
-          onPress={handleSubmit}
-          isLoading={isSubmitting}
-          isDisabled={!formData.name.trim() || (formData.type === 'stdio' ? !formData.command.trim() : !formData.url.trim())}
-        >
-          {server ? t('save') : t('create')}
-        </Button>
+        <Button variant="tertiary" onPress={onClose}>{t('cancel')}</Button>
+        <Button onPress={handleSubmit} isDisabled={!formData.name.trim() || (formData.type === 'stdio' ? !formData.command.trim() : !formData.url.trim())} variant="primary" isPending={isSubmitting}>{isSubmitting ? <Spinner color="current" size="sm" /> : null}{server ? t('save') : t('create')}</Button>
       </div>
     </div>
   );
@@ -213,26 +146,19 @@ const ToolsListDialog = observer(({ server, tools, onClose }: { server: McpServe
       <div className="text-sm text-default-600">
         {t('mcp-server-tools', `Tools available from ${server.name}:`).replace('{{serverName}}', server.name)}
       </div>
-      
+
       <div className="max-h-96 overflow-y-auto">
         <div className="space-y-2">
           {tools.map((tool, index) => (
-            <Card key={index} className="bg-default-50">
-              <CardBody className="p-3">
-                <div className="font-medium text-default-900">{tool.name}</div>
-                {tool.description && (
+            <Card key={index} className="bg-default-50"><Card.Content className="p-3"><div className="font-medium text-default-900">{tool.name}</div>{tool.description && (
                   <div className="text-sm text-default-500 mt-1">{tool.description}</div>
-                )}
-              </CardBody>
-            </Card>
+                )}</Card.Content></Card>
           ))}
         </div>
       </div>
 
       <div className="flex justify-end pt-4">
-        <Button variant="flat" onPress={onClose}>
-          {t('close', 'Close')}
-        </Button>
+        <Button variant="tertiary" onPress={onClose}>{t('close', 'Close')}</Button>
       </div>
     </div>
   );
@@ -301,27 +227,13 @@ const McpServerCard = observer(({ server }: { server: McpServer }) => {
   };
 
   return (
-    <Card className="bg-default-50">
-      <CardBody className="p-4">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+    <Card className="bg-default-50"><Card.Content className="p-4"><div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
           <div className="flex-1 min-w-0 w-full sm:w-auto">
             <div className="flex flex-wrap items-center gap-2 mb-1">
               <h4 className="font-medium text-default-900 truncate">{server.name}</h4>
-              <Chip size="sm" variant="flat" color={server.type === 'stdio' ? 'primary' : 'secondary'}>
-                {server.type}
-              </Chip>
+              <Chip size="sm" variant={"soft"} color="accent"><Chip.Label>{server.type}</Chip.Label></Chip>
               {connectionStatus?.isConnected && connectionStatus.toolCount > 0 && (
-                <Button
-                  size="sm"
-                  variant="flat"
-                  color="success"
-                  className="h-6 min-w-0 px-2"
-                  onPress={handleViewTools}
-                >
-                  <Icon icon="mdi:connection" className="mr-1" width="14" />
-                  <span className="hidden sm:inline">{connectionStatus.toolCount} tools</span>
-                  <span className="sm:hidden">{connectionStatus.toolCount}</span>
-                </Button>
+                <Button size="sm" variant="tertiary" className={["bg-success/20 text-success", "h-6 min-w-0 px-2"].filter(Boolean).join(' ')} onPress={handleViewTools}><Icon icon="mdi:connection" className="mr-1" width="14" /><span className="hidden sm:inline">{connectionStatus.toolCount} tools</span><span className="sm:hidden">{connectionStatus.toolCount}</span></Button>
               )}
             </div>
             {server.description && (
@@ -346,47 +258,12 @@ const McpServerCard = observer(({ server }: { server: McpServer }) => {
           </div>
 
           <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-end sm:justify-start">
-            <Switch
-              size="sm"
-              isSelected={server.isEnabled}
-              onValueChange={handleToggle}
-            />
-            <Tooltip content={t('test-connection')}>
-              <Button
-                isIconOnly
-                size="sm"
-                variant="flat"
-                onPress={handleTest}
-                isLoading={isTesting}
-              >
-                <Icon icon="mdi:connection" width="18" />
-              </Button>
-            </Tooltip>
-            <Tooltip content={t('edit')}>
-              <Button
-                isIconOnly
-                size="sm"
-                variant="flat"
-                onPress={handleEdit}
-              >
-                <Icon icon="mdi:pencil" width="18" />
-              </Button>
-            </Tooltip>
-            <Tooltip content={t('delete')}>
-              <Button
-                isIconOnly
-                size="sm"
-                variant="flat"
-                color="danger"
-                onPress={handleDelete}
-              >
-                <Icon icon="mdi:delete" width="18" />
-              </Button>
-            </Tooltip>
+            <Switch size="sm" isSelected={server.isEnabled} onChange={handleToggle}><Switch.Content><Switch.Control><Switch.Thumb></Switch.Thumb></Switch.Control></Switch.Content></Switch>
+            <Tooltip><Tooltip.Trigger tabIndex={0}><Button isIconOnly size="sm" variant="tertiary" onPress={handleTest} isPending={isTesting}>{isTesting ? <Spinner color="current" size="sm" /> : null}<Icon icon="mdi:connection" width="18" /></Button></Tooltip.Trigger><Tooltip.Content>{t('test-connection')}</Tooltip.Content></Tooltip>
+            <Tooltip><Tooltip.Trigger tabIndex={0}><Button isIconOnly size="sm" variant="tertiary" onPress={handleEdit}><Icon icon="mdi:pencil" width="18" /></Button></Tooltip.Trigger><Tooltip.Content>{t('edit')}</Tooltip.Content></Tooltip>
+            <Tooltip><Tooltip.Trigger tabIndex={0}><Button isIconOnly size="sm" variant="danger-soft" onPress={handleDelete}><Icon icon="mdi:delete" width="18" /></Button></Tooltip.Trigger><Tooltip.Content>{t('delete')}</Tooltip.Content></Tooltip>
           </div>
-        </div>
-      </CardBody>
-    </Card>
+        </div></Card.Content></Card>
   );
 });
 
@@ -406,10 +283,10 @@ function parseMcpJson(jsonContent: string): Array<{
       throw new Error('Invalid mcp.json format: missing mcpServers');
     }
 
-    const servers = [];
+    const servers: ReturnType<typeof parseMcpJson> = [];
     for (const [name, serverConfig] of Object.entries(config.mcpServers)) {
       const config = serverConfig as any;
-      
+
       if (config.command || config.args) {
         // stdio transport
         servers.push({
@@ -455,14 +332,14 @@ const ImportMcpJsonDialog = observer(({ onClose }: { onClose: () => void }) => {
 
     setIsImporting(true);
     setError(null);
-    
+
     try {
       const servers = parseMcpJson(jsonContent);
-      
+
       let successCount = 0;
       let errorCount = 0;
       const errors: string[] = [];
-      
+
       for (const server of servers) {
         try {
           await aiStore.createMcpServer.call({
@@ -505,18 +382,11 @@ const ImportMcpJsonDialog = observer(({ onClose }: { onClose: () => void }) => {
       <div className="text-sm text-default-600">
         {t('paste-mcp-json-desc', 'Paste your mcp.json content here. It will automatically convert and create MCP servers.')}
       </div>
-      
-      <Textarea
-        label={t('mcp-json-content', 'mcp.json Content')}
-        value={jsonContent}
-        onChange={(e) => {
+
+      <TextField value={jsonContent} className={"font-mono text-sm"}><Label>{t('mcp-json-content', 'mcp.json Content')}</Label><TextArea ref={(element) => {  if (element) return autoSizeTextArea(element, { minRows: 10,  }); }} onChange={(e) => {
           setJsonContent(e.target.value);
           setError(null);
-        }}
-        placeholder={`{\n  "mcpServers": {\n    "server-name": {\n      "command": "npx",\n      "args": ["-y", "@modelcontextprotocol/server-xxx"]\n    }\n  }\n}`}
-        minRows={10}
-        className="font-mono text-sm"
-      />
+        }} placeholder={`{\n  "mcpServers": {\n    "server-name": {\n      "command": "npx",\n      "args": ["-y", "@modelcontextprotocol/server-xxx"]\n    }\n  }\n}`} rows={10} /></TextField>
 
       {error && (
         <div className="text-sm text-danger bg-danger-50 p-3 rounded">
@@ -525,17 +395,8 @@ const ImportMcpJsonDialog = observer(({ onClose }: { onClose: () => void }) => {
       )}
 
       <div className="flex justify-end gap-2 pt-4">
-        <Button variant="flat" onPress={onClose} isDisabled={isImporting}>
-          {t('cancel')}
-        </Button>
-        <Button
-          color="primary"
-          onPress={handleImport}
-          isLoading={isImporting}
-          isDisabled={!jsonContent.trim()}
-        >
-          {t('import', 'Import')}
-        </Button>
+        <Button variant="tertiary" onPress={onClose} isDisabled={isImporting}>{t('cancel')}</Button>
+        <Button onPress={handleImport} isDisabled={!jsonContent.trim()} variant="primary" isPending={isImporting}>{isImporting ? <Spinner color="current" size="sm" /> : null}{t('import', 'Import')}</Button>
       </div>
     </div>
   );
@@ -576,26 +437,8 @@ export const McpServersSection = observer(() => {
         </div>
 
         <div className="flex justify-end items-center gap-2 flex-wrap">
-          <Button
-            size="md"
-            variant="flat"
-            startContent={<Icon icon="mdi:plus" width="20" height="20" />}
-            onPress={handleAddServer}
-            className="flex-shrink-0"
-          >
-            <span className="hidden sm:inline">{t('add-mcp-server')}</span>
-            <span className="sm:hidden">{t('add', 'Add')}</span>
-          </Button>
-          <Button
-            size="md"
-            color="primary"
-            startContent={<Icon icon="mdi:content-paste" width="20" height="20" />}
-            onPress={handleImportJson}
-            className="flex-shrink-0"
-          >
-            <span className="hidden sm:inline">{t('import-mcp-json', 'Import mcp.json')}</span>
-            <span className="sm:hidden">{t('import', 'Import')}</span>
-          </Button>
+          <Button size="md" variant="tertiary" onPress={handleAddServer} className="flex-shrink-0">{<Icon icon="mdi:plus" width="20" height="20" />}<span className="hidden sm:inline">{t('add-mcp-server')}</span><span className="sm:hidden">{t('add', 'Add')}</span></Button>
+          <Button size="md" onPress={handleImportJson} className="flex-shrink-0" variant="primary">{<Icon icon="mdi:content-paste" width="20" height="20" />}<span className="hidden sm:inline">{t('import-mcp-json', 'Import mcp.json')}</span><span className="sm:hidden">{t('import', 'Import')}</span></Button>
         </div>
 
         <div className="space-y-3">

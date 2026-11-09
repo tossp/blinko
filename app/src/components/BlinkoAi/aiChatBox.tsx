@@ -1,6 +1,8 @@
+import { autoSizeTextArea } from '@/lib/autoSizeTextArea';
+import { Button, Popover, TextArea, TextField } from '@heroui/react';
 import { Icon } from '@/components/Common/Iconify/icons';
 import { observer } from "mobx-react-lite";
-import { Button, Popover, PopoverTrigger, PopoverContent } from "@heroui/react";
+
 import { ScrollArea } from "../Common/ScrollArea";
 import { motion, AnimatePresence } from "framer-motion";
 import { MarkdownRender } from "../Common/MarkdownRender";
@@ -16,7 +18,7 @@ import { BlinkoStore } from "@/store/blinkoStore";
 import { NoteType } from "@shared/lib/types";
 import { StreamToolRenderer } from "./ToolComponents";
 import { useMediaQuery } from "usehooks-ts";
-import { Textarea } from "@heroui/react";
+
 import { DialogStore } from "@/store/module/Dialog";
 import { api } from '@/lib/trpc';
 import { getBlinkoEndpoint } from '@/lib/blinkoEndpoint';
@@ -32,34 +34,15 @@ const EditMessageContent = ({ initialContent, onConfirm }: {
       <div className="text-sm text-desc mb-4">
         {i18n.t('edit-message-warning')}
       </div>
-      <Textarea
-        value={editContent}
-        onChange={(e) => setEditContent(e.target.value)}
-        placeholder={i18n.t('enter-your-message')}
-        minRows={4}
-        maxRows={12}
-        autoFocus
-      />
+      <TextField value={editContent}><TextArea ref={(element) => {  if (element) return autoSizeTextArea(element, { minRows: 4, maxRows: 12 }); }} onChange={(e) => setEditContent(e.target.value)} placeholder={i18n.t('enter-your-message')} autoFocus rows={4} /></TextField>
       <div className="flex gap-2 mt-4 justify-end">
-        <Button
-          color="danger"
-          variant="light"
-          onPress={() => RootStore.Get(DialogStore).close()}
-        >
-          {i18n.t('cancel')}
-        </Button>
-        <Button
-          color="primary"
-          onPress={() => {
+        <Button className="text-danger" variant="ghost" onPress={() => RootStore.Get(DialogStore).close()}>{i18n.t('cancel')}</Button>
+        <Button onPress={() => {
             if (editContent.trim()) {
               onConfirm(editContent.trim());
               RootStore.Get(DialogStore).close();
             }
-          }}
-          isDisabled={!editContent.trim()}
-        >
-          {i18n.t('confirm')}
-        </Button>
+          }} isDisabled={!editContent.trim()} variant="primary">{i18n.t('confirm')}</Button>
       </div>
     </div>
   );
@@ -135,31 +118,16 @@ const AiMessage = memo(({ content, withoutAnimation = false, withStreamAnimation
           <>
             {
               !!metadata?.notes?.length && (
-                <Popover placement="bottom-start">
-                  <PopoverTrigger>
-                    <Button
-                      size="sm"
-                      radius='lg'
-                      variant="flat"
-                      className="w-fit my-2"
-                      startContent={<Icon icon="hugeicons:file-02" width="14" height="14" />}
-                    >
-                      <span className="text-xs">
+                <Popover><Popover.Trigger tabIndex={0}><Button size="sm" variant="tertiary" className={["w-fit my-2", 'rounded-'+'lg'].filter(Boolean).join(' ')}>{<Icon icon="hugeicons:file-02" width="14" height="14" />}<span className="text-xs">
                         {i18n.t('reference-notes', { count: metadata.notes.length })} ({metadata.notes.length})
-                      </span>
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="overflow-y-auto">
-                    <ScrollArea className="flex flex-col gap-2 p-2 h-[400px]" onBottom={() => { }}>
+                      </span></Button></Popover.Trigger><Popover.Content placement={"bottom start"} className="overflow-y-auto"><Popover.Dialog><ScrollArea className="flex flex-col gap-2 p-2 h-[400px]" onBottom={() => { }}>
                       {
                         //@ts-ignore
                         metadata?.notes?.map((item: BlinkoItem, index: number) => (
                           <BlinkoCard key={item.id || index} className='w-[300px] md:w-[600px]' blinkoItem={item!} withoutHoverAnimation />
                         ))
                       }
-                    </ScrollArea>
-                  </PopoverContent>
-                </Popover>
+                    </ScrollArea></Popover.Dialog></Popover.Content></Popover>
               )
             }
           </>

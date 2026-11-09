@@ -22,15 +22,14 @@ The prompt is what the AI will execute when the task runs. For example:
 - "Search for the latest technology news and create a note summarizing the top 5 stories"
 - "Check my notes from last week and create a summary"
 - "Search for weather forecast and create a reminder note"`,
-  //@ts-ignore
   inputSchema: z.object({
     name: z.string().describe("A short, descriptive name for the task (e.g., 'Daily News Summary', 'Weekly Review')"),
     prompt: z.string().describe("The instruction for the AI to execute when the task runs. Be specific about what actions to take."),
     schedule: z.string().describe("Cron expression for when to run the task. Format: 'minute hour day month weekday'. Use * for 'every'."),
     token: z.string().optional().describe("internal use, do not pass!")
   }),
-  execute: async ({ context, runtimeContext }) => {
-    const accountId = runtimeContext?.get('accountId');
+  execute: async (context, { requestContext }) => {
+    const accountId = requestContext.get('accountId');
     let userId: number;
 
     if (accountId) {
@@ -75,14 +74,13 @@ The prompt is what the AI will execute when the task runs. For example:
 export const deleteScheduledTaskTool = createTool({
   id: 'delete-scheduled-task-tool',
   description: 'Delete an existing scheduled task by its ID or name. Use this when user wants to remove/cancel a scheduled task.',
-  //@ts-ignore
   inputSchema: z.object({
     taskId: z.number().optional().describe("The ID of the task to delete"),
     taskName: z.string().optional().describe("The name of the task to delete (if ID is not provided)"),
     token: z.string().optional().describe("internal use, do not pass!")
   }),
-  execute: async ({ context, runtimeContext }) => {
-    const accountId = runtimeContext?.get('accountId');
+  execute: async (context, { requestContext }) => {
+    const accountId = requestContext.get('accountId');
     let userId: number;
 
     if (accountId) {
@@ -139,12 +137,11 @@ export const deleteScheduledTaskTool = createTool({
 export const listScheduledTasksTool = createTool({
   id: 'list-scheduled-tasks-tool',
   description: 'List all scheduled tasks for the current user. Use this to see what tasks are scheduled.',
-  //@ts-ignore
   inputSchema: z.object({
     token: z.string().optional().describe("internal use, do not pass!")
   }),
-  execute: async ({ context, runtimeContext }) => {
-    const accountId = runtimeContext?.get('accountId');
+  execute: async (context, { requestContext }) => {
+    const accountId = requestContext.get('accountId');
     let userId: number;
 
     if (accountId) {

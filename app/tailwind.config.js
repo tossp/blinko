@@ -1,10 +1,12 @@
 /** @type {import('tailwindcss').Config} */
-const { heroui } = require('@heroui/react');
-module.exports = {
+import animate from 'tailwindcss-animate';
+import headlessui from '@headlessui/tailwindcss';
+import typography from '@tailwindcss/typography';
+
+export default {
   content: [
     './src/**/*.{js,ts,jsx,tsx,mdx}',
     '../node_modules/@tremor/**/*.{js,ts,jsx,tsx}',
-    '../node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}', // NextUI theme
   ],
   darkMode: 'class',
   theme: {
@@ -40,12 +42,12 @@ module.exports = {
           foreground: 'var(--destructive-foreground)',
         },
         muted: {
-          DEFAULT: 'var(--muted)',
-          foreground: 'var(--muted-foreground)',
+          DEFAULT: 'var(--blinko-muted)',
+          foreground: 'var(--blinko-muted-foreground)',
         },
         accent: {
-          DEFAULT: 'var(--accent)',
-          foreground: 'var(--accent-foreground)',
+          DEFAULT: 'var(--blinko-accent)',
+          foreground: 'var(--blinko-accent-foreground)',
         },
         popover: {
           DEFAULT: 'var(--popover)',
@@ -118,27 +120,9 @@ module.exports = {
     },
   ],
   plugins: [
-    require('tailwindcss-animate'),
-    require('@headlessui/tailwindcss'),
-    require('@tailwindcss/typography'),
-    heroui({
-      prefix: 'heroui',
-      addCommonColors: false,
-      defaultTheme: 'light',
-      defaultExtendTheme: 'light',
-      layout: {},
-      themes: {
-        light: {
-          layout: {},
-          colors: {
-          },
-        },
-        dark: {
-          layout: {},
-          colors: {
-          },
-        },
-      },
-    })
+    animate,
+    headlessui,
+    typography,
+
   ],
 };

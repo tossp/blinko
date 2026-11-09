@@ -1,5 +1,5 @@
 import axios from "axios";
-import { authenticator } from 'otplib';
+export { generateTOTP, generateTOTPQRCode, verifyTOTP } from './totp';
 import crypto from 'crypto';
 import { Feed } from "feed";
 import jwt from 'jsonwebtoken';
@@ -41,23 +41,6 @@ export const SendWebhook = async (data: any, webhookType: string, ctx: any, opti
     console.log('request webhook error:', error)
   }
 }
-
-export function generateTOTP(): string {
-  return authenticator.generateSecret();
-}
-
-export function generateTOTPQRCode(username: string, secret: string): string {
-  return authenticator.keyuri(username, 'Blinko', secret);
-}
-
-export function verifyTOTP(token: string, secret: string): boolean {
-  try {
-    return authenticator.verify({ token, secret });
-  } catch (err) {
-    return false;
-  }
-}
-
 
 export async function generateFeed(userId: number, origin: string, rows: number = 20) {
   const hasAccountId: any = {}

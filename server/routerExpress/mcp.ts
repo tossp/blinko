@@ -1,5 +1,7 @@
 import express from 'express';
 import { randomUUID } from 'node:crypto';
+import { RequestContext } from '@mastra/core/request-context';
+import { z } from 'zod/v3';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
@@ -143,8 +145,17 @@ function createBlinkoMcpServer(getAuthContext: () => AuthContext) {
     version: '1.0.0',
   });
 
-  const createToolWithContext = (toolName: string, tool: any) => {
-    const mcpSchema = tool.inputSchema.shape;
+  const createToolWithContext = <TInput,>(toolName: string, tool: {
+    description?: string;
+    inputSchema?: unknown;
+    execute?: (input: TInput, context: { requestContext: RequestContext }) => Promise<unknown>;
+  }) => {
+    if (!(tool.inputSchema instanceof z.ZodObject) || !tool.execute) {
+      throw new Error(`MCP tool ${toolName} requires an object schema and executor`);
+    }
+    const schema = tool.inputSchema;
+    const execute = tool.execute.bind(tool);
+    const mcpSchema = schema.shape;
 
     server.registerTool(
       toolName,
@@ -159,16 +170,20 @@ function createBlinkoMcpServer(getAuthContext: () => AuthContext) {
             ...args,
             token: authContext.token,
           };
-          const result = await tool.execute({ context: finalContext });
+          const input: TInput = schema.parse(finalContext);
+          const result = await execute(input, { requestContext: new RequestContext() });
+          const text = typeof result === 'string' ? result : JSON.stringify(result, null, 2) ?? 'null';
 
           return {
             content: [
               {
                 type: 'text' as const,
-                text: typeof result === 'string' ? result : JSON.stringify(result, null, 2),
+                text,
               },
             ],
-            structuredContent: result,
+            ...(result !== null && typeof result === 'object' && !Array.isArray(result)
+              ? { structuredContent: result as Record<string, unknown> }
+              : {}),
           };
         } catch (error) {
           console.error(`Tool ${toolName} error:`, error);

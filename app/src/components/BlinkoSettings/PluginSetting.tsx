@@ -1,5 +1,6 @@
+import { Button, Card, Chip, InputGroup, Label, Modal, Spinner, Tabs, TextField } from '@heroui/react';
 import { observer } from "mobx-react-lite";
-import { Tabs, Tab, Card, Button, Chip, Input, CardBody, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@heroui/react";
+
 import { useTranslation } from "react-i18next";
 import { RootStore } from "@/store";
 import { CollapsibleCard } from "../Common/CollapsibleCard";
@@ -30,11 +31,7 @@ interface PluginCardProps {
 const PluginCard = ({ name, version, displayName, description, author, downloads, actionButton, url }: PluginCardProps) => {
   const { t } = useTranslation();
   return (
-    <Card key={name} className="group relative overflow-hidden  border border-default-200 dark:border-default-100/20 shadow-none">
-      <div className="absolute inset-0 bg-gradient-to-r from-default-100/50 via-default-200/30 to-default-100/50 dark:from-default-50/10 dark:via-default-100/5 dark:to-default-50/10 opacity-0 transition-opacity duration-300" />
-
-      <CardBody className="p-5">
-        <div className="flex flex-col gap-2">
+    <Card key={name} className="group relative overflow-hidden  border border-default-200 dark:border-default-100/20 shadow-none"><div className="absolute inset-0 bg-gradient-to-r from-default-100/50 via-default-200/30 to-default-100/50 dark:from-default-50/10 dark:via-default-100/5 dark:to-default-50/10 opacity-0 transition-opacity duration-300" /><Card.Content className="p-5"><div className="flex flex-col gap-2">
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <div className="flex items-center gap-2">
@@ -52,14 +49,7 @@ const PluginCard = ({ name, version, displayName, description, author, downloads
                     )}
                   </div>
                   <div className="flex items-center gap-2 mt-1">
-                    <Chip
-                      size="sm"
-                      variant="flat"
-                      color="success"
-                      className="px-2 h-5 text-xs font-medium"
-                    >
-                      v{version}
-                    </Chip>
+                    <Chip size="sm" variant={"soft"} color="success" className="px-2 h-5 text-xs font-medium"><Chip.Label>v{version}</Chip.Label></Chip>
                     {author && (
                       <span className="text-xs text-default-500">
                         by <span className="text-default-700 dark:text-default-400">{author}</span>
@@ -86,9 +76,7 @@ const PluginCard = ({ name, version, displayName, description, author, downloads
               </div>
             </div>
           )}
-        </div>
-      </CardBody>
-    </Card>
+        </div></Card.Content></Card>
   );
 };
 
@@ -187,12 +175,7 @@ const InstalledPlugins = observer(() => {
             actionButton={
               <div className="flex gap-2">
                 {pluginManager.isIntalledPluginWithSettingPanel(metadata.name) && (
-                  <Button
-                    size="sm"
-                    isIconOnly
-                    variant="flat"
-                    startContent={<Icon icon="mdi:cog" width="16" height="16" />}
-                    onPress={() => {
+                  <Button size="sm" isIconOnly variant="tertiary" onPress={() => {
                       const pluginInstance = pluginManager.getPluginInstanceByName(metadata.name);
                       RootStore.Get(DialogStandaloneStore).setData({
                         isOpen: true,
@@ -200,37 +183,16 @@ const InstalledPlugins = observer(() => {
                         size: 'lg',
                         content: <PluginRender content={pluginInstance?.renderSettingPanel!} />
                       });
-                    }}
-                  />
+                    }}>{<Icon icon="mdi:cog" width="16" height="16" />}</Button>
                 )}
                 {hasUpdate && (
                   updateRequiresAppUpgrade ? (
-                    <Button
-                      size="sm"
-                      color="warning"
-                      isIconOnly
-                      startContent={<Icon icon="material-symbols:upgrade-rounded" width="16" height="16" />}
-                      onPress={() => showUpgradeModal(latestPlugin)}
-                      title={t('plugin-requires-app-upgrade')}
-                    />
+                    <Button className="bg-warning text-warning-foreground" size="sm" isIconOnly onPress={() => showUpgradeModal(latestPlugin)} aria-label={t('plugin-requires-app-upgrade')} variant="primary">{<Icon icon="material-symbols:upgrade-rounded" width="16" height="16" />}</Button>
                   ) : (
-                    <Button
-                      size="sm"
-                      color="warning"
-                      isIconOnly
-                      isLoading={loadingPluginName === metadata.name}
-                      startContent={<Icon icon="material-symbols:upgrade-rounded" width="16" height="16" />}
-                      onPress={() => handleUpdate(latestPlugin)}
-                    />
+                    <Button className="bg-warning text-warning-foreground" size="sm" isIconOnly onPress={() => handleUpdate(latestPlugin)} variant="primary" isPending={loadingPluginName === metadata.name}>{loadingPluginName === metadata.name ? <Spinner color="current" size="sm" /> : null}{<Icon icon="material-symbols:upgrade-rounded" width="16" height="16" />}</Button>
                   )
                 )}
-                <Button
-                  size="sm"
-                  isIconOnly
-                  color="danger"
-                  startContent={<Icon icon="mdi:trash-can" width="16" height="16" />}
-                  onPress={() => handleUninstall(plugin.id)}
-                />
+                <Button size="sm" isIconOnly onPress={() => handleUninstall(plugin.id)} variant="danger">{<Icon icon="mdi:trash-can" width="16" height="16" />}</Button>
               </div>
             }
           />
@@ -238,11 +200,7 @@ const InstalledPlugins = observer(() => {
       })}
 
       {/* App upgrade modal */}
-      <Modal isOpen={upgradeModal.isOpen} onClose={() => setUpgradeModal({ isOpen: false })}>
-        <ModalContent>
-          <ModalHeader>{t('app-upgrade-required')}</ModalHeader>
-          <ModalBody>
-            <div className="flex flex-col gap-4">
+      <Modal.Backdrop isOpen={upgradeModal.isOpen} onOpenChange={(open) => { if (!open) (() => setUpgradeModal({ isOpen: false }))(); }}><Modal.Container><Modal.Dialog><Modal.CloseTrigger /><div><Modal.Header><Modal.Heading>{t('app-upgrade-required')}</Modal.Heading></Modal.Header><Modal.Body><div className="flex flex-col gap-4">
               {upgradeModal.plugin && (
                 <div className="flex flex-col gap-2 p-3 bg-default-50 dark:bg-default-100/10 rounded-md">
                   <div className="flex justify-between">
@@ -259,18 +217,7 @@ const InstalledPlugins = observer(() => {
                   </div>
                 </div>
               )}
-            </div>
-          </ModalBody>
-          <ModalFooter>
-            <Button color="default" variant="light" onPress={() => setUpgradeModal({ isOpen: false })}>
-              {t('cancel')}
-            </Button>
-            <Button color="primary" onPress={handleUpgrade}>
-              {t('upgrade')}
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+            </div></Modal.Body><Modal.Footer><Button variant="ghost" onPress={() => setUpgradeModal({ isOpen: false })}>{t('cancel')}</Button><Button onPress={handleUpgrade} variant="primary">{t('upgrade')}</Button></Modal.Footer></div></Modal.Dialog></Modal.Container></Modal.Backdrop>
     </div>
   );
 });
@@ -345,15 +292,7 @@ const AllPlugins = observer(() => {
         <div className="text-sm text-default-500">
           {t('marketplace-description')}
         </div>
-        <Button
-          color="success"
-          size="sm"
-          className="px-4"
-          startContent={<Icon icon="mdi:github" className="text-lg" />}
-          onPress={handleInstallFromGithub}
-        >
-          {t('install-from-github')}
-        </Button>
+        <Button size="sm" className={["bg-success text-success-foreground", "px-4"].filter(Boolean).join(' ')} onPress={handleInstallFromGithub} variant="primary">{<Icon icon="mdi:github" className="text-lg" />}{t('install-from-github')}</Button>
       </div>
 
       <LoadingAndEmpty isAbsolute={false} isLoading={pluginManager.marketplacePlugins.loading.value} isEmpty={pluginManager.marketplacePlugins.value?.length === 0} />
@@ -364,37 +303,16 @@ const AllPlugins = observer(() => {
           {...plugin}
           actionButton={
             needsAppUpgrade(plugin) ? (
-              <Button
-                size="sm"
-                color="warning"
-                className="min-w-[80px]"
-                startContent={<Icon icon="mdi:arrow-up-bold" width="16" height="16" />}
-                onPress={() => showUpgradeModal(plugin)}
-              >
-                {t('upgrade')}
-              </Button>
+              <Button size="sm" className={["bg-warning text-warning-foreground", "min-w-[80px]"].filter(Boolean).join(' ')} onPress={() => showUpgradeModal(plugin)} variant="primary">{<Icon icon="mdi:arrow-up-bold" width="16" height="16" />}{t('upgrade')}</Button>
             ) : (
-              <Button
-                size="sm"
-                color="primary"
-                isLoading={loadingPluginName === plugin.name}
-                className="min-w-[80px]"
-                startContent={<Icon icon="mdi:download" width="16" height="16" />}
-                onPress={() => handleInstall(plugin)}
-              >
-                {t('install')}
-              </Button>
+              <Button size="sm" className="min-w-[80px]" onPress={() => handleInstall(plugin)} variant="primary" isPending={loadingPluginName === plugin.name}>{loadingPluginName === plugin.name ? <Spinner color="current" size="sm" /> : null}{<Icon icon="mdi:download" width="16" height="16" />}{t('install')}</Button>
             )
           }
         />
       ))}
 
       {/* App upgrade modal */}
-      <Modal isOpen={upgradeModal.isOpen} onClose={() => setUpgradeModal({ isOpen: false })}>
-        <ModalContent>
-          <ModalHeader>{t('app-upgrade-required')}</ModalHeader>
-          <ModalBody>
-            <div className="flex flex-col gap-4">
+      <Modal.Backdrop isOpen={upgradeModal.isOpen} onOpenChange={(open) => { if (!open) (() => setUpgradeModal({ isOpen: false }))(); }}><Modal.Container><Modal.Dialog><Modal.CloseTrigger /><div><Modal.Header><Modal.Heading>{t('app-upgrade-required')}</Modal.Heading></Modal.Header><Modal.Body><div className="flex flex-col gap-4">
               {upgradeModal.plugin && (
                 <div className="flex flex-col gap-2 p-3 bg-default-50 dark:bg-default-100/10 rounded-md">
                   <div className="flex justify-between">
@@ -411,18 +329,7 @@ const AllPlugins = observer(() => {
                   </div>
                 </div>
               )}
-            </div>
-          </ModalBody>
-          <ModalFooter>
-            <Button color="default" variant="light" onPress={() => setUpgradeModal({ isOpen: false })}>
-              {t('cancel')}
-            </Button>
-            <Button color="primary" onPress={handleUpgrade}>
-              {t('upgrade')}
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+            </div></Modal.Body><Modal.Footer><Button variant="ghost" onPress={() => setUpgradeModal({ isOpen: false })}>{t('cancel')}</Button><Button onPress={handleUpgrade} variant="primary">{t('upgrade')}</Button></Modal.Footer></div></Modal.Dialog></Modal.Container></Modal.Backdrop>
     </div>
   );
 });
@@ -438,23 +345,10 @@ const AddLocalPluginDialog = observer(({ onClose }: { onClose: () => void }) => 
 
   return (
     <div className="flex flex-col gap-4">
-      <Input
-        label={t('endpoint')}
-        placeholder="ws://192.168.31.100:8080"
-        value={url}
-        onChange={(e) => setUrl(e.target.value)}
-        startContent={
-          <Icon icon="mdi:link-variant" className="text-default-400 pointer-events-none flex-shrink-0" />
-        }
-        className="w-full"
-      />
+      <TextField value={url} className={"w-full"}><Label>{t('endpoint')}</Label><InputGroup><InputGroup.Prefix>{<Icon icon="mdi:link-variant" className="text-default-400 pointer-events-none flex-shrink-0" />}</InputGroup.Prefix><InputGroup.Input placeholder="ws://192.168.31.100:8080" onChange={(e) => setUrl(e.target.value)} /></InputGroup></TextField>
       <div className="flex justify-end gap-2">
-        <Button color="danger" variant="light" onPress={onClose}>
-          {t('cancel')}
-        </Button>
-        <Button color="primary" onPress={handleConfirm}>
-          {t('confirm')}
-        </Button>
+        <Button className="text-danger" variant="ghost" onPress={onClose}>{t('cancel')}</Button>
+        <Button onPress={handleConfirm} variant="primary">{t('confirm')}</Button>
       </div>
     </div>
   );
@@ -559,28 +453,10 @@ const InstallFromGithubDialog = observer(({ onClose }: { onClose: () => void }) 
         <Icon icon="mdi:information" className="inline mr-1" />
         {t('github-api-limit-notice')}
       </div>
-      <Input
-        label={t('github-repository-url')}
-        placeholder="https://github.com/owner/plugin-repo"
-        value={githubUrl}
-        onChange={(e) => setGithubUrl(e.target.value)}
-        startContent={
-          <Icon icon="mdi:github" className="text-default-400 pointer-events-none flex-shrink-0" />
-        }
-        className="w-full"
-      />
+      <TextField value={githubUrl} className={"w-full"}><Label>{t('github-repository-url')}</Label><InputGroup><InputGroup.Prefix>{<Icon icon="mdi:github" className="text-default-400 pointer-events-none flex-shrink-0" />}</InputGroup.Prefix><InputGroup.Input placeholder="https://github.com/owner/plugin-repo" onChange={(e) => setGithubUrl(e.target.value)} /></InputGroup></TextField>
       <div className="flex justify-end gap-2">
-        <Button color="danger" variant="light" onPress={onClose}>
-          {t('cancel')}
-        </Button>
-        <Button
-          color="primary"
-          onPress={handleInstall}
-          isLoading={isLoading}
-          isDisabled={!githubUrl.trim() || isLoading}
-        >
-          {t('install')}
-        </Button>
+        <Button className="text-danger" variant="ghost" onPress={onClose}>{t('cancel')}</Button>
+        <Button onPress={handleInstall} isDisabled={!githubUrl.trim() || isLoading} variant="primary" isPending={isLoading}>{isLoading ? <Spinner color="current" size="sm" /> : null}{t('install')}</Button>
       </div>
     </div>
   );
@@ -610,20 +486,11 @@ const LocalDevelopment = observer(() => {
         <div className="text-sm text-default-500">
           {t('local-development-description')}
         </div>
-        <Button
-          color="primary"
-          size="sm"
-          className="px-4"
-          startContent={<Icon icon="mdi:plus" className="text-lg" />}
-          onPress={handleAddLocalPlugin}
-        >
-          {t('add-local-plugin')}
-        </Button>
+        <Button size="sm" className="px-4" onPress={handleAddLocalPlugin} variant="primary">{<Icon icon="mdi:plus" className="text-lg" />}{t('add-local-plugin')}</Button>
       </div>
 
       {pluginManager.devWebscoketUrl.value && (
-        <Card className="p-4 bg-content2/40 backdrop-blur-lg border border-content3/20">
-          <div className="flex items-start justify-between">
+        <Card className="p-4 bg-content2/40 backdrop-blur-lg border border-content3/20"><div className="flex items-start justify-between">
             <div className="flex items-start gap-3">
               <div className="relative flex-shrink-0 w-2">
                 <div
@@ -648,27 +515,12 @@ const LocalDevelopment = observer(() => {
                     <Icon icon="mdi:link-variant" className="text-sm" />
                     <span>{pluginManager.devWebscoketUrl.value}</span>
                   </div>
-                  <Button
-                    size="sm"
-                    color="danger"
-                    variant="flat"
-                    className="h-6 px-2 min-w-0"
-                    startContent={<Icon icon="mdi:link-off" className="text-sm" />}
-                    onPress={handleDisconnect}
-                  >
-                    {t('disconnect')}
-                  </Button>
+                  <Button size="sm" variant="danger-soft" className="h-6 px-2 min-w-0" onPress={handleDisconnect}>{<Icon icon="mdi:link-off" className="text-sm" />}{t('disconnect')}</Button>
                 </div>
               </div>
             </div>
             {pluginManager.devPluginMetadata?.withSettingPanel && (
-              <Button
-                size="sm"
-                color="primary"
-                isIconOnly
-                className="h-6 px-2 min-w-0"
-                startContent={<Icon icon="mdi:cog" className="text-sm" />}
-                onPress={() => {
+              <Button size="sm" isIconOnly className="h-6 px-2 min-w-0" onPress={() => {
                   const pluginInstance = pluginManager.getPluginInstanceByName("dev");
                   RootStore.Get(DialogStandaloneStore).setData({
                     isOpen: true,
@@ -676,12 +528,9 @@ const LocalDevelopment = observer(() => {
                     size: 'lg',
                     content: <PluginRender content={pluginInstance?.renderSettingPanel!} />
                   });
-                }}
-              >
-              </Button>
+                }} variant="primary">{<Icon icon="mdi:cog" className="text-sm" />}</Button>
             )}
-          </div>
-        </Card>
+          </div></Card>
       )}
     </div>
   );
@@ -697,17 +546,16 @@ export const PluginSetting = observer(() => {
       icon="hugeicons:plug-socket"
       title={t('plugin-settings')}
     >
-      <Tabs aria-label="Plugin settings tabs">
-        <Tab key="installed" title={t('installed-plugins')}>
-          <InstalledPlugins />
-        </Tab>
-        <Tab key="all" title={t('marketplace')}>
-          <AllPlugins />
-        </Tab>
-        <Tab key="development" title={t('local-development')}>
-          <LocalDevelopment />
-        </Tab>
+      <Tabs>
+        <Tabs.List aria-label="Plugin settings tabs">
+          <Tabs.Tab id="installed">{t('installed-plugins')}<Tabs.Indicator /></Tabs.Tab>
+          <Tabs.Tab id="all">{t('marketplace')}<Tabs.Indicator /></Tabs.Tab>
+          <Tabs.Tab id="development">{t('local-development')}<Tabs.Indicator /></Tabs.Tab>
+        </Tabs.List>
+        <Tabs.Panel id="installed"><InstalledPlugins /></Tabs.Panel>
+        <Tabs.Panel id="all"><AllPlugins /></Tabs.Panel>
+        <Tabs.Panel id="development"><LocalDevelopment /></Tabs.Panel>
       </Tabs>
     </CollapsibleCard>
   );
-}); 
+});

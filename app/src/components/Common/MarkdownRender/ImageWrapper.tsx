@@ -1,4 +1,3 @@
-import { Image } from '@heroui/react';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import { getBlinkoFileUrl } from '@/lib/blinkoEndpoint';
 import { RootStore } from '@/store';
@@ -12,18 +11,15 @@ interface ImageWrapperProps {
 }
 
 export const ImageWrapper = ({ src = '', width, height, alt }: ImageWrapperProps) => {
-  const props = { width, height, alt }
+  const props = { width, height, alt: alt ?? '' };
   if (!src) return null;
   const imageUrl = getBlinkoFileUrl(src, { token: RootStore.Get(UserStore).tokenData.value?.token });
-  
+
   return (
-    <div className='markdown-image-wrapper w-full'>
+    <div className="markdown-image-wrapper w-full">
       <PhotoProvider>
-        <PhotoView src={imageUrl} >
-          <Image src={imageUrl} {...props}
-            classNames={{
-              wrapper: '!max-w-fit !m-auto',
-            }} className='w-full max-h-[200px] object-cover' />
+        <PhotoView src={imageUrl}>
+          <img src={imageUrl} className="w-full max-h-[200px] object-cover" {...props} />
         </PhotoView>
       </PhotoProvider>
     </div>

@@ -30,7 +30,8 @@ beforeAll(async () => {
 
   // Read JWT secret from database
   const { PrismaClient } = await import('@prisma/client');
-  const prisma = new PrismaClient();
+  const { createPrismaAdapter } = await import('../../../prisma/connection');
+  const prisma = new PrismaClient({ adapter: createPrismaAdapter() });
   try {
     const config = await prisma.config.findFirst({ where: { key: 'JWT_SECRET' } });
     const secret = (config?.config as any)?.value;
@@ -50,7 +51,7 @@ async function uploadFile(
   filename: string,
   content: string | Buffer = 'test content'
 ): Promise<Response> {
-  const blob = new Blob([content], { type: 'application/octet-stream' });
+  const blob = new Blob([typeof content === 'string' ? content : new Uint8Array(content)], { type: 'application/octet-stream' });
   const formData = new FormData();
   formData.append('file', blob, filename);
 

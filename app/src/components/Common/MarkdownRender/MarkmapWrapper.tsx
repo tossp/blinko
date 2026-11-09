@@ -1,8 +1,6 @@
 import React, { useEffect, useRef } from 'react';
-import { Markmap } from 'markmap-view';
-import { Transformer } from 'markmap-lib';
-
-const transformer = new Transformer();
+import { Markmap } from '@markmap/view';
+import { parse } from '@markmap/parse';
 
 export const MarkmapWrapper = ({ content }: { content: string }) => {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -11,10 +9,10 @@ export const MarkmapWrapper = ({ content }: { content: string }) => {
     if (svgRef.current) {
       svgRef.current.setAttribute('width', '800');
       svgRef.current.setAttribute('height', '600');
-      const { root } = transformer.transform(content);
-      const mm = Markmap.create(svgRef.current);
-      mm.setData(root);
+      const { root } = parse(content);
+      const mm = Markmap.create(svgRef.current, root);
       mm.fit();
+      return () => mm.destroy();
     }
   }, [content]);
 

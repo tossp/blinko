@@ -6,11 +6,10 @@ import { getGlobalConfig } from '@server/routerTrpc/config';
 export const webSearchTool = createTool({
   id: 'web-search-tool',
   description: 'you are a web search assistant,you can use api to search web,return the result',
-  //@ts-ignore
   inputSchema: z.object({
     query: z.string().describe('the query to search'),
-  }) as any,
-  execute: async ({ context }) => {
+  }),
+  execute: async (context) => {
     try {
       const config = await getGlobalConfig({ useAdmin: true })
       if (!config.tavilyApiKey) {
@@ -18,7 +17,7 @@ export const webSearchTool = createTool({
       }
       const client = tavily({ apiKey: config.tavilyApiKey });
       const result = await client.search(context.query, {
-        max_results: config?.tavilyMaxResult ?? 5
+        maxResults: config?.tavilyMaxResult ?? 5
       })
       client.extract
       return result

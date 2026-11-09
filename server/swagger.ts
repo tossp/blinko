@@ -52,7 +52,7 @@ const expressSwaggerOptions = {
       }
     ]
   },
-  apis: [path.join(__dirname, './routerExpress/**/*.ts')],
+  apis: [path.join(import.meta.dirname, './routerExpress/**/*.ts')],
 };
 
 const expressOpenApiDocument = swaggerJSDoc(expressSwaggerOptions);

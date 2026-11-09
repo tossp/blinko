@@ -1,19 +1,20 @@
-import { observer } from "mobx-react-lite";
-import { useEffect, useState, useRef } from "react";
-import { createPortal } from "react-dom";
-import { Button, Tooltip } from "@heroui/react";
-import { Icon } from "@/components/Common/Iconify/icons";
-import { BlinkoEditor } from "@/components/BlinkoEditor";
-import { BlinkoStore } from "@/store/blinkoStore";
-import { RootStore } from "@/store";
-import { eventBus } from "@/lib/event";
-import { useMediaQuery } from "usehooks-ts";
-import { _ } from "@/lib/lodash";
-import { BlinkoItem } from "./index";
-import { MarkdownRender } from "@/components/Common/MarkdownRender";
-import { FilesAttachmentRender } from "../Common/AttachmentRender";
-import { ReferencesContent } from "./referencesContent";
-import { useTranslation } from "react-i18next";
+import { Button, Tooltip } from '@heroui/react';
+import { observer } from 'mobx-react-lite';
+import { useEffect, useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
+
+import { Icon } from '@/components/Common/Iconify/icons';
+import { BlinkoEditor } from '@/components/BlinkoEditor';
+import { BlinkoStore } from '@/store/blinkoStore';
+import { RootStore } from '@/store';
+import { eventBus } from '@/lib/event';
+import { useMediaQuery } from 'usehooks-ts';
+import { _ } from '@/lib/lodash';
+import { BlinkoItem } from './index';
+import { MarkdownRender } from '@/components/Common/MarkdownRender';
+import { FilesAttachmentRender } from '../Common/AttachmentRender';
+import { ReferencesContent } from './referencesContent';
+import { useTranslation } from 'react-i18next';
 
 interface FullscreenEditorProps {
   blinkoItem: BlinkoItem;
@@ -28,7 +29,7 @@ export const FullscreenEditor = observer(({ blinkoItem, isOpen, onClose }: Fulls
   const [viewMode, setViewMode] = useState<string>('wysiwyg');
   const [editorMode, setEditorMode] = useState<'preview' | 'edit'>('preview');
   const editorContainerRef = useRef<HTMLDivElement>(null);
-  
+
   // Clean up fullscreen editor state when closing
   const handleClose = () => {
     blinko.fullscreenEditorNoteId = null;
@@ -45,7 +46,6 @@ export const FullscreenEditor = observer(({ blinkoItem, isOpen, onClose }: Fulls
   const handleSwitchToPreview = () => {
     setEditorMode('preview');
   };
-  
 
   // Set default view mode to wysiwyg when opening editor in edit mode
   useEffect(() => {
@@ -53,13 +53,13 @@ export const FullscreenEditor = observer(({ blinkoItem, isOpen, onClose }: Fulls
       const originalMode = localStorage.getItem('blinko-editor-view-mode');
       localStorage.setItem('blinko-editor-view-mode', 'wysiwyg');
       setViewMode('wysiwyg');
-      
+
       // Listen for view mode changes
       const handleViewModeChange = (mode: string) => {
         setViewMode(mode);
       };
       eventBus.on('editor:setViewMode', handleViewModeChange);
-      
+
       return () => {
         if (originalMode) {
           localStorage.setItem('blinko-editor-view-mode', originalMode);
@@ -92,7 +92,7 @@ export const FullscreenEditor = observer(({ blinkoItem, isOpen, onClose }: Fulls
   // Handle ESC key to close editor
   useEffect(() => {
     if (!isOpen) return;
-    
+
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         // Check if PhotoView (image preview) is open
@@ -109,7 +109,7 @@ export const FullscreenEditor = observer(({ blinkoItem, isOpen, onClose }: Fulls
             }
           }
         }
-        
+
         // In edit mode, ESC goes back to preview mode first
         if (editorMode === 'edit') {
           setEditorMode('preview');
@@ -140,14 +140,14 @@ export const FullscreenEditor = observer(({ blinkoItem, isOpen, onClose }: Fulls
     if (blinkoItem.id) {
       // Trigger list refresh
       blinko.updateTicker++;
-      
+
       // Re-fetch the note detail to get latest data
       await blinko.noteDetail.call({ id: blinkoItem.id });
       if (blinko.noteDetail.value) {
         blinko.curSelectedNote = _.cloneDeep(blinko.noteDetail.value);
       }
     }
-    
+
     handleClose();
   };
 
@@ -158,7 +158,7 @@ export const FullscreenEditor = observer(({ blinkoItem, isOpen, onClose }: Fulls
   if (!isOpen) return null;
 
   const editorContent = (
-    <div 
+    <div
       className="fixed inset-0 z-[9999] bg-background overflow-hidden"
       onPointerDownCapture={(e) => {
         // Only stop propagation if event is not from editor container (to prevent drag on background)
@@ -174,18 +174,18 @@ export const FullscreenEditor = observer(({ blinkoItem, isOpen, onClose }: Fulls
           e.stopPropagation();
         }
       }}
-      style={{ 
-        position: 'fixed', 
-        top: 0, 
-        left: 0, 
-        right: 0, 
-        bottom: 0
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
       }}
     >
       <div className="h-full flex">
-        <div 
+        <div
           ref={editorContainerRef}
-          className={`w-full mx-auto  h-full flex ${isPc ? 'flex-col px-4' : 'flex-col p-2'}`} 
+          className={`w-full mx-auto  h-full flex ${isPc ? 'flex-col px-4' : 'flex-col p-2'}`}
           style={{ maxWidth }}
           onClick={(e) => {
             // Stop propagation to prevent closing when clicking inside editor
@@ -197,7 +197,7 @@ export const FullscreenEditor = observer(({ blinkoItem, isOpen, onClose }: Fulls
             <div className="flex items-center justify-between py-4 flex-shrink-0 border-b border-border">
               <Button
                 isIconOnly
-                variant="light"
+                variant="ghost"
                 size="sm"
                 onPress={handleClose}
                 className="text-foreground hover:bg-default-100"
@@ -206,28 +206,34 @@ export const FullscreenEditor = observer(({ blinkoItem, isOpen, onClose }: Fulls
               </Button>
               <div className="flex-1 flex justify-end ml-2 gap-2">
                 {editorMode === 'preview' ? (
-                  <Tooltip content={t('edit')}>
-                    <Button
-                      isIconOnly
-                      variant="light"
-                      size="sm"
-                      onPress={handleSwitchToEdit}
-                      className="text-foreground hover:bg-default-100"
-                    >
-                      <Icon icon="tabler:edit" width={20} height={20} />
-                    </Button>
+                  <Tooltip>
+                    <Tooltip.Trigger tabIndex={0}>
+                      <Button
+                        isIconOnly
+                        variant="ghost"
+                        size="sm"
+                        onPress={handleSwitchToEdit}
+                        className="text-foreground hover:bg-default-100"
+                      >
+                        <Icon icon="tabler:edit" width={20} height={20} />
+                      </Button>
+                    </Tooltip.Trigger>
+                    <Tooltip.Content>{t('edit')}</Tooltip.Content>
                   </Tooltip>
                 ) : (
-                  <Tooltip content={t('preview')}>
-                    <Button
-                      isIconOnly
-                      variant="light"
-                      size="sm"
-                      onPress={handleSwitchToPreview}
-                      className="text-foreground hover:bg-default-100"
-                    >
-                      <Icon icon="tabler:eye" width={20} height={20} />
-                    </Button>
+                  <Tooltip>
+                    <Tooltip.Trigger tabIndex={0}>
+                      <Button
+                        isIconOnly
+                        variant="ghost"
+                        size="sm"
+                        onPress={handleSwitchToPreview}
+                        className="text-foreground hover:bg-default-100"
+                      >
+                        <Icon icon="tabler:eye" width={20} height={20} />
+                      </Button>
+                    </Tooltip.Trigger>
+                    <Tooltip.Content>{t('preview')}</Tooltip.Content>
                   </Tooltip>
                 )}
                 {editorMode === 'edit' && (
@@ -236,7 +242,7 @@ export const FullscreenEditor = observer(({ blinkoItem, isOpen, onClose }: Fulls
               </div>
             </div>
           )}
-          
+
           {editorMode === 'preview' ? (
             /* Preview mode - render with MarkdownRender */
             <div
@@ -254,14 +260,20 @@ export const FullscreenEditor = observer(({ blinkoItem, isOpen, onClose }: Fulls
               />
               <ReferencesContent blinkoItem={blinko.noteDetail.value ?? blinkoItem} className="my-4" />
               <div className={blinkoItem.attachments?.length != 0 ? 'my-2' : ''}>
-                <FilesAttachmentRender files={blinko.noteDetail.value?.attachments ?? blinkoItem.attachments ?? []} preview />
+                <FilesAttachmentRender
+                  files={blinko.noteDetail.value?.attachments ?? blinkoItem.attachments ?? []}
+                  preview
+                />
               </div>
             </div>
           ) : (
             /* Edit mode - render with BlinkoEditor */
-            <div 
-              className={`flex-1 overflow-hidden flex flex-col min-h-0 ${isLongText ? 'editor-long-text' : ''}`} 
-              style={{ height: isPc ? 'calc(100vh - 100px)' : 'calc(100vh - 80px)', paddingBottom: isPc ? '20px' : '0' }}
+            <div
+              className={`flex-1 overflow-hidden flex flex-col min-h-0 ${isLongText ? 'editor-long-text' : ''}`}
+              style={{
+                height: isPc ? 'calc(100vh - 100px)' : 'calc(100vh - 80px)',
+                paddingBottom: isPc ? '20px' : '0',
+              }}
             >
               <BlinkoEditor
                 key={`editor-${blinkoItem.id}`}
@@ -275,10 +287,13 @@ export const FullscreenEditor = observer(({ blinkoItem, isOpen, onClose }: Fulls
 
           {/* Bottom toolbar with back button (Mobile only) */}
           {!isPc && (
-            <div className="flex items-center justify-between py-3 px-2 flex-shrink-0 border-t border-border bg-background" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+            <div
+              className="flex items-center justify-between py-3 px-2 flex-shrink-0 border-t border-border bg-background"
+              style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+            >
               <Button
                 isIconOnly
-                variant="light"
+                variant="ghost"
                 size="sm"
                 onPress={handleClose}
                 className="text-foreground hover:bg-default-100"
@@ -287,28 +302,34 @@ export const FullscreenEditor = observer(({ blinkoItem, isOpen, onClose }: Fulls
               </Button>
               <div className="flex-1 flex justify-end ml-2 gap-2">
                 {editorMode === 'preview' ? (
-                  <Tooltip content={t('edit')}>
-                    <Button
-                      isIconOnly
-                      variant="light"
-                      size="sm"
-                      onPress={handleSwitchToEdit}
-                      className="text-foreground hover:bg-default-100"
-                    >
-                      <Icon icon="tabler:edit" width={20} height={20} />
-                    </Button>
+                  <Tooltip>
+                    <Tooltip.Trigger tabIndex={0}>
+                      <Button
+                        isIconOnly
+                        variant="ghost"
+                        size="sm"
+                        onPress={handleSwitchToEdit}
+                        className="text-foreground hover:bg-default-100"
+                      >
+                        <Icon icon="tabler:edit" width={20} height={20} />
+                      </Button>
+                    </Tooltip.Trigger>
+                    <Tooltip.Content>{t('edit')}</Tooltip.Content>
                   </Tooltip>
                 ) : (
-                  <Tooltip content={t('preview')}>
-                    <Button
-                      isIconOnly
-                      variant="light"
-                      size="sm"
-                      onPress={handleSwitchToPreview}
-                      className="text-foreground hover:bg-default-100"
-                    >
-                      <Icon icon="tabler:eye" width={20} height={20} />
-                    </Button>
+                  <Tooltip>
+                    <Tooltip.Trigger tabIndex={0}>
+                      <Button
+                        isIconOnly
+                        variant="ghost"
+                        size="sm"
+                        onPress={handleSwitchToPreview}
+                        className="text-foreground hover:bg-default-100"
+                      >
+                        <Icon icon="tabler:eye" width={20} height={20} />
+                      </Button>
+                    </Tooltip.Trigger>
+                    <Tooltip.Content>{t('preview')}</Tooltip.Content>
                   </Tooltip>
                 )}
                 {editorMode === 'edit' && (

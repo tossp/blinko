@@ -8,7 +8,7 @@ const directory = path.resolve(".blinko/plugins", name);
 let existing: any = null;
 let archiveEntries: any[] = [];
 let downloadFails = false;
-const download = mock(async () => {
+const download = mock(async (_url: string, _options?: unknown) => {
   if (downloadFails) throw new Error("Controlled download failure");
   return { data: Buffer.from("mock archive") };
 });

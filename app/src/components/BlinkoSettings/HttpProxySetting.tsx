@@ -1,5 +1,6 @@
+import { Button, Input, InputGroup, Spinner, Switch, TextField } from '@heroui/react';
 import { observer } from 'mobx-react-lite';
-import { Button, Input, Switch } from '@heroui/react';
+
 import { RootStore } from '@/store';
 import { BlinkoStore } from '@/store/blinkoStore';
 import { PromiseCall } from '@/store/standard/PromiseState';
@@ -48,15 +49,15 @@ export const HttpProxySetting = observer(() => {
 
     try {
       const result = await api.public.testHttpProxy.mutate({
-        url: testUrl
+        url: testUrl,
       });
-      
+
       setTestResult(result);
     } catch (error) {
       setTestResult({
         success: false,
         message: 'Error testing proxy',
-        error: error instanceof Error ? error.message : String(error)
+        error: error instanceof Error ? error.message : String(error),
       });
     } finally {
       setTestingProxy(false);
@@ -68,10 +69,10 @@ export const HttpProxySetting = observer(() => {
       <Item
         leftContent={
           <ItemWithTooltip
-          content={<>{t('use-http-proxy')}</>}
-          toolTipContent={
-            <div className="w-[300px]">{t('enable-http-proxy-for-accessing-github-or-ai-api-endpoints')}</div>
-          }
+            content={<>{t('use-http-proxy')}</>}
+            toolTipContent={
+              <div className="w-[300px]">{t('enable-http-proxy-for-accessing-github-or-ai-api-endpoints')}</div>
+            }
           />
         }
         rightContent={
@@ -81,12 +82,18 @@ export const HttpProxySetting = observer(() => {
               PromiseCall(
                 api.config.update.mutate({
                   key: 'isUseHttpProxy',
-                  value: e.target.checked,
+                  value: e,
                 }),
-                { autoAlert: false },
+                { autoAlert: false }
               );
             }}
-          />
+          >
+            <Switch.Content>
+              <Switch.Control>
+                <Switch.Thumb></Switch.Thumb>
+              </Switch.Control>
+            </Switch.Content>
+          </Switch>
         }
       />
 
@@ -97,32 +104,32 @@ export const HttpProxySetting = observer(() => {
             leftContent={
               <div className="flex flex-col gap-1">
                 <div>{t('proxy-host')}</div>
-                <div className="text-tiny text-default-400">
-                  {t('ip-address-or-hostname-for-proxy-server')}
-                </div>
+                <div className="text-tiny text-default-400">{t('ip-address-or-hostname-for-proxy-server')}</div>
               </div>
             }
             rightContent={
-              <Input
-                radius="lg"
-                type="text"
-                placeholder="127.0.0.1"
-                className="w-full max-w-[300px]"
+              <TextField
                 value={store.httpProxyHost ?? ''}
-                onBlur={(e) => {
-                  let value = e.target.value;
-                  PromiseCall(
-                    api.config.update.mutate({
-                      key: 'httpProxyHost',
-                      value: value,
-                    }),
-                    { autoAlert: false },
-                  );
-                }}
-                onValueChange={(value) => {
+                onChange={(value) => {
                   store.httpProxyHost = value;
                 }}
-              />
+                className={['w-full max-w-[300px]', 'rounded-' + 'lg'].filter(Boolean).join(' ')}
+              >
+                <Input
+                  type="text"
+                  placeholder="127.0.0.1"
+                  onBlur={(e) => {
+                    let value = e.target.value;
+                    PromiseCall(
+                      api.config.update.mutate({
+                        key: 'httpProxyHost',
+                        value: value,
+                      }),
+                      { autoAlert: false }
+                    );
+                  }}
+                />
+              </TextField>
             }
           />
 
@@ -135,27 +142,29 @@ export const HttpProxySetting = observer(() => {
               </div>
             }
             rightContent={
-              <Input
-                radius="lg"
-                type="number"
-                placeholder="8080"
-                className="w-full max-w-[300px]"
+              <TextField
                 value={store.httpProxyPort ? store.httpProxyPort.toString() : ''}
-                onBlur={(e) => {
-                  const portNumber = parseInt(e.target.value);
-                  store.httpProxyPort = isNaN(portNumber) ? 0 : portNumber;
-                  PromiseCall(
-                    api.config.update.mutate({
-                      key: 'httpProxyPort',
-                      value: isNaN(portNumber) ? null : portNumber,
-                    }),
-                    { autoAlert: false },
-                  );
-                }}
-                onValueChange={(value) => {
+                onChange={(value) => {
                   store.httpProxyPort = parseInt(value);
                 }}
-              />
+                className={['w-full max-w-[300px]', 'rounded-' + 'lg'].filter(Boolean).join(' ')}
+              >
+                <Input
+                  type="number"
+                  placeholder="8080"
+                  onBlur={(e) => {
+                    const portNumber = parseInt(e.target.value);
+                    store.httpProxyPort = isNaN(portNumber) ? 0 : portNumber;
+                    PromiseCall(
+                      api.config.update.mutate({
+                        key: 'httpProxyPort',
+                        value: isNaN(portNumber) ? null : portNumber,
+                      }),
+                      { autoAlert: false }
+                    );
+                  }}
+                />
+              </TextField>
             }
           />
 
@@ -168,26 +177,28 @@ export const HttpProxySetting = observer(() => {
               </div>
             }
             rightContent={
-              <Input
-                radius="lg"
-                type="text"
-                placeholder={t('optional')}
-                className="w-full max-w-[300px]"
+              <TextField
                 value={store.httpProxyUsername ?? ''}
-                onBlur={(e) => {
-                  store.httpProxyUsername = e.target.value;
-                  PromiseCall(
-                    api.config.update.mutate({
-                      key: 'httpProxyUsername',
-                      value: store.httpProxyUsername,
-                    }),
-                    { autoAlert: false },
-                  );
-                }}
-                onValueChange={(value) => {
+                onChange={(value) => {
                   store.httpProxyUsername = value;
                 }}
-              />
+                className={['w-full max-w-[300px]', 'rounded-' + 'lg'].filter(Boolean).join(' ')}
+              >
+                <Input
+                  type="text"
+                  placeholder={t('optional')}
+                  onBlur={(e) => {
+                    store.httpProxyUsername = e.target.value;
+                    PromiseCall(
+                      api.config.update.mutate({
+                        key: 'httpProxyUsername',
+                        value: store.httpProxyUsername,
+                      }),
+                      { autoAlert: false }
+                    );
+                  }}
+                />
+              </TextField>
             }
           />
 
@@ -200,41 +211,47 @@ export const HttpProxySetting = observer(() => {
               </div>
             }
             rightContent={
-              <Input
-                radius="lg"
-                type={store.isProxyPasswordVisible ? 'text' : 'password'}
-                placeholder={t('optional')}
-                className="w-full max-w-[300px]"
+              <TextField
                 value={store.httpProxyPassword ?? ''}
-                onBlur={(e) => {
-                  store.httpProxyPassword = e.target.value;
-                  PromiseCall(
-                    api.config.update.mutate({
-                      key: 'httpProxyPassword',
-                      value: store.httpProxyPassword,
-                    }),
-                    { autoAlert: false },
-                  );
-                }}
-                onValueChange={(value) => {
+                onChange={(value) => {
                   store.httpProxyPassword = value;
                 }}
-                endContent={
-                  <button
-                    className="focus:outline-none"
-                    type="button"
-                    onClick={() => {
-                      store.isProxyPasswordVisible = !store.isProxyPasswordVisible;
+                className={['w-full max-w-[300px]', 'rounded-' + 'lg'].filter(Boolean).join(' ')}
+              >
+                <InputGroup>
+                  <InputGroup.Input
+                    type={store.isProxyPasswordVisible ? 'text' : 'password'}
+                    placeholder={t('optional')}
+                    onBlur={(e) => {
+                      store.httpProxyPassword = e.target.value;
+                      PromiseCall(
+                        api.config.update.mutate({
+                          key: 'httpProxyPassword',
+                          value: store.httpProxyPassword,
+                        }),
+                        { autoAlert: false }
+                      );
                     }}
-                  >
-                    {store.isProxyPasswordVisible ? (
-                      <Icon icon="solar:eye-closed-linear" className="text-2xl pointer-events-none" />
-                    ) : (
-                      <Icon icon="solar:eye-linear" className="text-2xl pointer-events-none" />
-                    )}
-                  </button>
-                }
-              />
+                  />
+                  <InputGroup.Suffix>
+                    {
+                      <button
+                        className="focus:outline-none"
+                        type="button"
+                        onClick={() => {
+                          store.isProxyPasswordVisible = !store.isProxyPasswordVisible;
+                        }}
+                      >
+                        {store.isProxyPasswordVisible ? (
+                          <Icon icon="solar:eye-closed-linear" className="text-2xl pointer-events-none" />
+                        ) : (
+                          <Icon icon="solar:eye-linear" className="text-2xl pointer-events-none" />
+                        )}
+                      </button>
+                    }
+                  </InputGroup.Suffix>
+                </InputGroup>
+              </TextField>
             }
           />
 
@@ -245,41 +262,39 @@ export const HttpProxySetting = observer(() => {
                 <div className="flex items-center gap-2">
                   <ItemWithTooltip
                     content={<>{t('test-proxy-connection')}</>}
-                    toolTipContent={
-                      <div className="w-[300px]">
-                        {t('test-if-the-proxy-is-working-correctly')}
-                      </div>
-                    }
+                    toolTipContent={<div className="w-[300px]">{t('test-if-the-proxy-is-working-correctly')}</div>}
                   />
                 </div>
                 <div className="flex flex-col gap-3 mt-2 w-full">
                   <div className="flex gap-2 w-full">
-                    <Input
-                      radius="lg"
-                      type="text"
-                      placeholder="https://www.google.com"
-                      className="w-full"
+                    <TextField
                       value={testUrl}
-                      onValueChange={setTestUrl}
-                      disabled={testingProxy}
-                    />
-                    <Button
-                      color="primary"
-                      isLoading={testingProxy}
-                      onPress={testHttpProxy}
-                      disabled={!store.isUseHttpProxy || !store.httpProxyHost || testingProxy}
+                      onChange={setTestUrl}
+                      className={['w-full', 'rounded-' + 'lg'].filter(Boolean).join(' ')}
                     >
+                      <Input type="text" placeholder="https://www.google.com" disabled={testingProxy} />
+                    </TextField>
+                    <Button
+                      onPress={testHttpProxy}
+                      variant="primary"
+                      isPending={testingProxy}
+                      isDisabled={!store.isUseHttpProxy || !store.httpProxyHost || testingProxy}
+                    >
+                      {testingProxy ? <Spinner color="current" size="sm" /> : null}
                       {t('test')}
                     </Button>
                   </div>
-                  
+
                   {Object.keys(testResult).length > 0 && (
-                    <div className={`p-3 rounded-lg mt-2 ${testResult.success ? 'bg-success-50 text-success-600' : 'bg-danger-50 text-danger-600'}`}>
+                    <div
+                      className={`p-3 rounded-lg mt-2 ${testResult.success ? 'bg-success-50 text-success-600' : 'bg-danger-50 text-danger-600'}`}
+                    >
                       <div className="flex items-center gap-2">
-                        {testResult.success 
-                          ? <Icon icon="mdi:check-circle" width="20" height="20" /> 
-                          : <Icon icon="mdi:alert-circle" width="20" height="20" />
-                        }
+                        {testResult.success ? (
+                          <Icon icon="mdi:check-circle" width="20" height="20" />
+                        ) : (
+                          <Icon icon="mdi:alert-circle" width="20" height="20" />
+                        )}
                         <span className="font-medium">{testResult.message}</span>
                       </div>
                       {testResult.responseTime !== undefined && testResult.responseTime >= 0 && (

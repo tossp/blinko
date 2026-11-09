@@ -1,5 +1,7 @@
+import { autoSizeTextArea } from '@/lib/autoSizeTextArea';
+import { TextArea, TextField } from '@heroui/react';
 import { observer } from 'mobx-react-lite';
-import { Textarea } from '@heroui/react';
+
 import { Icon } from '@/components/Common/Iconify/icons';
 import { IconButton } from '../Common/Editor/Toolbar/IconButton';
 import { motion } from 'framer-motion';
@@ -45,13 +47,13 @@ const cardIcons = [
     classNames: () => {
       return RootStore.Get(AiStore).withRAG.value
         ? {
-          base: 'bg-primary hover:opacity-80 hover:bg-primary ',
-          icon: 'text-primary-foreground font-bold',
-        }
+            base: 'bg-primary hover:opacity-80 hover:bg-primary ',
+            icon: 'text-primary-foreground font-bold',
+          }
         : {
-          base: 'bg-transparent text-foreground',
-          icon: 'text-foreground',
-        };
+            base: 'bg-transparent text-foreground',
+            icon: 'text-foreground',
+          };
     },
   },
   {
@@ -65,13 +67,13 @@ const cardIcons = [
     classNames: () => {
       return RootStore.Get(AiStore).withOnline.value
         ? {
-          base: 'bg-primary hover:opacity-80 hover:bg-primary ',
-          icon: 'text-primary-foreground font-bold',
-        }
+            base: 'bg-primary hover:opacity-80 hover:bg-primary ',
+            icon: 'text-primary-foreground font-bold',
+          }
         : {
-          base: 'bg-transparent text-foreground',
-          icon: 'text-foreground',
-        };
+            base: 'bg-transparent text-foreground',
+            icon: 'text-foreground',
+          };
     },
   },
   {
@@ -85,13 +87,13 @@ const cardIcons = [
     classNames: () => {
       return RootStore.Get(AiStore).withTools.value
         ? {
-          base: 'bg-primary hover:opacity-80 hover:bg-primary ',
-          icon: 'text-primary-foreground font-bold',
-        }
+            base: 'bg-primary hover:opacity-80 hover:bg-primary ',
+            icon: 'text-primary-foreground font-bold',
+          }
         : {
-          base: 'bg-transparent text-foreground',
-          icon: 'text-foreground',
-        };
+            base: 'bg-transparent text-foreground',
+            icon: 'text-foreground',
+          };
     },
   },
   {
@@ -116,7 +118,7 @@ export const AiInput = observer(({ onSubmit, className, withoutOutline }: AiInpu
   let mode = aiStore.isChatting ? 'inline' : 'card';
   const { t } = useTranslation();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  
+
   const handleSubmit = () => {
     if (onSubmit) {
       onSubmit(aiStore.input);
@@ -138,7 +140,7 @@ export const AiInput = observer(({ onSubmit, className, withoutOutline }: AiInpu
       }, 100);
     }
   };
-  
+
   return (
     <motion.div
       className={`w-full p-2 ${withoutOutline ? '' : 'rounded-3xl bg-background'} ${className}`}
@@ -148,46 +150,45 @@ export const AiInput = observer(({ onSubmit, className, withoutOutline }: AiInpu
       transition={{ duration: 0.3, ease: 'easeInOut' }}
     >
       <div className="relative flex items-end gap-2">
-        <Textarea
-          className={`mt-4 mb-10`}
-          data-focus-visible="false"
-          autoFocus
-          value={aiStore.input}
-          ref={(el) => {
-            // Store reference to the underlying textarea element
-            if (el) {
-              const textareaElement = el.querySelector('textarea') as HTMLTextAreaElement;
-              if (textareaElement) {
-                textareaRef.current = textareaElement;
-              }
-            }
-          }}
-          onKeyDown={(e) => {
-            // Handle Enter key press to submit input, but ignore if user is composing text (e.g. using IME)
-            const isComposing = Boolean(e.isComposing || (e.nativeEvent && e.nativeEvent.isComposing));
+        <TextField value={aiStore.input} className={`mt-4 mb-10`}>
+          <TextArea
+            data-focus-visible="false"
+            autoFocus
+            ref={(element) => {
+              ((el) => {
+                textareaRef.current = el;
+              })(element);
+              if (element) return autoSizeTextArea(element, { maxRows: 40 });
+            }}
+            onKeyDown={(e) => {
+              // Handle Enter key press to submit input, but ignore if user is composing text (e.g. using IME)
+              const isComposing = e.nativeEvent.isComposing;
 
-            if (e.key === 'Enter' && !e.shiftKey && !isComposing) {
-              e.preventDefault();
-              handleSubmit();
-            }
-          }}
-          onChange={(e) => (aiStore.input = e.target.value)}
-          classNames={{
-            input: `!bg-transparent border-none ${mode == 'inline' ? 'min-h-[20px]' : 'min-h-[120px]'} whitespace-pre-wrap`,
-            label: '!bg-transparent border-none',
-            inputWrapper: '!bg-transparent border-none !shadow-none',
-          }}
-          rows={mode == 'inline' ? 1 : 20}
-          maxRows={40}
-          placeholder={t('search-blinko-content-or-help-create')}
-        />
+              if (e.key === 'Enter' && !e.shiftKey && !isComposing) {
+                e.preventDefault();
+                handleSubmit();
+              }
+            }}
+            onChange={(e) => (aiStore.input = e.target.value)}
+            rows={mode == 'inline' ? 1 : 20}
+            placeholder={t('search-blinko-content-or-help-create')}
+            className={`!bg-transparent border-none ${mode == 'inline' ? 'min-h-[20px]' : 'min-h-[120px]'} whitespace-pre-wrap`}
+          />
+        </TextField>
         <div className="absolute bottom-3 right-0 w-full px-2 gap-1 flex justify-center items-center !transition-all">
           <>
             {cardIcons.map(
               (icon, index) =>
                 !icon.isHidden?.() && (
-                  <IconButton onClick={icon.onClick} tooltip={icon.tooltip} icon={icon.icon} size={icon.size} containerSize={icon.containerSize} classNames={icon.classNames?.()} />
-                ),
+                  <IconButton
+                    onClick={icon.onClick}
+                    tooltip={icon.tooltip}
+                    icon={icon.icon}
+                    size={icon.size}
+                    containerSize={icon.containerSize}
+                    classNames={icon.classNames?.()}
+                  />
+                )
             )}
           </>
 
@@ -211,7 +212,7 @@ export const AiInput = observer(({ onSubmit, className, withoutOutline }: AiInpu
                 onlyContent: true,
                 title: t('settings'),
                 content: (
-                  <ScrollArea className="h-full md:h-[600px]" onBottom={() => { }}>
+                  <ScrollArea className="h-full md:h-[600px]" onBottom={() => {}}>
                     <AiSetting />
                   </ScrollArea>
                 ),
@@ -261,10 +262,20 @@ export const AiInput = observer(({ onSubmit, className, withoutOutline }: AiInpu
                   ease: 'linear',
                 }}
               >
-                <Icon icon="uil:spinner-alt" width="24" height="24" className="text-primary-foreground group-hover:translate-y-[-1px] !transition-all" />
+                <Icon
+                  icon="uil:spinner-alt"
+                  width="24"
+                  height="24"
+                  className="text-primary-foreground group-hover:translate-y-[-1px] !transition-all"
+                />
               </motion.div>
             ) : (
-              <Icon icon="uil:arrow-up" width="24" height="24" className="text-primary-foreground group-hover:translate-y-[-1px] !transition-all" />
+              <Icon
+                icon="uil:arrow-up"
+                width="24"
+                height="24"
+                className="text-primary-foreground group-hover:translate-y-[-1px] !transition-all"
+              />
             )}
           </div>
         </div>

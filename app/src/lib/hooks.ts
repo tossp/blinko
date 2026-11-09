@@ -1,14 +1,14 @@
-import { useEffect, useState, useRef } from "react";
-import { helper } from "./helper";
-import { BlinkoStore } from "@/store/blinkoStore";
-import { RootStore } from "@/store";
+import { useEffect, useState, useRef } from 'react';
+import { helper } from './helper';
+import { BlinkoStore } from '@/store/blinkoStore';
+import { RootStore } from '@/store';
 import { isAndroid, isInTauri } from '@/lib/tauriHelper';
 import { ShowEditBlinkoModel } from '@/components/BlinkoRightClickMenu';
 import { eventBus } from '@/lib/event';
 
-import { readFile } from "@tauri-apps/plugin-fs";
-import { FocusEditorFixMobile } from "@/components/Common/Editor/editorUtils";
-import { ToastPlugin } from "@/store/module/Toast/Toast";
+import { readFile } from '@tauri-apps/plugin-fs';
+import { FocusEditorFixMobile } from '@/components/Common/Editor/editorUtils';
+import { ToastPlugin } from '@/store/module/Toast/Toast';
 
 export const useConfigSetting = (configKey: keyof BlinkoStore['config']['value']) => {
   const blinko = RootStore.Get(BlinkoStore);
@@ -21,7 +21,7 @@ export const useConfigSetting = (configKey: keyof BlinkoStore['config']['value']
     },
     toggleVisibility() {
       this.isVisible = !this.isVisible;
-    }
+    },
   }));
 
   useEffect(() => {
@@ -34,15 +34,14 @@ export const useConfigSetting = (configKey: keyof BlinkoStore['config']['value']
     value: store.value,
     isVisible: store.isVisible,
     setValue: store.setValue,
-    toggleVisibility: store.toggleVisibility
+    toggleVisibility: store.toggleVisibility,
   };
 };
-
 
 export const useSwiper = (threshold = 50) => {
   const [isVisible, setIsVisible] = useState(true);
   const touchStartY = useRef(0);
-  const lastDirection = useRef<'up' | 'down'>();
+  const lastDirection = useRef<'up' | 'down' | undefined>(undefined);
 
   useEffect(() => {
     const handleTouchStart = (e: TouchEvent) => {
@@ -77,7 +76,6 @@ export const useSwiper = (threshold = 50) => {
   return isVisible;
 };
 
-
 export const handlePaste = (event) => {
   //@ts-ignore
   const clipboardData = event.clipboardData || window.clipboardData;
@@ -85,7 +83,7 @@ export const handlePaste = (event) => {
   let files = [];
 
   for (let i = 0; i < items.length; i++) {
-    if (items[i].kind === "file") {
+    if (items[i].kind === 'file') {
       const file = items[i].getAsFile();
       //@ts-ignore
       files.push(file);
@@ -93,26 +91,23 @@ export const handlePaste = (event) => {
   }
 
   if (files.length > 0) {
-    return files
+    return files;
   }
 };
-
 
 export const usePasteFile = (targetRef) => {
   const [pastedFiles, setPastedFiles] = useState([]);
 
   useEffect(() => {
-
-
     const targetElement = targetRef.current;
 
     if (targetElement) {
-      targetElement.addEventListener("paste", handlePaste);
+      targetElement.addEventListener('paste', handlePaste);
     }
 
     return () => {
       if (targetElement) {
-        targetElement.removeEventListener("paste", handlePaste);
+        targetElement.removeEventListener('paste', handlePaste);
       }
     };
   }, [targetRef]);
@@ -120,27 +115,26 @@ export const usePasteFile = (targetRef) => {
   return pastedFiles;
 };
 
-
 interface HistoryBackProps<T extends string> {
   state: boolean;
   onStateChange: () => void;
   historyState: T;
 }
 
-export const useHistoryBack = <T extends string>({
-  state,
-  onStateChange,
-  historyState
-}: HistoryBackProps<T>) => {
+export const useHistoryBack = <T extends string>({ state, onStateChange, historyState }: HistoryBackProps<T>) => {
   useEffect(() => {
     if (state) {
       try {
         const currentPath = window.location.pathname + window.location.search;
-        history.pushState({
-          [historyState]: true,
-          timestamp: Date.now(),
-          path: currentPath
-        }, '', currentPath);
+        history.pushState(
+          {
+            [historyState]: true,
+            timestamp: Date.now(),
+            path: currentPath,
+          },
+          '',
+          currentPath
+        );
       } catch (error) {
         console.warn('History pushState failed:', error);
       }
@@ -190,71 +184,75 @@ const initializeAndroidShortcuts = () => {
   isInitialized = true;
 
   const checkAndroidData = () => {
-      // Handle shortcuts
-      const action = window.localStorage.getItem('android_shortcut_action');
-      if (action) {
-        window.localStorage.removeItem('android_shortcut_action');
-        switch (action) {
-          case 'quick_note':
-            ShowEditBlinkoModel('2xl', 'create');
-            FocusEditorFixMobile()
-            break;
+    // Handle shortcuts
+    const action = window.localStorage.getItem('android_shortcut_action');
+    if (action) {
+      window.localStorage.removeItem('android_shortcut_action');
+      switch (action) {
+        case 'quick_note':
+          ShowEditBlinkoModel('2xl', 'create');
+          FocusEditorFixMobile();
+          break;
 
-          case 'voice_recording':
-            ShowEditBlinkoModel('2xl', 'create');
-            // Use eventBus to trigger audio recording after editor is ready
-            setTimeout(() => {
-              eventBus.emit('editor:startAudioRecording');
-            }, 300);
-            break;
-        }
+        case 'voice_recording':
+          ShowEditBlinkoModel('2xl', 'create');
+          // Use eventBus to trigger audio recording after editor is ready
+          setTimeout(() => {
+            eventBus.emit('editor:startAudioRecording');
+          }, 300);
+          break;
       }
+    }
 
-      // Handle shared data
-      const shareDataStr = window.localStorage.getItem('android_share_data');
-      if (shareDataStr && !isProcessingSharedData) {
-        isProcessingSharedData = true;
-        // alert(shareDataStr)
-        window.localStorage.removeItem('android_share_data');
-        try {
-          const shareData = JSON.parse(shareDataStr);
-          if (shareData.text) {
-            // Remove surrounding quotes (single, double, backticks) and trim whitespace
-            let cleanText = shareData.text.trim();
-            if ((cleanText.startsWith('"') && cleanText.endsWith('"')) ||
-                (cleanText.startsWith("'") && cleanText.endsWith("'")) ||
-                (cleanText.startsWith('`') && cleanText.endsWith('`'))) {
-              cleanText = cleanText.slice(1, -1);
-            }
-            ShowEditBlinkoModel('2xl', 'create', { text: cleanText });
-            isProcessingSharedData = false;
+    // Handle shared data
+    const shareDataStr = window.localStorage.getItem('android_share_data');
+    if (shareDataStr && !isProcessingSharedData) {
+      isProcessingSharedData = true;
+      // alert(shareDataStr)
+      window.localStorage.removeItem('android_share_data');
+      try {
+        const shareData = JSON.parse(shareDataStr);
+        if (shareData.text) {
+          // Remove surrounding quotes (single, double, backticks) and trim whitespace
+          let cleanText = shareData.text.trim();
+          if (
+            (cleanText.startsWith('"') && cleanText.endsWith('"')) ||
+            (cleanText.startsWith("'") && cleanText.endsWith("'")) ||
+            (cleanText.startsWith('`') && cleanText.endsWith('`'))
+          ) {
+            cleanText = cleanText.slice(1, -1);
           }
-          else if (shareData.stream && shareData.content_type) {
-            readFile(shareData.stream).then(contents => {
+          ShowEditBlinkoModel('2xl', 'create', { text: cleanText });
+          isProcessingSharedData = false;
+        } else if (shareData.stream && shareData.content_type) {
+          readFile(shareData.stream)
+            .then((contents) => {
               const file = new File([contents], shareData.name || 'shared_file', {
-                type: shareData.content_type
+                type: shareData.content_type,
               });
-              console.log('xxx!!!')
+              console.log('xxx!!!');
               ShowEditBlinkoModel('2xl', 'create', { file });
               isProcessingSharedData = false;
-            }).catch((error: Error) => {
+            })
+            .catch((error: Error) => {
               console.warn('fetching shared content failed:', error);
-              RootStore.Get(ToastPlugin).error(error?.message)
+              RootStore.Get(ToastPlugin).error(error?.message);
               isProcessingSharedData = false;
             });
-          }
-          else {
-            ShowEditBlinkoModel('2xl', 'create');
-            isProcessingSharedData = false;
-          }
-        } catch (e) {
-          console.error('Failed to parse share data:', e);
-          // Fallback: just open create modal
-          RootStore.Get(ToastPlugin).error(e?.message)
-          setTimeout(() => { isProcessingSharedData = false; }, 100);
+        } else {
+          ShowEditBlinkoModel('2xl', 'create');
+          isProcessingSharedData = false;
         }
+      } catch (e) {
+        console.error('Failed to parse share data:', e);
+        // Fallback: just open create modal
+        RootStore.Get(ToastPlugin).error(e?.message);
+        setTimeout(() => {
+          isProcessingSharedData = false;
+        }, 100);
       }
-    };
+    }
+  };
 
   // Start checking immediately
   checkAndroidData();
@@ -284,6 +282,3 @@ export const useAndroidShortcuts = () => {
     };
   }, []);
 };
-
-
-

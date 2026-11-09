@@ -1,5 +1,6 @@
 // src/server/plugins/BaseScheduleJob.ts
-import { getPgBoss } from "../lib/pgBoss";
+import { getPgBoss, scheduledQueueOptions } from "../lib/pgBoss";
+import type { Schedule } from "pg-boss";
 
 export abstract class BaseScheduleJob {
   protected static taskName: string;
@@ -27,7 +28,9 @@ export abstract class BaseScheduleJob {
     const RunTask = this.RunTask.bind(this);
 
     // Create the queue first (required in pg-boss v10+)
-    await boss.createQueue(taskName);
+    await boss.createQueue(taskName, scheduledQueueOptions);
+    // createQueue does not change an existing queue after a pg-boss upgrade.
+    await boss.updateQueue(taskName, scheduledQueueOptions);
 
     await boss.work(taskName, async (job) => {
       console.log(`[${taskName}] Starting job execution...`);
@@ -141,7 +144,7 @@ export abstract class BaseScheduleJob {
   /**
    * Get the current schedule from pg-boss
    */
-  static async getSchedule(): Promise<{ name: string; cron: string; data: any } | null> {
+  static async getSchedule(): Promise<Schedule | null> {
     const boss = await getPgBoss();
     const schedules = await boss.getSchedules();
     return schedules.find(s => s.name === this.taskName) || null;

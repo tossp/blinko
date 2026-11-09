@@ -1,9 +1,10 @@
-import { RootStore } from "@/store";
-import { DialogStandaloneStore } from "@/store/module/DialogStandalone";
+import { Button } from '@heroui/react';
+import { RootStore } from '@/store';
+import { DialogStandaloneStore } from '@/store/module/DialogStandalone';
 import { Icon } from '@/components/Common/Iconify/icons';
-import { Button } from "@heroui/react";
-import { useCallback, useEffect, useRef, useState } from "react";
-import Webcam from "react-webcam";
+
+import { useCallback, useEffect, useRef, useState } from 'react';
+import Webcam from 'react-webcam';
 
 interface MyCameraProps {
   onComplete?: (file: File) => void;
@@ -12,22 +13,22 @@ interface MyCameraProps {
 export const MyCamera = ({ onComplete }: MyCameraProps) => {
   const webcamRef = useRef<Webcam>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
+  const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
   const [isRecording, setIsRecording] = useState(false);
   const [recordedChunks, setRecordedChunks] = useState<Blob[]>([]);
   const [pressTimer, setPressTimer] = useState<NodeJS.Timeout | null>(null);
   const [photoConstraints, setPhotoConstraints] = useState({
-    facingMode: { exact: "user" },
+    facingMode: { exact: 'user' },
     width: { ideal: 4096 },
     height: { ideal: 3072 },
-    aspectRatio: 4 / 3
+    aspectRatio: 4 / 3,
   });
   const [videoConstraints, setVideoConstraints] = useState({
-    facingMode: { exact: "user" },
+    facingMode: { exact: 'user' },
     width: { ideal: 1280 },
     height: { ideal: 960 },
     aspectRatio: 4 / 3,
-    frameRate: { ideal: 24 }
+    frameRate: { ideal: 24 },
   });
   const [showBlackScreen, setShowBlackScreen] = useState(false);
   const [lastCaptureType, setLastCaptureType] = useState<'photo' | 'video' | null>(null);
@@ -36,14 +37,14 @@ export const MyCamera = ({ onComplete }: MyCameraProps) => {
     async function getMaxResolution() {
       try {
         const devices = await navigator.mediaDevices.enumerateDevices();
-        const cameras = devices.filter(device => device.kind === 'videoinput');
+        const cameras = devices.filter((device) => device.kind === 'videoinput');
 
         const photoConfig = {
           deviceId: cameras[0]?.deviceId,
           facingMode: { exact: facingMode },
           width: { ideal: 4096 },
           height: { ideal: 3072 },
-          aspectRatio: 4 / 3
+          aspectRatio: 4 / 3,
         };
 
         const videoConfig = {
@@ -52,13 +53,13 @@ export const MyCamera = ({ onComplete }: MyCameraProps) => {
           width: { ideal: 1280 },
           height: { ideal: 960 },
           aspectRatio: 4 / 3,
-          frameRate: { ideal: 24 }
+          frameRate: { ideal: 24 },
         };
 
         setPhotoConstraints(photoConfig);
         setVideoConstraints(videoConfig);
       } catch (err) {
-        console.error("get camera resolution error:", err);
+        console.error('get camera resolution error:', err);
       }
     }
     getMaxResolution();
@@ -67,10 +68,10 @@ export const MyCamera = ({ onComplete }: MyCameraProps) => {
   const handleSwitchCamera = useCallback(() => {
     if (webcamRef.current && webcamRef.current.stream) {
       const tracks = webcamRef.current.stream.getTracks();
-      tracks.forEach(track => track.stop());
+      tracks.forEach((track) => track.stop());
     }
 
-    setFacingMode(prevMode => prevMode === "user" ? "environment" : "user");
+    setFacingMode((prevMode) => (prevMode === 'user' ? 'environment' : 'user'));
   }, []);
 
   // 开始录像
@@ -102,7 +103,7 @@ export const MyCamera = ({ onComplete }: MyCameraProps) => {
       mediaRecorderRef.current.onstop = () => {
         if (recordedChunks.length > 0) {
           const blob = new Blob(recordedChunks, {
-            type: 'video/webm'
+            type: 'video/webm',
           });
 
           setShowBlackScreen(true);
@@ -161,7 +162,7 @@ export const MyCamera = ({ onComplete }: MyCameraProps) => {
     if (lastCaptureType === 'photo') {
       const imageSrc = webcamRef.current?.getScreenshot();
       if (imageSrc) {
-        const blob = await fetch(imageSrc).then(r => r.blob());
+        const blob = await fetch(imageSrc).then((r) => r.blob());
         const file = new File([blob], `photo_${Date.now()}.jpg`, { type: 'image/jpeg' });
         onComplete?.(file);
       }
@@ -190,11 +191,10 @@ export const MyCamera = ({ onComplete }: MyCameraProps) => {
         />
       </div>
 
-      {showBlackScreen && (
-        <div className="absolute inset-0 bg-black z-[1200]" />
-      )}
+      {showBlackScreen && <div className="absolute inset-0 bg-black z-[1200]" />}
 
       <Button
+        variant="tertiary"
         isIconOnly
         className="absolute right-5 top-5 backdrop-blur-sm rounded-full"
         onPress={() => RootStore.Get(DialogStandaloneStore).close()}
@@ -202,33 +202,36 @@ export const MyCamera = ({ onComplete }: MyCameraProps) => {
         <Icon icon="iconamoon:close-thin" width="24" height="24" />
       </Button>
 
-
       <div className="fixed bottom-10 left-0 right-0 flex justify-center items-center gap-5">
         {lastCaptureType && !showBlackScreen && (
-          <Button isIconOnly onPress={handleComplete} radius='lg' className={`absolute right-10 group w-fit`} color='primary' >
+          <Button
+            isIconOnly
+            onPress={handleComplete}
+            className={[`absolute right-10 group w-fit`, 'rounded-' + 'lg'].filter(Boolean).join(' ')}
+            variant="primary"
+          >
             <Icon icon="mynaui:upload" width="24" height="24" />
           </Button>
         )}
 
         <button
-          className={`w-20 h-20 rounded-full border-4 ${isRecording
-            ? "border-red-500 bg-red-500 animate-pulse scale-110 transition-transform duration-1000"
-            : "border-white bg-white"
-            } flex items-center justify-center transition-colors duration-200`}
+          className={`w-20 h-20 rounded-full border-4 ${
+            isRecording
+              ? 'border-red-500 bg-red-500 animate-pulse scale-110 transition-transform duration-1000'
+              : 'border-white bg-white'
+          } flex items-center justify-center transition-colors duration-200`}
           onMouseDown={handleMouseDown}
           onMouseUp={handleMouseUp}
           onTouchStart={handleMouseDown}
           onTouchEnd={handleMouseUp}
         >
-          <span className={`${isRecording
-            ? "text-white"
-            : "text-black"
-            } text-sm select-none`}>
-          </span>
+          <span className={`${isRecording ? 'text-white' : 'text-black'} text-sm select-none`}></span>
         </button>
 
         <Button
-          className="absolute left-10" radius="lg" isIconOnly
+          variant="tertiary"
+          className={['absolute left-10', 'rounded-' + 'lg'].filter(Boolean).join(' ')}
+          isIconOnly
           onPress={handleSwitchCamera}
         >
           <Icon icon="icon-park-solid:flip-camera" width="24" height="24" />
@@ -236,16 +239,20 @@ export const MyCamera = ({ onComplete }: MyCameraProps) => {
       </div>
     </div>
   );
-}
+};
 
-export const ShowCamera = ((onComplete: (file: File) => void) => {
+export const ShowCamera = (onComplete: (file: File) => void) => {
   return RootStore.Get(DialogStandaloneStore).setData({
     size: 'full',
     isOpen: true,
     onlyContent: true,
-    content: <MyCamera onComplete={(file) => {
-      onComplete(file)
-      RootStore.Get(DialogStandaloneStore).close();
-    }} />
-  })
-})
+    content: (
+      <MyCamera
+        onComplete={(file) => {
+          onComplete(file);
+          RootStore.Get(DialogStandaloneStore).close();
+        }}
+      />
+    ),
+  });
+};

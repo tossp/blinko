@@ -1,15 +1,16 @@
-import { useState } from "react";
-import { Image, ImageProps } from "@heroui/react";
+import { useState, type ComponentProps } from 'react';
 
-export const FallbackImage = ({ src, alt, className, ...props }: ImageProps) => {
-    const [error, setError] = useState(false);
-    const handleError = () => {
+export const FallbackImage = ({ src, alt, onError, ...props }: ComponentProps<'img'>) => {
+  const [error, setError] = useState(false);
+  return (
+    <img
+      {...props}
+      src={error ? '/logo.png' : src}
+      alt={alt ?? ''}
+      onError={(event) => {
         setError(true);
-    };
-
-    if (error) {
-        return <Image src={'/logo.png'} alt={alt} className={className} {...props} onError={handleError}  />;
-    }
-
-    return <Image src={src} alt={alt} className={className} {...props} onError={handleError} fallbackSrc="/logo.png" />;
-}
+        onError?.(event);
+      }}
+    />
+  );
+};

@@ -1,12 +1,11 @@
 {
-    "extends": "./tsconfig.json",
+    "extends": "./app/tsconfig.json",
     "compilerOptions": {
         "declaration": true,
         "emitDeclarationOnly": true,
         "outDir": "blinko-types/dist/types",
         "noEmit": false,
         "rootDir": ".",
-        "baseUrl": ".",
         "paths": {
             "@/*": [
                 "./app/src/*"
@@ -24,6 +23,7 @@
     },
     "include": [
         "./app/src/store/plugin/index.ts",
+        "./app/src/vite-env.d.ts",
     ],
     "exclude": [
         "node_modules"

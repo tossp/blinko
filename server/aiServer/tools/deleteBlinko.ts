@@ -6,13 +6,12 @@ import { verifyToken } from '@server/lib/helper';
 export const deleteBlinkoTool = createTool({
   id: 'delete-blinko-tool',
   description: 'you are a blinko assistant,you can use api to delete blinko,save to database',
-  //@ts-ignore
   inputSchema: z.object({
     ids: z.array(z.number()),
     token: z.string().optional().describe("internal use, do not pass!")
   }),
-  execute: async ({ context, runtimeContext }) => {
-    const accountId = runtimeContext?.get('accountId') || (await verifyToken(context.token))?.sub;
+  execute: async (context, { requestContext }) => {
+    const accountId = requestContext.get('accountId') || (await verifyToken(context.token ?? ''))?.sub;
 
     try {
       const caller = userCaller({

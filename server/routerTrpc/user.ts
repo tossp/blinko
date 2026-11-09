@@ -315,8 +315,7 @@ export const userRouter = router({
         id: user.id,
         name: user.name ?? '',
         role: user.role,
-        permissions: ['notes.upsert', 'ai.completions', 'users.list', 'users.genTokenByUserId']
-      });
+      }, ['notes.upsert', 'ai.completions', 'users.list', 'users.genTokenByUserId']);
 
       return { token };
     }),

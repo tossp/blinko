@@ -13,7 +13,7 @@ import { Context } from "../context";
 import { BaseScheduleJob } from "./baseScheduleJob";
 import { CreateNotification } from "../routerTrpc/notification";
 import { NotificationType } from "@shared/lib/prismaZodType";
-import archiver from 'archiver';
+import { ZipArchive } from 'archiver';
 import { createWriteStream } from 'fs';
 import yauzl from 'yauzl-promise';
 import { FileService } from "../lib/files";
@@ -91,7 +91,7 @@ export class DBJob extends BaseScheduleJob {
       }
 
       const output = createWriteStream(targetFile);
-      const archive = archiver('zip', {
+      const archive = new ZipArchive({
         zlib: { level: 9 }
       });
 

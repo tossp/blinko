@@ -3,6 +3,7 @@
  * @see https://www.prisma.io/docs/support/help-articles/nextjs-prisma-client-dev-practices
  */
 import { PrismaClient } from '@prisma/client';
+import { createPrismaAdapter } from '../prisma/connection';
 
 const prismaGlobal = globalThis as typeof globalThis & {
   prisma?: PrismaClient;
@@ -12,11 +13,7 @@ export const prisma: PrismaClient =
   new PrismaClient({
     log:
     process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
-    datasources: {
-      db: {
-        url: process.env.DATABASE_URL
-      }
-    }
+    adapter: createPrismaAdapter(),
   });
 
 if (process.env.NODE_ENV !== 'production') {

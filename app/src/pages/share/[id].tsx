@@ -1,21 +1,21 @@
-import { BlinkoCard } from "@/components/BlinkoCard";
-import { api } from "@/lib/trpc";
-import { RootStore } from "@/store";
-import { PromiseState } from "@/store/standard/PromiseState";
-import { observer } from "mobx-react-lite";
-import { useEffect, useState } from "react";
-import { useMediaQuery } from "usehooks-ts";
-import { Card, InputOtp, Button } from "@heroui/react";
+import { Button, Card, InputOTP } from '@heroui/react';
+import { BlinkoCard } from '@/components/BlinkoCard';
+import { api } from '@/lib/trpc';
+import { RootStore } from '@/store';
+import { PromiseState } from '@/store/standard/PromiseState';
+import { observer } from 'mobx-react-lite';
+import { useEffect, useState } from 'react';
+import { useMediaQuery } from 'usehooks-ts';
+
 import { Icon } from '@/components/Common/Iconify/icons';
-import { useTranslation } from "react-i18next";
+import { useTranslation } from 'react-i18next';
 import { useLocation, useSearchParams, useParams } from 'react-router-dom';
 import { GradientBackground } from '@/components/Common/GradientBackground';
 
-
 const Page: React.FC = observer(() => {
-  const isPc = useMediaQuery('(min-width: 768px)')
-  const { t } = useTranslation()
-  const [password, setPassword] = useState("");
+  const isPc = useMediaQuery('(min-width: 768px)');
+  const { t } = useTranslation();
+  const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
   const [hasPassword, setHasPassword] = useState(false);
   const [isExpired, setIsExpired] = useState(false);
@@ -27,7 +27,7 @@ const Page: React.FC = observer(() => {
     shareNote: new PromiseState({
       function: async (shareEncryptedUrl: string, password?: string) => {
         try {
-          const notes = await api.notes.publicDetail.mutate({ shareEncryptedUrl, password })
+          const notes = await api.notes.publicDetail.mutate({ shareEncryptedUrl, password });
           if (notes.error === 'expired') {
             setIsExpired(true);
             return null;
@@ -41,12 +41,12 @@ const Page: React.FC = observer(() => {
           setError(true);
           return null;
         }
-      }
-    })
-  }))
+      },
+    }),
+  }));
 
   useEffect(() => {
-    if (!id) return
+    if (!id) return;
     const urlPassword = searchParams.get('password') as string;
     if (urlPassword) {
       setPassword(urlPassword);
@@ -54,8 +54,7 @@ const Page: React.FC = observer(() => {
     } else {
       store.shareNote.call(id);
     }
-  }, [location.pathname, id, searchParams.get('password')])
-
+  }, [location.pathname, id, searchParams.get('password')]);
 
   const handleVerify = () => {
     setError(false);
@@ -65,13 +64,13 @@ const Page: React.FC = observer(() => {
   if (isExpired) {
     return (
       <GradientBackground>
-        <div className='p-4 h-[100vh] w-full flex justify-center items-center'>
+        <div className="p-4 h-[100vh] w-full flex justify-center items-center">
           <Card className="p-6 flex flex-col gap-4 items-center glass-effect">
             <div className="flex items-center gap-2">
               <Icon icon="solar:clock-circle-bold" className="text-2xl text-danger" />
-              <span className="text-xl font-medium text-danger">{t("share-link-expired")}</span>
+              <span className="text-xl font-medium text-danger">{t('share-link-expired')}</span>
             </div>
-            <p className="text-sm text-default-500">{t("share-link-expired-desc")}</p>
+            <p className="text-sm text-default-500">{t('share-link-expired-desc')}</p>
           </Card>
         </div>
       </GradientBackground>
@@ -81,29 +80,22 @@ const Page: React.FC = observer(() => {
   if (hasPassword && !store.shareNote?.value) {
     return (
       <GradientBackground>
-        <div className='p-4 h-[100vh] w-full flex justify-center items-center'>
+        <div className="p-4 h-[100vh] w-full flex justify-center items-center">
           <Card className="p-6 flex flex-col gap-4 items-center glass-effect">
             <div className="flex items-center gap-2">
               <Icon icon="solar:lock-password-bold" className="text-2xl" />
-              <span className="text-xl font-medium">{t("need-password-to-access")}</span>
+              <span className="text-xl font-medium">{t('need-password-to-access')}</span>
             </div>
-            <InputOtp
-              length={6}
-              value={password}
-              onValueChange={setPassword}
-              onComplete={handleVerify}
-              classNames={{
-                input: error ? "border-danger" : ""
-              }}
-            />
-            {error && <span className="text-danger text-sm">{t("password-error")}</span>}
-            <Button
-              color="primary"
-              className="w-full"
-              onPress={handleVerify}
-              isDisabled={password.length !== 6}
-            >
-              {t("verify")}
+            <InputOTP value={password} onComplete={handleVerify} maxLength={6} onChange={setPassword}>
+              <InputOTP.Group>
+                {Array.from({ length: 6 }, (_, index) => (
+                  <InputOTP.Slot key={index} index={index} />
+                ))}
+              </InputOTP.Group>
+            </InputOTP>
+            {error && <span className="text-danger text-sm">{t('password-error')}</span>}
+            <Button className="w-full" onPress={handleVerify} isDisabled={password.length !== 6} variant="primary">
+              {t('verify')}
             </Button>
           </Card>
         </div>
@@ -113,7 +105,7 @@ const Page: React.FC = observer(() => {
 
   return (
     <GradientBackground>
-      <div className='p-4 h-[100vh] w-full flex justify-center items-center'>
+      <div className="p-4 h-[100vh] w-full flex justify-center items-center">
         {store.shareNote?.value && (
           <div className="glass-effect max-h-[90vh] overflow-y-scroll w-[95%] md:min-w-[30%] md:max-w-[50%] rounded-xl shadow-[1px_0_25px_11px_rgba(98,0,114,0.17)]">
             <BlinkoCard blinkoItem={store.shareNote?.value} isShareMode glassEffect defaultExpanded={true} />
@@ -124,4 +116,4 @@ const Page: React.FC = observer(() => {
   );
 });
 
-export default Page
+export default Page;

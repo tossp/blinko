@@ -1,0 +1,82 @@
+/* Keep Blinko's existing palette while using HeroUI's v3 semantic tokens. */
+@layer base {
+  :root,
+  .light {
+    --blinko-neutral-50: var(--color-zinc-50);
+    --blinko-neutral-100: var(--color-zinc-100);
+    --blinko-neutral-200: var(--color-zinc-200);
+    --blinko-neutral-300: var(--color-zinc-300);
+    --blinko-neutral-400: var(--color-zinc-400);
+    --blinko-neutral-500: var(--color-zinc-500);
+    --blinko-neutral-600: var(--color-zinc-600);
+    --blinko-neutral-700: var(--color-zinc-700);
+    --blinko-neutral-800: var(--color-zinc-800);
+    --blinko-neutral-900: var(--color-zinc-900);
+    --blinko-neutral-950: var(--color-zinc-950);
+  }
+
+  .dark {
+    --blinko-neutral-50: var(--color-zinc-950);
+    --blinko-neutral-100: var(--color-zinc-900);
+    --blinko-neutral-200: var(--color-zinc-800);
+    --blinko-neutral-300: var(--color-zinc-700);
+    --blinko-neutral-400: var(--color-zinc-600);
+    --blinko-neutral-500: var(--color-zinc-500);
+    --blinko-neutral-600: var(--color-zinc-400);
+    --blinko-neutral-700: var(--color-zinc-300);
+    --blinko-neutral-800: var(--color-zinc-200);
+    --blinko-neutral-900: var(--color-zinc-100);
+    --blinko-neutral-950: var(--color-zinc-50);
+  }
+
+  :root,
+  .light,
+  .dark {
+    --accent: var(--primary);
+    --accent-foreground: var(--primary-foreground);
+    --muted: var(--desc);
+    --surface: var(--background);
+    --surface-foreground: var(--foreground);
+    --surface-secondary: var(--secondbackground);
+    --surface-secondary-foreground: var(--foreground);
+    --overlay: var(--background);
+    --overlay-foreground: var(--foreground);
+    --field-background: var(--secondbackground);
+    --field-foreground: var(--foreground);
+    --field-placeholder: var(--desc);
+    --field-border: var(--border);
+    --field-border-width: 1px;
+    --focus: var(--primary);
+    --separator: var(--border);
+    --default: var(--secondbackground);
+    --default-foreground: var(--foreground);
+  }
+}
+
+/* The application still uses neutral shades independently from HeroUI components. */
+@theme inline {
+  --color-default-50: var(--blinko-neutral-50);
+  --color-default-100: var(--blinko-neutral-100);
+  --color-default-200: var(--blinko-neutral-200);
+  --color-default-300: var(--blinko-neutral-300);
+  --color-default-400: var(--blinko-neutral-400);
+  --color-default-500: var(--blinko-neutral-500);
+  --color-default-600: var(--blinko-neutral-600);
+  --color-default-700: var(--blinko-neutral-700);
+  --color-default-800: var(--blinko-neutral-800);
+  --color-default-900: var(--blinko-neutral-900);
+  --color-default-950: var(--blinko-neutral-950);
+  --color-primary-500: var(--primary);
+  --color-primary-600: var(--primary);
+  --color-danger-50: var(--danger-soft);
+  --color-danger-600: var(--danger);
+  --color-success-50: var(--success-soft);
+  --color-success-600: var(--success);
+  --color-warning-50: var(--warning-soft);
+  --color-warning-200: color-mix(in oklab, var(--warning) 30%, var(--background));
+  --color-warning-700: var(--warning-soft-foreground);
+  --color-content1: var(--background);
+  --color-content2: var(--secondbackground);
+  --color-content3: var(--border);
+  --color-content4: var(--hover);
+}

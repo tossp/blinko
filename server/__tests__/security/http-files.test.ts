@@ -284,11 +284,12 @@ test("S3 signs exactly the object key whose attachment permission was checked", 
   expect(signed[0].input.Key).toBe("literal%2Fname.html");
 });
 for (const type of ["rss", "atom"]) {
-  test.each([
+  const hostileHeaders: Array<Record<string, string>> = [
     { Host: "attacker.example" },
     { Origin: "https://attacker.example" },
     { Host: "attacker.example", Origin: "https://attacker.example", "X-Forwarded-Host": "forwarded.example" },
-  ])(`${type} ignores attacker-controlled request origins`, async (headers) => {
+  ];
+  test.each(hostileHeaders)(`${type} ignores attacker-controlled request origins`, async (headers) => {
     const response = await fetch(origin + "/api/rss/1/" + type, { headers });
     expect(response.status).toBe(200);
     expect(feedOrigin).toBe("https://trusted.example");

@@ -3,15 +3,6 @@ import { getTokenFromRequest } from "@server/lib/helper";
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 
-declare module 'express' {
-  interface Request {
-    user?: any;
-    isAuthenticated?: () => boolean;
-    login?: (user: any, callback?: (err: any) => void) => void;
-    logout?: (callback?: (err: any) => void) => void;
-  }
-}
-
 export interface User extends jwt.JwtPayload {
   name: string;
   sub: string;

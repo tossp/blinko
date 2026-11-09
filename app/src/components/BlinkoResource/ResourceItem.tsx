@@ -1,11 +1,12 @@
 import { Card, Checkbox, Tooltip } from '@heroui/react';
+
 import { Icon } from '@/components/Common/Iconify/icons';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
-import filesize  from 'filesize';
+import { filesize } from 'filesize';
 import dayjs from '@/lib/dayjs';
 import { FileIcons } from '@/components/Common/AttachmentRender/FileIcon';
 import { memo, useCallback, useMemo } from 'react';
-import { Draggable, Droppable } from 'react-beautiful-dnd-next';
+import { Draggable, Droppable } from '@hello-pangea/dnd';
 import { useTranslation } from 'react-i18next';
 import { type ResourceType } from '@shared/lib/types';
 import { ResourceContextMenu } from './ResourceContextMenu';
@@ -18,7 +19,6 @@ import { motion } from 'framer-motion';
 import { ImageThumbnailRender } from '../Common/AttachmentRender/imageRender';
 import { getBlinkoFileUrl } from '@/lib/blinkoEndpoint';
 import { UserStore } from '@/store/user';
-
 
 // Reusable component for rendering resource preview
 export const ResourceItemPreview = ({
@@ -50,7 +50,10 @@ export const ResourceItemPreview = ({
   }, [item.name]);
 
   return (
-    <div className={`w-full flex items-center gap-2 p-2 rounded-md cursor-pointer group ${className}`} onClick={onClick}>
+    <div
+      className={`w-full flex items-center gap-2 p-2 rounded-md cursor-pointer group ${className}`}
+      onClick={onClick}
+    >
       {isImage ? (
         <PhotoProvider>
           <PhotoView src={getBlinkoFileUrl(item.path, { token: RootStore.Get(UserStore).tokenData.value?.token })}>
@@ -68,13 +71,19 @@ export const ResourceItemPreview = ({
         <div className="font-medium text-sm flex items-center gap-2">
           <span className="max-w-[100px] truncate md:max-w-[250px]">{fileNameAndExt.name}</span>
           {isS3File && showExtraInfo && (
-            <Tooltip content={t('cloud-file')}>
-              <Icon icon="fluent-color:cloud-16" className="w-4 h-4" />
+            <Tooltip>
+              <Tooltip.Trigger tabIndex={0}>
+                <Icon icon="fluent-color:cloud-16" className="w-4 h-4" />
+              </Tooltip.Trigger>
+              <Tooltip.Content>{t('cloud-file')}</Tooltip.Content>
             </Tooltip>
           )}
           {showAssociationIcon && !item.noteId && showExtraInfo && (
-            <Tooltip content={t('no-note-associated')}>
-              <Icon icon="ic:twotone-no-backpack" className="w-4 h-4 text-yellow-500" />
+            <Tooltip>
+              <Tooltip.Trigger tabIndex={0}>
+                <Icon icon="ic:twotone-no-backpack" className="w-4 h-4 text-yellow-500" />
+              </Tooltip.Trigger>
+              <Tooltip.Content>{t('no-note-associated')}</Tooltip.Content>
             </Tooltip>
           )}
         </div>
@@ -84,7 +93,9 @@ export const ResourceItemPreview = ({
             {filesize(Number(item.size))} · {dayjs(item.createdAt).format('YYYY-MM-DD HH:mm')}
           </div>
         )}
-        {!showExtraInfo && <div className="text-xs text-gray-500">{dayjs(item.createdAt).format('YYYY-MM-DD HH:mm')}</div>}
+        {!showExtraInfo && (
+          <div className="text-xs text-gray-500">{dayjs(item.createdAt).format('YYYY-MM-DD HH:mm')}</div>
+        )}
       </div>
     </div>
   );
@@ -152,12 +163,12 @@ const ResourceCard = observer(({ item, isSelected, onSelect, isDragging, isDragg
   }, [item, resourceStore]);
 
   const cardProps = {
-    className: getCardClassName(isDragging, isDraggingOver),
+    className: getCardClassName(isDragging, isDraggingOver) + ' shadow-none',
   };
 
   if (item.isFolder) {
     return (
-      <Card {...cardProps} shadow="none">
+      <Card {...cardProps}>
         <div className="flex items-center gap-4 ml-[45px]">
           <div className="w-[36px] h-[36px] ml-[-7px] flex items-center justify-center">
             <Icon icon="material-symbols:folder" className="w-full h-full text-yellow-500" />
@@ -172,9 +183,15 @@ const ResourceCard = observer(({ item, isSelected, onSelect, isDragging, isDragg
   }
 
   return (
-    <Card {...cardProps} shadow="none">
+    <Card {...cardProps}>
       <div className="flex items-center gap-4">
-        <Checkbox isSelected={isSelected} onChange={() => onSelect(item.id!)} className="z-10" />
+        <Checkbox isSelected={isSelected} onChange={() => onSelect(item.id!)} className="z-10">
+          <Checkbox.Content>
+            <Checkbox.Control>
+              <Checkbox.Indicator />
+            </Checkbox.Control>
+          </Checkbox.Content>
+        </Checkbox>
         <ResourceItemPreview item={item} />
         <ResourceContextMenu onTrigger={handleContextMenu} />
       </div>
@@ -192,12 +209,18 @@ const ResourceItem = observer(({ item, index, onSelect, isSelected, onFolderClic
         onFolderClick(item.folderName || '');
       }
     },
-    [item.isFolder, item.folderName, onFolderClick],
+    [item.isFolder, item.folderName, onFolderClick]
   );
 
-  const draggableId = useMemo(() => (item.isFolder ? `folder-${item.folderName}` : String(item.id)), [item.isFolder, item.folderName, item.id]);
+  const draggableId = useMemo(
+    () => (item.isFolder ? `folder-${item.folderName}` : String(item.id)),
+    [item.isFolder, item.folderName, item.id]
+  );
 
-  const droppableId = useMemo(() => (item.isFolder ? `folder-${item.folderName}` : undefined), [item.isFolder, item.folderName]);
+  const droppableId = useMemo(
+    () => (item.isFolder ? `folder-${item.folderName}` : undefined),
+    [item.isFolder, item.folderName]
+  );
 
   return (
     <Draggable draggableId={draggableId} index={index} isDragDisabled={item.isFolder}>
@@ -209,27 +232,48 @@ const ResourceItem = observer(({ item, index, onSelect, isSelected, onFolderClic
         };
 
         return (
-          <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className={`relative group`} onClick={handleClick} style={draggableStyle}>
+          <div
+            ref={provided.innerRef}
+            {...provided.draggableProps}
+            {...provided.dragHandleProps}
+            className={`relative group`}
+            onClick={handleClick}
+            style={draggableStyle}
+          >
             <motion.div
-              // initial={{ opacity: 0, y: 20 }}
-              // animate={{ opacity: 1, y: 0 }}
-              // transition={{
-              //   duration: 0.2,
-              //   delay: index * 0.05,
-              //   ease: 'easeOut',
-              // }}
+            // initial={{ opacity: 0, y: 20 }}
+            // animate={{ opacity: 1, y: 0 }}
+            // transition={{
+            //   duration: 0.2,
+            //   delay: index * 0.05,
+            //   ease: 'easeOut',
+            // }}
             >
               {item.isFolder ? (
                 <Droppable droppableId={droppableId!}>
                   {(dropProvided, dropSnapshot) => (
-                    <div ref={dropProvided.innerRef} {...dropProvided.droppableProps} className="w-full h-full relative">
-                      <ResourceCard item={item} isSelected={isSelected} onSelect={onSelect} isDraggingOver={dropSnapshot.isDraggingOver} />
+                    <div
+                      ref={dropProvided.innerRef}
+                      {...dropProvided.droppableProps}
+                      className="w-full h-full relative"
+                    >
+                      <ResourceCard
+                        item={item}
+                        isSelected={isSelected}
+                        onSelect={onSelect}
+                        isDraggingOver={dropSnapshot.isDraggingOver}
+                      />
                       {dropProvided.placeholder}
                     </div>
                   )}
                 </Droppable>
               ) : (
-                <ResourceCard item={item} isSelected={isSelected} onSelect={onSelect} isDragging={snapshot.isDragging} />
+                <ResourceCard
+                  item={item}
+                  isSelected={isSelected}
+                  onSelect={onSelect}
+                  isDragging={snapshot.isDragging}
+                />
               )}
             </motion.div>
           </div>
@@ -244,7 +288,11 @@ export const MemoizedResourceItem = memo(ResourceItem, (prevProps, nextProps) =>
   const nextItem = toJS(nextProps.item);
 
   if (prevItem.isFolder && nextItem.isFolder) {
-    return prevItem.folderName === nextItem.folderName && prevProps.isSelected === nextProps.isSelected && prevProps.index === nextProps.index;
+    return (
+      prevItem.folderName === nextItem.folderName &&
+      prevProps.isSelected === nextProps.isSelected &&
+      prevProps.index === nextProps.index
+    );
   }
 
   return (

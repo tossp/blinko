@@ -1,11 +1,12 @@
-import { RootStore } from "@/store";
-import { useCallback, useState, useEffect, useRef, useMemo } from "react";
-import useAudioRecorder from "../AudioRecorder/hook";
+import { Button } from '@heroui/react';
+import { RootStore } from '@/store';
+import { useCallback, useState, useEffect, useRef, useMemo } from 'react';
+import useAudioRecorder from '../AudioRecorder/hook';
 import { Icon } from '@/components/Common/Iconify/icons';
-import { DialogStandaloneStore } from "@/store/module/DialogStandalone";
-import { requestMicrophonePermission, checkMicrophonePermission } from "@/lib/tauriHelper";
-import { Button, Card, CardBody } from "@heroui/react";
-import { useTranslation } from "react-i18next";
+import { DialogStandaloneStore } from '@/store/module/DialogStandalone';
+import { requestMicrophonePermission, checkMicrophonePermission } from '@/lib/tauriHelper';
+
+import { useTranslation } from 'react-i18next';
 
 interface MyAudioRecorderProps {
   onComplete?: (file: File) => void;
@@ -28,12 +29,7 @@ export const MyAudioRecorder = ({ onComplete }: MyAudioRecorderProps) => {
   const analyserRef = useRef<AnalyserNode | null>(null);
   const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
 
-  const {
-    startRecording,
-    stopRecording,
-    recordingBlob,
-    mediaRecorder,
-  } = useAudioRecorder();
+  const { startRecording, stopRecording, recordingBlob, mediaRecorder } = useAudioRecorder();
 
   // Setup audio analyzer
   const setupAudioAnalyser = useCallback((stream: MediaStream) => {
@@ -75,9 +71,8 @@ export const MyAudioRecorder = ({ onComplete }: MyAudioRecorderProps) => {
         // Calculate weighted average volume, emphasizing low and mid frequencies
         const sum = dataArray.reduce((acc, val, i) => {
           // Weight low and mid frequencies more
-          const weight = i < dataArray.length / 3 ? 1.5 :
-            i < dataArray.length * 2 / 3 ? 1.2 : 0.8;
-          return acc + (val * weight);
+          const weight = i < dataArray.length / 3 ? 1.5 : i < (dataArray.length * 2) / 3 ? 1.2 : 0.8;
+          return acc + val * weight;
         }, 0);
 
         const average = sum / dataArray.length;
@@ -85,8 +80,8 @@ export const MyAudioRecorder = ({ onComplete }: MyAudioRecorderProps) => {
         const scaledValue: number = Math.max(average * 1.5, 3);
 
         // Update audio level display with smooth animation
-        setAudioLevel(prevLevels => {
-          const newLevels = [...prevLevels].map(n => n || 0); // Ensure all values are numbers
+        setAudioLevel((prevLevels) => {
+          const newLevels = [...prevLevels].map((n) => n || 0); // Ensure all values are numbers
           // Shift array left, add new value at end
           for (let i = 0; i < newLevels.length - 1; i++) {
             newLevels[i] = newLevels[i + 1] || 0;
@@ -101,9 +96,9 @@ export const MyAudioRecorder = ({ onComplete }: MyAudioRecorderProps) => {
 
       // Start animation immediately
       animationFrameRef.current = requestAnimationFrame(updateAudioLevel);
-      console.log("Audio visualization started");
+      console.log('Audio visualization started');
     } catch (error) {
-      console.error("Failed to setup audio analyzer:", error);
+      console.error('Failed to setup audio analyzer:', error);
     }
   }, []);
 
@@ -123,7 +118,7 @@ export const MyAudioRecorder = ({ onComplete }: MyAudioRecorderProps) => {
       try {
         audioContextRef.current.close();
       } catch (error) {
-        console.error("Failed to close AudioContext:", error);
+        console.error('Failed to close AudioContext:', error);
       }
     }
 
@@ -164,17 +159,17 @@ export const MyAudioRecorder = ({ onComplete }: MyAudioRecorderProps) => {
 
         // Start timer for recording duration
         const timer = setInterval(() => {
-          setRecordingTime(prev => prev + 1);
+          setRecordingTime((prev) => prev + 1);
         }, 1000);
         setTimerId(timer);
 
         // Start milliseconds timer for smoother UI updates
         const msTimer = setInterval(() => {
-          setMilliseconds(prev => (prev + 1) % 100);
+          setMilliseconds((prev) => (prev + 1) % 100);
         }, 10);
         millisecondTimerRef.current = msTimer;
       } catch (error) {
-        console.error("Failed to start recording:", error);
+        console.error('Failed to start recording:', error);
         // Clear cached permission on error
         localStorage.removeItem('microphone_permission_granted');
         setAudioPermissionGranted(false);
@@ -228,7 +223,7 @@ export const MyAudioRecorder = ({ onComplete }: MyAudioRecorderProps) => {
           stopRecording();
         }
       } catch (error) {
-        console.error("Stop recording error:", error);
+        console.error('Stop recording error:', error);
       }
 
       if (timerId) {
@@ -251,27 +246,31 @@ export const MyAudioRecorder = ({ onComplete }: MyAudioRecorderProps) => {
       const extension = isMP4 ? 'mp4' : 'webm';
       const mimeType = isMP4 ? 'audio/mp4' : 'audio/webm';
       const file = new File([recordingBlob], `my_recording_${Date.now()}.${extension}`, {
-        type: mimeType
+        type: mimeType,
       });
 
       // Add duration as a custom property to the file
-      const minutes = Math.floor(recordingTime / 60).toString().padStart(2, '0');
-      const seconds = Math.floor(recordingTime % 60).toString().padStart(2, '0');
+      const minutes = Math.floor(recordingTime / 60)
+        .toString()
+        .padStart(2, '0');
+      const seconds = Math.floor(recordingTime % 60)
+        .toString()
+        .padStart(2, '0');
       const durationStr = `${minutes}:${seconds}`;
       Object.defineProperty(file, 'audioDuration', {
         value: durationStr,
-        writable: false
+        writable: false,
       });
 
       // Add metadata to mark this as user voice recording with duration
       Object.defineProperty(file, 'isUserVoiceRecording', {
         value: true,
-        writable: false
+        writable: false,
       });
 
       Object.defineProperty(file, 'audioDurationSeconds', {
         value: recordingTime,
-        writable: false
+        writable: false,
       });
 
       onComplete?.(file);
@@ -292,8 +291,12 @@ export const MyAudioRecorder = ({ onComplete }: MyAudioRecorderProps) => {
 
   // Format time display as MM:SS.XX
   const formattedTime = useMemo(() => {
-    const minutes = Math.floor(recordingTime / 60).toString().padStart(2, '0');
-    const seconds = Math.floor(recordingTime % 60).toString().padStart(2, '0');
+    const minutes = Math.floor(recordingTime / 60)
+      .toString()
+      .padStart(2, '0');
+    const seconds = Math.floor(recordingTime % 60)
+      .toString()
+      .padStart(2, '0');
     const ms = milliseconds.toString().padStart(2, '0');
     return `${minutes}:${seconds}.${ms}`;
   }, [recordingTime, milliseconds]);
@@ -324,12 +327,11 @@ export const MyAudioRecorder = ({ onComplete }: MyAudioRecorderProps) => {
                   window.location.reload();
                 }
               }}
-              color="danger"
-              variant="shadow"
+              variant="danger"
               size="lg"
-              startContent={<Icon icon="solar:shield-check-bold" />}
               className="w-full font-medium"
             >
+              {<Icon icon="solar:shield-check-bold" />}
               {t('grant-microphone-permission')}
             </Button>
           </div>
@@ -362,9 +364,7 @@ export const MyAudioRecorder = ({ onComplete }: MyAudioRecorderProps) => {
               </div>
             </div>
 
-            <div className="text-white text-7xl font-bold mt-4">
-              {formattedTime}
-            </div>
+            <div className="text-white text-7xl font-bold mt-4">{formattedTime}</div>
           </div>
 
           <div className="flex justify-center mt-4 w-full h-16">
@@ -396,16 +396,20 @@ export const MyAudioRecorder = ({ onComplete }: MyAudioRecorderProps) => {
       )}
     </div>
   );
-}
+};
 
-export const ShowAudioDialog = ((onComplete: (file: File) => void) => {
+export const ShowAudioDialog = (onComplete: (file: File) => void) => {
   return RootStore.Get(DialogStandaloneStore).setData({
     size: 'sm',
     onlyContent: true,
     isOpen: true,
-    content: <MyAudioRecorder onComplete={(file) => {
-      onComplete(file)
-      RootStore.Get(DialogStandaloneStore).close();
-    }} />
-  })
-})
+    content: (
+      <MyAudioRecorder
+        onComplete={(file) => {
+          onComplete(file);
+          RootStore.Get(DialogStandaloneStore).close();
+        }}
+      />
+    ),
+  });
+};

@@ -1,6 +1,7 @@
+import { Button, InputGroup, Spinner, TextField } from '@heroui/react';
 import { useEffect, useRef } from 'react';
 import { observer } from 'mobx-react-lite';
-import { Input, Button } from '@heroui/react';
+
 import { useTranslation } from 'react-i18next';
 import { eventBus } from '@/lib/event';
 import PopoverFloat from '.';
@@ -20,59 +21,59 @@ export const showAiWriteSuggestions = () => {
     if (selection && selection.rangeCount > 0) {
       const range = selection.getRangeAt(0);
       const rect = range.getBoundingClientRect();
-      eventBus.emit('aiwrite:update', { rect })
+      eventBus.emit('aiwrite:update', { rect });
     }
-  })
-}
+  });
+};
 
 const AiWritePop = observer(() => {
-  const { t } = useTranslation()
-  const isPc = useMediaQuery('(min-width: 768px)')
-  const ai = RootStore.Get(AiStore)
-  const scrollRef = useRef<ScrollAreaHandles>(null)
-  const blinko = RootStore.Get(BlinkoStore)
+  const { t } = useTranslation();
+  const isPc = useMediaQuery('(min-width: 768px)');
+  const ai = RootStore.Get(AiStore);
+  const scrollRef = useRef<ScrollAreaHandles>(null);
+  const blinko = RootStore.Get(BlinkoStore);
   const store = RootStore.Local(() => ({
     rect: null as DOMRect | null,
     show: false,
     hidden() {
-      store.show = false
+      store.show = false;
     },
 
     setData(args: { rect: DOMRect }) {
-      store.rect = args.rect
-      store.show = true
+      store.rect = args.rect;
+      store.show = true;
     },
 
     async handleSubmit() {
-      if (!ai.writeQuestion.trim()) return
+      if (!ai.writeQuestion.trim()) return;
       try {
-        ai.writeStream('custom', blinko.isCreateMode ? blinko.noteContent : blinko.curSelectedNote!.content)
+        ai.writeStream('custom', blinko.isCreateMode ? blinko.noteContent : blinko.curSelectedNote!.content);
       } catch (error) {
-        console.error('error:', error)
+        console.error('error:', error);
       } finally {
       }
-    }
-  }))
+    },
+  }));
 
   useEffect(() => {
-    eventBus.on('aiwrite:update', store.setData)
-    eventBus.on('aiwrite:hidden', store.hidden)
+    eventBus.on('aiwrite:update', store.setData);
+    eventBus.on('aiwrite:hidden', store.hidden);
 
     return () => {
-      eventBus.off('aiwrite:update', store.setData)
-      eventBus.off('aiwrite:hidden', store.hidden)
-    }
-  }, [])
+      eventBus.off('aiwrite:update', store.setData);
+      eventBus.off('aiwrite:hidden', store.hidden);
+    };
+  }, []);
 
   useEffect(() => {
-    scrollRef.current?.scrollToBottom()
-  }, [ai.writingResponseText])
+    scrollRef.current?.scrollToBottom();
+  }, [ai.writingResponseText]);
 
   const isInsideDialog = () => {
     if (!store.rect) return false;
     const dialogElement = document.querySelector('.modal-content');
     if (!dialogElement) return false;
-    
+
     const dialogRect = dialogElement.getBoundingClientRect();
     return (
       store.rect.top >= dialogRect.top &&
@@ -94,60 +95,125 @@ const AiWritePop = observer(() => {
       >
         <div className="flex flex-col gap-3 min-w-[300px]">
           <div className="flex gap-2">
-            <Input
-              className='border-none'
-              value={ai.writeQuestion}
-              onChange={(e) => ai.writeQuestion = e.target.value}
-              placeholder={'Prompt...'}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  store.handleSubmit()
-                }
-              }}
-              startContent={<Icon className='text-primary' icon="hugeicons:ai-beautify" width="16" height="16" />}
-              endContent={<>
-                {ai.isLoading ?
-                  <Icon icon="mingcute:loading-line" width="16" height="16" /> :
-                  <SendIcon onClick={store.handleSubmit} className='cursor-pointer primary-foreground group-hover:rotate-[-35deg] !transition-all' />}
-              </>}
-            />
+            <TextField value={ai.writeQuestion} className={'border-none'}>
+              <InputGroup>
+                <InputGroup.Prefix>
+                  {<Icon className="text-primary" icon="hugeicons:ai-beautify" width="16" height="16" />}
+                </InputGroup.Prefix>
+                <InputGroup.Input
+                  onChange={(e) => (ai.writeQuestion = e.target.value)}
+                  placeholder={'Prompt...'}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      store.handleSubmit();
+                    }
+                  }}
+                />
+                <InputGroup.Suffix>
+                  {
+                    <>
+                      {ai.isLoading ? (
+                        <Icon icon="mingcute:loading-line" width="16" height="16" />
+                      ) : (
+                        <SendIcon
+                          onClick={store.handleSubmit}
+                          className="cursor-pointer primary-foreground group-hover:rotate-[-35deg] !transition-all"
+                        />
+                      )}
+                    </>
+                  }
+                </InputGroup.Suffix>
+              </InputGroup>
+            </TextField>
           </div>
-          {
-            ai.writingResponseText != '' && <ScrollArea ref={scrollRef} className='p-2 max-h-[200px]' onBottom={() => { }}>
-              {ai.isLoading ? <div className='text-sm'>{ai.writingResponseText}</div> : <MarkdownRender content={ai.writingResponseText} />}
+          {ai.writingResponseText != '' && (
+            <ScrollArea ref={scrollRef} className="p-2 max-h-[200px]" onBottom={() => {}}>
+              {ai.isLoading ? (
+                <div className="text-sm">{ai.writingResponseText}</div>
+              ) : (
+                <MarkdownRender content={ai.writingResponseText} />
+              )}
             </ScrollArea>
-          }
+          )}
           {ai.isWriting && (
-            <div id='ai-write-suggestions' className='flex gap-2 items-center'>
-              <Button onPress={() => {
-                ai.isWriting = false;
-                eventBus.emit('editor:insert', ai.writingResponseText)
-                ai.writingResponseText = ''
-                store.hidden()
-              }} startContent={<Icon icon="ic:sharp-check" className='green' />} size='sm' variant='light' color='success'>{t('accept')}</Button>
-              <Button onPress={() => {
-                ai.isWriting = false;
-                ai.writingResponseText = ''
-                store.hidden()
-              }} startContent={<Icon icon="ic:sharp-close" className='red' />} size='sm' variant='light' color='danger'>{t('reject')}</Button>
-              <Button onPress={() => {
-                ai.abortAiWrite();
-              }} startContent={<Icon icon="mynaui:stop" className='blinko' />} size='sm' variant='light' color='warning'>{t('stop')} </Button>
+            <div id="ai-write-suggestions" className="flex gap-2 items-center">
+              <Button
+                className="text-success"
+                onPress={() => {
+                  ai.isWriting = false;
+                  eventBus.emit('editor:insert', ai.writingResponseText);
+                  ai.writingResponseText = '';
+                  store.hidden();
+                }}
+                size="sm"
+                variant="ghost"
+              >
+                {<Icon icon="ic:sharp-check" className="green" />}
+                {t('accept')}
+              </Button>
+              <Button
+                className="text-danger"
+                onPress={() => {
+                  ai.isWriting = false;
+                  ai.writingResponseText = '';
+                  store.hidden();
+                }}
+                size="sm"
+                variant="ghost"
+              >
+                {<Icon icon="ic:sharp-close" className="red" />}
+                {t('reject')}
+              </Button>
+              <Button
+                className="text-warning"
+                onPress={() => {
+                  ai.abortAiWrite();
+                }}
+                size="sm"
+                variant="ghost"
+              >
+                {<Icon icon="mynaui:stop" className="blinko" />}
+                {t('stop')}
+              </Button>
             </div>
           )}
 
-          <div className='flex items-center gap-2'>
-            <Button startContent={<Icon icon="proicons:text-expand" width="16" height="16" />} variant='flat' color='warning' size='sm' onPress={e => {
-              ai.writeStream('expand', blinko.isCreateMode ? blinko.noteContent : blinko.curSelectedNote!.content)
-              // store.hidden()
-            }}>{t('ai-expand')}</Button>
-            <Button startContent={<Icon icon="lucide:scan-text" width="16" height="16" />} variant='flat' color='warning' size='sm' onPress={e => {
-              ai.writeStream('polish', blinko.isCreateMode ? blinko.noteContent : blinko.curSelectedNote!.content)
-              // store.hidden()
-            }}>{t('ai-polish')}</Button>
-            <Button className='ml-auto' isLoading={ai.isLoading} isIconOnly size='sm' onPress={e => {
-              store.hidden()
-            }}>
+          <div className="flex items-center gap-2">
+            <Button
+              className="bg-warning/20 text-warning"
+              variant="tertiary"
+              size="sm"
+              onPress={(e) => {
+                ai.writeStream('expand', blinko.isCreateMode ? blinko.noteContent : blinko.curSelectedNote!.content);
+                // store.hidden()
+              }}
+            >
+              {<Icon icon="proicons:text-expand" width="16" height="16" />}
+              {t('ai-expand')}
+            </Button>
+            <Button
+              className="bg-warning/20 text-warning"
+              variant="tertiary"
+              size="sm"
+              onPress={(e) => {
+                ai.writeStream('polish', blinko.isCreateMode ? blinko.noteContent : blinko.curSelectedNote!.content);
+                // store.hidden()
+              }}
+            >
+              {<Icon icon="lucide:scan-text" width="16" height="16" />}
+              {t('ai-polish')}
+            </Button>
+            <Button
+              variant="tertiary"
+              className="ml-auto"
+              isIconOnly
+              size="sm"
+              onPress={(e) => {
+                store.hidden();
+              }}
+              isPending={ai.isLoading}
+            >
+              {ai.isLoading ? <Spinner color="current" size="sm" /> : null}
               <Icon icon="ic:sharp-close" />
             </Button>
           </div>
@@ -156,16 +222,10 @@ const AiWritePop = observer(() => {
     );
 
     if (isInsideDialog()) {
-      return ReactDOM.createPortal(
-        popover,
-        document.querySelector('.modal-content')!
-      );
+      return ReactDOM.createPortal(popover, document.querySelector('.modal-content')!);
     }
 
-    return ReactDOM.createPortal(
-      popover,
-      document.body
-    );
+    return ReactDOM.createPortal(popover, document.body);
   };
 
   return renderPopover();

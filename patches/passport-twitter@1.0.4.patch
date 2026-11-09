@@ -1,0 +1,15 @@
+diff --git a/lib/strategy.js b/lib/strategy.js
+index 36f454d..9f90819 100644
+--- a/lib/strategy.js
++++ b/lib/strategy.js
+@@ -204,4 +204,8 @@ Strategy.prototype.parseErrorResponse = function(body, status) {
+   } catch (ex) {
+-    xml = XML(body)
+-    return new Error(xml.children('error').t() || body);
++    try {
++      xml = XML(body);
++      return new Error(xml.children('error').t() || body);
++    } catch (xmlError) {
++      return new Error(body);
++    }
+   }

@@ -1,5 +1,6 @@
+import { Input, Label, Slider, TextField } from '@heroui/react';
 import { observer } from 'mobx-react-lite';
-import { Input, Slider } from '@heroui/react';
+
 import { CollapsibleCard } from '../../Common/CollapsibleCard';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
@@ -30,10 +31,7 @@ export const AiToolsSection = observer(() => {
   }, [blinko.config.value]);
 
   const updateConfig = (key: string, value: any) => {
-    PromiseCall(
-      api.config.update.mutate({ key, value }),
-      { autoAlert: false }
-    ).then(() => {
+    PromiseCall(api.config.update.mutate({ key, value }), { autoAlert: false }).then(() => {
       blinko.config.call();
     });
   };
@@ -43,19 +41,17 @@ export const AiToolsSection = observer(() => {
       <Item
         leftContent={<>{t('tavily-api-key')}</>}
         rightContent={
-          <Input
-            size="sm"
-            label="API key"
-            variant="bordered"
-            className="w-full md:w-[300px]"
-            value={tavilyApiKey}
-            onChange={(e) => {
-              setTavilyApiKey(e.target.value);
-            }}
-            onBlur={(e) => {
-              updateConfig('tavilyApiKey', e.target.value);
-            }}
-          />
+          <TextField value={tavilyApiKey} className={'w-full md:w-[300px]'}>
+            <Label>{'API key'}</Label>
+            <Input
+              onChange={(e) => {
+                setTavilyApiKey(e.target.value);
+              }}
+              onBlur={(e) => {
+                updateConfig('tavilyApiKey', e.target.value);
+              }}
+            />
+          </TextField>
         }
       />
 
@@ -77,16 +73,19 @@ export const AiToolsSection = observer(() => {
                 setTavilyMaxResult(Number(value));
               }}
               value={tavilyMaxResult}
-              size="md"
               step={1}
-              color="foreground"
-              label={'value'}
-              showSteps={false}
               maxValue={20}
               minValue={1}
               defaultValue={5}
               className="w-full"
-            />
+            >
+              <Label>{t('tavily-max-results')}</Label>
+              <Slider.Output />
+              <Slider.Track>
+                <Slider.Fill />
+                <Slider.Thumb />
+              </Slider.Track>
+            </Slider>
           </div>
         }
       />

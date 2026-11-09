@@ -8,8 +8,8 @@ export const webExtra = createTool({
   description: 'You are a web scraping assistant who can use the Jina API to crawl and analyze web content',
   inputSchema: z.object({
     urls: z.array(z.string()).describe('The URLs of the web page to crawl'),
-  }) as any,
-  execute: async ({ context }) => {
+  }),
+  execute: async (context) => {
     try {
       const config = await getGlobalConfig({ useAdmin: true })
       console.log('config', config.tavilyApiKey)
@@ -19,7 +19,7 @@ export const webExtra = createTool({
       const client = tavily({ apiKey: config.tavilyApiKey });
       const res = await client.extract(context.urls, {
         max_results: config?.tavilyMaxResult ?? 5,
-        with_images: true
+        includeImages: true
       })
       console.log('res', res)
       return res

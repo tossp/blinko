@@ -6,15 +6,14 @@ import { verifyToken } from '@server/lib/helper';
 export const createCommentTool = createTool({
   id: 'create-comment-tool',
   description: 'Create a comment on a note. Use this to add comments to existing notes.',
-  //@ts-ignore
   inputSchema: z.object({
     content: z.string().describe("The content of the comment"),
     noteId: z.number().describe("The ID of the note to comment on"),
     guestName: z.string().optional().describe("Optional guest name if not using an account"),
     token: z.string().optional().describe("internal use, do not pass!")
   }),
-  execute: async ({ context, runtimeContext }) => {
-    const accountId = runtimeContext?.get('accountId') || (await verifyToken(context.token))?.sub;
+  execute: async (context, { requestContext }) => {
+    const accountId = requestContext.get('accountId') || (await verifyToken(context.token ?? ''))?.sub;
     
     try {
       const caller = userCaller({

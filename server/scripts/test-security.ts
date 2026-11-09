@@ -11,6 +11,7 @@ for (const suite of [
   "exports",
   "file-storage",
   "oauth-callback",
+  "oauth-strategies",
   "pending-two-factor",
   "authorization",
   "http-auth",

@@ -12,8 +12,8 @@ export const upsertBlinkoTool = createTool({
     type: z.string().optional().default('blinko').describe('Optional: The type of content: "blinko" (flash thoughts/sudden ideas/fleeting inspiration - the default), "note" (longer, structured content), or "todo" (tasks to be done)'),
     token: z.string().optional().describe("internal use, do not pass!")
   }),
-  execute: async ({ context, runtimeContext }) => {
-    const accountId = runtimeContext?.get('accountId') || (await verifyToken(context.token))?.sub;
+  execute: async (context, { requestContext }) => {
+    const accountId = requestContext.get('accountId') || (await verifyToken(context.token ?? ''))?.sub;
     
     console.log(`create note:${context.content}, type:${context.type}, accountId:${accountId}`);
     

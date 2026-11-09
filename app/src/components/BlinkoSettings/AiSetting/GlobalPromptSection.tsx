@@ -1,5 +1,7 @@
+import { autoSizeTextArea } from '@/lib/autoSizeTextArea';
+import { TextArea, TextField } from '@heroui/react';
 import { observer } from 'mobx-react-lite';
-import { Textarea } from '@heroui/react';
+
 import { CollapsibleCard } from '../../Common/CollapsibleCard';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
@@ -42,22 +44,23 @@ export const GlobalPromptSection = observer(() => {
           <div className="font-medium">{t('global-prompt')}</div>
         </div>
 
-        <Textarea
-          radius="lg"
-          minRows={4}
-          maxRows={8}
-          value={globalPrompt}
-          onChange={(e) => handlePromptChange(e.target.value)}
-          onBlur={handlePromptBlur}
-          placeholder={`You are a versatile AI assistant who can:
+        <TextField value={globalPrompt} className={['w-full', 'rounded-' + 'lg'].filter(Boolean).join(' ')}>
+          <TextArea
+            ref={(element) => {
+              if (element) return autoSizeTextArea(element, { minRows: 4, maxRows: 8 });
+            }}
+            onChange={(e) => handlePromptChange(e.target.value)}
+            onBlur={handlePromptBlur}
+            placeholder={`You are a versatile AI assistant who can:
 1. Answer questions and explain concepts
 2. Provide suggestions and analysis
 3. Help with planning and organizing ideas
 
 Always respond in the user's language.
 Maintain a friendly and professional conversational tone.`}
-          className="w-full"
-        />
+            rows={4}
+          />
+        </TextField>
       </div>
     </CollapsibleCard>
   );

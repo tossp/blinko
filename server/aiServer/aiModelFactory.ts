@@ -3,9 +3,12 @@ import { upsertBlinkoTool } from './tools/createBlinko';
 import { createCommentTool } from './tools/createComment';
 import { LibSQLVector } from "@mastra/libsql";
 import dayjs from 'dayjs';
-import { Agent, Mastra } from '@mastra/core';
-import { LanguageModelV1, EmbeddingModelV1 } from '@ai-sdk/provider';
-import { MarkdownTextSplitter, TokenTextSplitter } from '@langchain/textsplitters';
+import { Mastra } from '@mastra/core';
+import { Agent } from '@mastra/core/agent';
+import type { EmbeddingModelV4 } from '@ai-sdk/provider';
+import type { ToolsInput } from '@mastra/core/agent';
+import { deleteVectorRecord } from './vectorRecords';
+import { toMastraModel } from './providers/mastraModel';
 import { embed } from 'ai';
 import { _ } from '@shared/lib/lodash';
 import { webSearchTool } from './tools/webSearch';
@@ -15,51 +18,18 @@ import { updateBlinkoTool } from './tools/updateBlinko';
 import { deleteBlinkoTool } from './tools/deleteBlinko';
 import { createScheduledTaskTool, deleteScheduledTaskTool, listScheduledTasksTool } from './tools/scheduledTask';
 import { getMcpMastraTools, hasMcpServers } from './mcp';
-import { rerank } from '@mastra/rag';
 import { prisma } from '@server/prisma';
 import { getGlobalConfig } from '@server/routerTrpc/config';
 import fs from 'fs';
 import path from 'path';
 import sharp from 'sharp';
 import { PinoLogger } from '@mastra/loggers';
-import { ModelCapabilities } from './types';
-import { aiModels } from '@shared/index';
-import { MastraVoice } from '@mastra/core/voice';
+import type { IMastraVoice } from '@mastra/core/voice';
 
 export class AiModelFactory {
   static async queryAndDeleteVectorById(targetId: number) {
-    const { VectorStore } = await AiModelFactory.GetProvider();
-    try {
-      const query = `
-          WITH target_record AS (
-            SELECT vector_id 
-            FROM 'blinko'
-            WHERE metadata->>'id' = ? 
-            LIMIT 1
-          )
-          DELETE FROM 'blinko'
-          WHERE vector_id IN (SELECT vector_id FROM target_record)
-          RETURNING *;`;
-      //@ts-ignore
-      const result = await VectorStore.turso.execute({
-        sql: query,
-        args: [targetId],
-      });
-
-      if (result.rows.length === 0) {
-        throw new Error(`id  ${targetId} is not found`);
-      }
-
-      return {
-        success: true,
-        deletedData: result.rows[0],
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'unknown error',
-      };
-    }
+    await AiModelFactory.GetProvider();
+    return deleteVectorRecord(targetId);
   }
 
   static async queryVector(query: string, accountId: number, _topK?: number) {
@@ -284,7 +254,7 @@ export class AiModelFactory {
     const llm = await llmProvider.getLanguageModel(llmConfig);
 
     // Get Embedding instance (if configured)
-    let embeddings: EmbeddingModelV1<string> | null = null;
+    let embeddings: EmbeddingModelV4 | null = null;
     if (embeddingModel) {
       const embeddingConfig = {
         provider: embeddingModel.provider.provider,
@@ -297,7 +267,7 @@ export class AiModelFactory {
     }
 
     // Get Audio instance (if configured)
-    let audio: MastraVoice | null = null;
+    let audio: IMastraVoice | null = null;
     if (audioModel) {
       const audioConfig = {
         provider: audioModel.provider.provider,
@@ -331,7 +301,7 @@ export class AiModelFactory {
   }
   static async BaseChatAgent({ withTools = true, withOnlineSearch = false, withMcpTools = true, extraInstructions }: { withTools?: boolean; withOnlineSearch?: boolean; withMcpTools?: boolean; extraInstructions?: string }) {
     const provider = await AiModelFactory.GetProvider();
-    let tools: Record<string, any> = {};
+    let tools: { tools?: ToolsInput } = {};
     if (withTools) {
       tools = {
         tools: {
@@ -391,9 +361,10 @@ export class AiModelFactory {
     const instructions = extraInstructions ? `${baseInstructions}\n\n${extraInstructions}` : baseInstructions;
 
     const BlinkoAgent = new Agent({
+      id: 'blinko-chat',
       name: 'Blinko Chat Agent',
       instructions,
-      model: provider?.LLM!,
+      model: toMastraModel(provider.LLM),
       ...tools,
     });
 
@@ -412,7 +383,7 @@ export class AiModelFactory {
     systemPrompt: string | ((customPrompt?: string) => string),
     loggerName: string,
     options?: {
-      tools?: Record<string, any>;
+      tools?: ToolsInput;
       isWritingAgent?: boolean;
     },
   ) {
@@ -421,10 +392,11 @@ export class AiModelFactory {
       const finalPrompt = typeof systemPrompt === 'function' ? systemPrompt(type!) : systemPrompt;
 
       const agent = new Agent({
+        id: loggerName,
         name: options?.isWritingAgent ? `${name} - ${type}` : name,
         instructions: finalPrompt,
-        model: provider?.LLM!,
-        ...(options?.tools || {}),
+        model: toMastraModel(provider.LLM),
+        tools: options?.tools,
       });
 
       return new Mastra({
@@ -600,7 +572,7 @@ If the underlying model does not support image inputs, respond exactly with: not
             ],
           },
         ],
-        { temperature: 0.3 },
+        { modelSettings: { temperature: 0.3 } },
       );
       console.log(response.text?.trim(), 'response.text?.trim()');
       return response.text?.trim() || '';

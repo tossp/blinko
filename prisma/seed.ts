@@ -1,4 +1,6 @@
+import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
+import { createPrismaAdapter } from './connection';
 
 import { promises as fs } from 'fs';
 import { randomBytes, pbkdf2 } from 'crypto';
@@ -28,7 +30,7 @@ export async function verifyPassword(inputPassword: string, hashedPassword: stri
   });
 }
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({ adapter: createPrismaAdapter() });
 
 async function main() {
   try {
@@ -101,7 +103,8 @@ async function main() {
 }
 
 export async function seedDefaultFonts() {
-  const fontsDir = path.resolve(__dirname, "../app/public/fonts");
+  const moduleDir = typeof __dirname === "string" ? __dirname : import.meta.dirname;
+  const fontsDir = path.resolve(moduleDir, "../app/public/fonts");
 
   const localFonts = await scanLocalFonts(fontsDir);
 
@@ -245,6 +248,7 @@ main()
   })
   .catch((e) => {
     console.error(e);
+    process.exitCode = 1;
   })
   .finally(async () => {
     await prisma.$disconnect();

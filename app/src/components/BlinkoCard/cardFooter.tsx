@@ -1,5 +1,6 @@
-import { Icon } from '@/components/Common/Iconify/icons';
 import { Tooltip } from '@heroui/react';
+import { Icon } from '@/components/Common/Iconify/icons';
+
 import { Note, NoteType } from '@shared/lib/types';
 import { ConvertItemFunction, ShowEditTimeModel } from '../BlinkoRightClickMenu';
 import { BlinkoStore } from '@/store/blinkoStore';
@@ -43,7 +44,7 @@ export const ConvertTypeButton = ({
   const handleClick = (e) => {
     e.stopPropagation();
     blinko.curSelectedNote = _.cloneDeep(blinkoItem);
-    
+
     if (blinkoItem.type === NoteType.TODO) {
       ShowEditTimeModel(true);
     } else {
@@ -55,10 +56,10 @@ export const ConvertTypeButton = ({
     if (!blinkoItem.metadata?.expireAt) {
       return { color: 'text-green-500', status: 'no-deadline' };
     }
-    
+
     const expireDate = dayjs(blinkoItem.metadata.expireAt);
     const now = dayjs();
-    
+
     if (expireDate.isBefore(now)) {
       return { color: 'text-red-500', status: 'expired' };
     } else if (expireDate.diff(now, 'day') <= 3) {
@@ -70,16 +71,19 @@ export const ConvertTypeButton = ({
 
   if (blinkoItem.type === NoteType.BLINKO) {
     return (
-      <Tooltip placement={tooltipPlacement} classNames={toolTipClassNames} content={tooltip ?? t('convert-to') + ' Note'} delay={1000}>
-        <div className="flex items-center justify-start cursor-pointer" onClick={handleClick}>
-          <Icon className="text-yellow-500" icon="basil:lightning-solid" width="12" height="12" />
-          <div className="text-desc text-xs font-bold ml-1 select-none">
-            {t('blinko')}
-            {blinkoItem.isBlog ? ` · ${t('article')}` : ''}
-            {blinkoItem.isArchived ? ` · ${t('archived')}` : ''}
-            {blinkoItem.isOffline ? ` · ${t('offline')}` : ''}
+      <Tooltip delay={1000}>
+        <Tooltip.Trigger tabIndex={0}>
+          <div className="flex items-center justify-start cursor-pointer" onClick={handleClick}>
+            <Icon className="text-yellow-500" icon="basil:lightning-solid" width="12" height="12" />
+            <div className="text-desc text-xs font-bold ml-1 select-none">
+              {t('blinko')}
+              {blinkoItem.isBlog ? ` · ${t('article')}` : ''}
+              {blinkoItem.isArchived ? ` · ${t('archived')}` : ''}
+              {blinkoItem.isOffline ? ` · ${t('offline')}` : ''}
+            </div>
           </div>
-        </div>
+        </Tooltip.Trigger>
+        <Tooltip.Content placement={tooltipPlacement}>{tooltip ?? t('convert-to') + ' Note'}</Tooltip.Content>
       </Tooltip>
     );
   }
@@ -101,15 +105,15 @@ export const ConvertTypeButton = ({
       if (!blinkoItem.metadata?.expireAt) {
         return null;
       }
-      
+
       const expireDate = dayjs(blinkoItem.metadata.expireAt);
       const now = dayjs();
-      
+
       if (todoStatus.status === 'expired') {
         const diffInMinutes = now.diff(expireDate, 'minute');
         const diffInHours = now.diff(expireDate, 'hour');
         const diffInDays = now.diff(expireDate, 'day');
-        
+
         if (diffInDays > 0) {
           return t('expired-days', { count: diffInDays });
         } else if (diffInHours > 0) {
@@ -123,7 +127,7 @@ export const ConvertTypeButton = ({
         const diffInMinutes = expireDate.diff(now, 'minute');
         const diffInHours = expireDate.diff(now, 'hour');
         const diffInDays = expireDate.diff(now, 'day');
-        
+
         if (diffInDays > 0) {
           return t('days-left', { count: diffInDays });
         } else if (diffInHours > 0) {
@@ -137,36 +141,43 @@ export const ConvertTypeButton = ({
     };
 
     return (
-      <Tooltip placement={tooltipPlacement} classNames={toolTipClassNames} content={tooltip ?? getTooltipContent()} delay={1000}>
-        <div className="flex items-center justify-start cursor-pointer" onClick={handleClick}>
-          <Icon className={todoStatus.color} icon="solar:folder-check-bold" width="12" height="12" />
-          <div className="text-desc text-xs font-bold ml-1 select-none">
-            {t('todo')}
-            {blinkoItem.metadata?.expireAt && (
-              <span className={todoStatus.color}>
-                {' · '}{getTimeDisplay()}
-              </span>
-            )}
-            {blinkoItem.isBlog ? ` · ${t('article')}` : ''}
-            {blinkoItem.isArchived ? ` · ${t('archived')}` : ''}
-            {blinkoItem.isOffline ? ` · ${t('offline')}` : ''}
+      <Tooltip delay={1000}>
+        <Tooltip.Trigger tabIndex={0}>
+          <div className="flex items-center justify-start cursor-pointer" onClick={handleClick}>
+            <Icon className={todoStatus.color} icon="solar:folder-check-bold" width="12" height="12" />
+            <div className="text-desc text-xs font-bold ml-1 select-none">
+              {t('todo')}
+              {blinkoItem.metadata?.expireAt && (
+                <span className={todoStatus.color}>
+                  {' · '}
+                  {getTimeDisplay()}
+                </span>
+              )}
+              {blinkoItem.isBlog ? ` · ${t('article')}` : ''}
+              {blinkoItem.isArchived ? ` · ${t('archived')}` : ''}
+              {blinkoItem.isOffline ? ` · ${t('offline')}` : ''}
+            </div>
           </div>
-        </div>
+        </Tooltip.Trigger>
+        <Tooltip.Content placement={tooltipPlacement}>{tooltip ?? getTooltipContent()}</Tooltip.Content>
       </Tooltip>
     );
   }
 
   return (
-    <Tooltip content={t('convert-to') + ' Blinko'} delay={1500}>
-      <div className="flex items-center justify-start cursor-pointer" onClick={handleClick}>
-        <Icon className="text-blue-500" icon="solar:notes-minimalistic-bold-duotone" width="12" height="12" />
-        <div className="text-desc text-xs font-bold ml-1 select-none">
-          {t('note')}
-          {blinkoItem.isBlog ? ` · ${t('article')}` : ''}
-          {blinkoItem.isArchived ? ` · ${t('archived')}` : ''}
-          {blinkoItem.isOffline ? ` · ${t('offline')}` : ''}
+    <Tooltip delay={1500}>
+      <Tooltip.Trigger tabIndex={0}>
+        <div className="flex items-center justify-start cursor-pointer" onClick={handleClick}>
+          <Icon className="text-blue-500" icon="solar:notes-minimalistic-bold-duotone" width="12" height="12" />
+          <div className="text-desc text-xs font-bold ml-1 select-none">
+            {t('note')}
+            {blinkoItem.isBlog ? ` · ${t('article')}` : ''}
+            {blinkoItem.isArchived ? ` · ${t('archived')}` : ''}
+            {blinkoItem.isOffline ? ` · ${t('offline')}` : ''}
+          </div>
         </div>
-      </div>
+      </Tooltip.Trigger>
+      <Tooltip.Content>{t('convert-to') + ' Blinko'}</Tooltip.Content>
     </Tooltip>
   );
 };
@@ -176,8 +187,11 @@ const RightContent = ({ blinkoItem, t }: { blinkoItem: Note; t: any }) => {
     <div className="ml-auto flex items-center gap-2">
       {<CommentCount blinkoItem={blinkoItem} />}
       {blinkoItem?.metadata?.isIndexed && (
-        <Tooltip content={'Indexed'} delay={1500}>
-          <Icon className="!text-ignore opacity-50" icon="hugeicons:ai-beautify" width="16" height="16" />
+        <Tooltip delay={1500}>
+          <Tooltip.Trigger tabIndex={0}>
+            <Icon className="!text-ignore opacity-50" icon="hugeicons:ai-beautify" width="16" height="16" />
+          </Tooltip.Trigger>
+          <Tooltip.Content>{'Indexed'}</Tooltip.Content>
         </Tooltip>
       )}
     </div>

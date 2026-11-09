@@ -1,4 +1,5 @@
 import passport from 'passport';
+import { createRequire } from 'node:module';
 import { Strategy as LocalStrategy } from 'passport-local';
 import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
 import { Strategy as GitHubStrategy } from 'passport-github2';
@@ -11,14 +12,12 @@ import { verifyPassword } from '@prisma/seed';
 import { getGlobalConfig } from '../../routerTrpc/config';
 import { getNextAuthSecret, generateToken, generateApiToken } from '../../lib/helper';
 import { cache } from '@shared/lib/cache';
-
+const require = createRequire(import.meta.url);
 // Cache TTL in milliseconds (20 seconds)
 const CACHE_TTL = 20 * 1000;
-
 let oauthStrategiesInitialized = false;
 let oauthInitializationPromise: Promise<string[]> | null = null;
 const registeredOAuthProviderIds = new Set<string>();
-
 const hasOAuthStrategy = (providerId: string) => {
   return Boolean((passport as any)._strategy(providerId));
 };

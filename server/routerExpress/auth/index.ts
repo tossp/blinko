@@ -2,7 +2,7 @@ import express from 'express';
 import passport, { ensureOAuthStrategies } from './config';
 
 import { prisma } from '../../prisma';
-import { authenticator } from 'otplib';
+import { verifyTOTP } from '../../lib/totp';
 import { getGlobalConfig } from '../../routerTrpc/config';
 import { verifyToken, generateToken, generateApiToken } from '../../lib/helper';
 
@@ -158,10 +158,7 @@ router.post('/verify-2fa', async (req: any, res) => {
       return res.status(401).json({ error: 'Two-factor authentication is not enabled' });
     }
 
-    const isValidToken = authenticator.verify({
-      token: req.body.code,
-      secret: config.twoFactorSecret ?? '',
-    });
+    const isValidToken = verifyTOTP(req.body.code, config.twoFactorSecret);
 
     if (!isValidToken) {
       return res.status(401).json({ error: 'Invalid verification code' });

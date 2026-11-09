@@ -14,33 +14,16 @@ async function build() {
       bundle: true,
       minify: true,
       platform: 'node',
-      target: 'node18',
+      target: 'node26',
       outfile: '../dist/index.js',
-      format: 'cjs',
+      format: 'esm',
       sourcemap: true,
       metafile: true,
       banner: {
-        js: '#!/usr/bin/env bun\n',
+        js: '#!/usr/bin/env node\n',
       },
-      packages: 'bundle',
-      external: [
-        'buffer', 'crypto', 'events', 'fs', 'http', 'https', 'net',
-        'os', 'path', 'querystring', 'stream', 'util', 'zlib',
-        '@node-rs/crc32',
-        'lightningcss',
-        'llamaindex',
-        'onnxruntime-node',
-        'onnxruntime-web',
-        '@langchain/community',
-        'sharp',
-        'esbuild',
-        'sqlite3',
-        'fsevents',
-        '@libsql/linux-x64-musl',
-        '@libsql/linux-x64-gnu',
-        '@libsql/linux-arm64-musl',
-        '@libsql/linux-arm64-gnu'
-      ],
+      // Native modules and ESM packages resolve from the locked runtime install.
+      packages: 'external',
       define: {
         'process.env.NODE_ENV': '"production"',
       },
@@ -51,8 +34,6 @@ async function build() {
         '.cjs': 'js',
         '.json': 'json',
       },
-      conditions: ['node', 'require'],
-      mainFields: ['main'],
     });
 
     console.log('Build successful!');

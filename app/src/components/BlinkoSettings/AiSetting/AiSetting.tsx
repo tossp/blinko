@@ -1,5 +1,6 @@
+import { Button, InputGroup, ListBox, Select, TextField } from '@heroui/react';
 import { observer } from 'mobx-react-lite';
-import { Button, Select, SelectItem, Input } from '@heroui/react';
+
 import { Icon } from '@/components/Common/Iconify/icons';
 import { CollapsibleCard } from '../../Common/CollapsibleCard';
 import { useTranslation } from 'react-i18next';
@@ -22,8 +23,7 @@ import { Copy } from '../../Common/Copy';
 import { MarkdownRender } from '../../Common/MarkdownRender';
 import { getBlinkoEndpoint } from '@/lib/blinkoEndpoint';
 
-
-type McpTransportExample = 'streamable-http' | 'sse'
+type McpTransportExample = 'streamable-http' | 'sse';
 
 export default observer(function AiSetting() {
   const { t } = useTranslation();
@@ -33,19 +33,21 @@ export default observer(function AiSetting() {
   const [selectedTransport, setSelectedTransport] = useState<McpTransportExample>('streamable-http');
   const streamableHttpEndpoint = getBlinkoEndpoint('/mcp');
   const sseEndpoint = getBlinkoEndpoint('/sse');
-  const selectedEndpoint = selectedTransport === 'streamable-http'
-    ? streamableHttpEndpoint
-    : sseEndpoint;
-  const mcpClientConfig = JSON.stringify({
-    mcpServers: {
-      blinko: {
-        url: selectedEndpoint,
-        headers: {
-          Authorization: `Bearer ${user.userInfo.value?.token || ''}`,
+  const selectedEndpoint = selectedTransport === 'streamable-http' ? streamableHttpEndpoint : sseEndpoint;
+  const mcpClientConfig = JSON.stringify(
+    {
+      mcpServers: {
+        blinko: {
+          url: selectedEndpoint,
+          headers: {
+            Authorization: `Bearer ${user.userInfo.value?.token || ''}`,
+          },
         },
       },
     },
-  }, null, 2);
+    null,
+    2
+  );
 
   useEffect(() => {
     blinko.config.call();
@@ -53,15 +55,13 @@ export default observer(function AiSetting() {
   }, []);
 
   return (
-    <div className='flex flex-col gap-4'>
+    <div className="flex flex-col gap-4">
       <CollapsibleCard icon="hugeicons:ai-magic" title="AI Providers & Models">
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <Button
-              size='md'
-              className='ml-auto'
-              color="primary"
-              startContent={<Icon icon="iconamoon:cloud-add-light" width="20" height="20" />}
+              size="md"
+              className="ml-auto"
               onPress={() => {
                 RootStore.Get(DialogStore).setData({
                   isOpen: true,
@@ -70,12 +70,14 @@ export default observer(function AiSetting() {
                   content: <ProviderDialogContent />,
                 });
               }}
+              variant="primary"
             >
+              {<Icon icon="iconamoon:cloud-add-light" width="20" height="20" />}
               {t('add-provider')}
             </Button>
           </div>
 
-          {aiStore.aiProviders.value?.map(provider => (
+          {aiStore.aiProviders.value?.map((provider) => (
             <ProviderCard key={provider.id} provider={provider as any} />
           ))}
         </div>
@@ -84,7 +86,6 @@ export default observer(function AiSetting() {
       <DefaultModelsSection />
 
       <EmbeddingSettingsSection />
-
 
       <GlobalPromptSection />
 
@@ -97,18 +98,21 @@ export default observer(function AiSetting() {
       <CollapsibleCard icon="hugeicons:api" title="MCP Integration">
         <div className="space-y-4">
           <div className="text-sm text-default-600 mb-4">
-            {t('mcp-integration-desc', 'Model Context Protocol (MCP) integration allows AI assistants to connect to Blinko and use its tools.')}
+            {t(
+              'mcp-integration-desc',
+              'Model Context Protocol (MCP) integration allows AI assistants to connect to Blinko and use its tools.'
+            )}
           </div>
 
           <div className="space-y-3">
             <div>
               <label className="text-sm font-medium text-default-700">Streamable HTTP Endpoint URL</label>
-              <Input
-                value={streamableHttpEndpoint}
-                readOnly
-                className="mt-1"
-                endContent={<Copy size={20} content={streamableHttpEndpoint} />}
-              />
+              <TextField value={streamableHttpEndpoint} className={'mt-1'}>
+                <InputGroup>
+                  <InputGroup.Input readOnly />
+                  <InputGroup.Suffix>{<Copy size={20} content={streamableHttpEndpoint} />}</InputGroup.Suffix>
+                </InputGroup>
+              </TextField>
               <p className="mt-1 text-xs text-success-600">
                 {t('mcp-streamable-http-recommended', 'Recommended for modern MCP clients.')}
               </p>
@@ -116,12 +120,12 @@ export default observer(function AiSetting() {
 
             <div>
               <label className="text-sm font-medium text-default-700">Legacy SSE Endpoint URL</label>
-              <Input
-                value={sseEndpoint}
-                readOnly
-                className="mt-1"
-                endContent={<Copy size={20} content={sseEndpoint} />}
-              />
+              <TextField value={sseEndpoint} className={'mt-1'}>
+                <InputGroup>
+                  <InputGroup.Input readOnly />
+                  <InputGroup.Suffix>{<Copy size={20} content={sseEndpoint} />}</InputGroup.Suffix>
+                </InputGroup>
+              </TextField>
               <p className="mt-1 text-xs text-default-500">
                 {t('mcp-sse-legacy-desc', 'Use this only if your MCP client does not support Streamable HTTP yet.')}
               </p>
@@ -129,13 +133,12 @@ export default observer(function AiSetting() {
 
             <div>
               <label className="text-sm font-medium text-default-700">Authorization Token</label>
-              <Input
-                value={user.userInfo.value?.token || ''}
-                readOnly
-                type="password"
-                className="mt-1"
-                endContent={<Copy size={20} content={user.userInfo.value?.token ?? ''} />}
-              />
+              <TextField value={user.userInfo.value?.token || ''} className={'mt-1'}>
+                <InputGroup>
+                  <InputGroup.Input readOnly type="password" />
+                  <InputGroup.Suffix>{<Copy size={20} content={user.userInfo.value?.token ?? ''} />}</InputGroup.Suffix>
+                </InputGroup>
+              </TextField>
             </div>
 
             <div>
@@ -143,23 +146,33 @@ export default observer(function AiSetting() {
                 <label className="text-sm font-medium text-default-700">MCP Client Configuration</label>
                 <Select
                   aria-label={t('transport-type')}
-                  selectedKeys={[selectedTransport]}
-                  onChange={(e) => setSelectedTransport(e.target.value as McpTransportExample)}
-                  size="sm"
+                  onChange={(selectedValue) => setSelectedTransport(String(selectedValue ?? '') as McpTransportExample)}
                   className="w-full sm:max-w-xs"
-                  classNames={{
-                    trigger: 'min-h-10 h-10',
-                  }}
+                  value={selectedTransport}
                 >
-                  <SelectItem key="streamable-http">Streamable HTTP (Recommended)</SelectItem>
-                  <SelectItem key="sse">SSE (Legacy)</SelectItem>
+                  <Select.Trigger className={'min-h-10 h-10'}>
+                    <Select.Value />
+                    <Select.Indicator />
+                  </Select.Trigger>
+                  <Select.Popover>
+                    <ListBox>
+                      <ListBox.Item key="streamable-http" id={'streamable-http'}>
+                        Streamable HTTP (Recommended)
+                      </ListBox.Item>
+                      <ListBox.Item key="sse" id={'sse'}>
+                        SSE (Legacy)
+                      </ListBox.Item>
+                    </ListBox>
+                  </Select.Popover>
                 </Select>
               </div>
               <div className="relative">
                 <Copy size={20} content={mcpClientConfig} className="absolute top-4 right-2 z-10" />
-                <MarkdownRender content={`\`\`\`json
+                <MarkdownRender
+                  content={`\`\`\`json
 ${mcpClientConfig}
-\`\`\``} />
+\`\`\``}
+                />
               </div>
             </div>
           </div>

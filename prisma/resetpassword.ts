@@ -1,4 +1,6 @@
+import 'dotenv/config'
 import { PrismaClient } from '@prisma/client'
+import { createPrismaAdapter } from './connection'
 
 import { randomBytes, pbkdf2 } from 'crypto'
 
@@ -12,7 +14,7 @@ export async function hashPassword(password: string): Promise<string> {
   });
 }
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({ adapter: createPrismaAdapter() });
 
 async function main() {
   try {

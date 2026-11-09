@@ -2,11 +2,14 @@
   "name": "blinko-monorepo",
   "version": "1.8.9",
   "private": true,
-  "packageManager": "bun@1.2.8",
+  "type": "module",
+  "packageManager": "bun@1.4.4",
+  "trustedDependencies": ["esbuild", "sqlite3"],
   "workspaces": [
     "app",
     "server",
-    "shared"
+    "shared",
+    "app/tauri-plugin-blinko"
   ],
   "scripts": {
     "dev": "cd app && bun run tauri dev",
@@ -16,35 +19,44 @@
     "clean": "turbo run clean && rm -rf node_modules",
     "dev:backend": "dotenv turbo run dev --filter=@blinko/backend",
     "dev:frontend": "dotenv turbo run dev --filter=@blinko/frontend",
-    "postinstall": "turbo run prisma:generate --filter=@blinko/backend",
+    "postinstall": "bun run prisma:generate",
     "setup": "bun install",
-    "prisma:generate": "cd prisma && prisma generate",
-    "prisma:migrate:dev": "cd prisma && prisma migrate dev",
-    "prisma:migrate:deploy": "cd prisma && prisma migrate deploy",
-    "prisma:studio": "cd prisma && prisma studio",
-    "build:seed": "tsup prisma/seed.ts --outDir dist",
+    "prisma:generate": "prisma generate --config prisma.config.ts",
+    "prisma:migrate:dev": "prisma migrate dev --config prisma.config.ts",
+    "prisma:migrate:deploy": "prisma migrate deploy --config prisma.config.ts",
+    "prisma:studio": "prisma studio --config prisma.config.ts",
+    "build:seed": "tsup prisma/seed.ts --outDir dist --format esm --target node26 --external @prisma/client --external @prisma/adapter-pg --external pg --external pg-connection-string",
     "seed": "bun dist/seed.js",
     "build:blinko:types": "tsc -p tsconfig.blinko.json"
   },
+  "overrides": {
+    "xmldom": "npm:@xmldom/xmldom@0.9.12",
+    "basic-ftp": "6.2.6",
+    "passport": "^0.7.0"
+  },
   "devDependencies": {
-    "@types/lru-cache": "^7.10.10",
-    "concurrently": "^9.1.2",
-    "eslint": "^8.56.0",
-    "prettier": "^3.2.5",
-    "turbo": "latest",
-    "typescript": "^5.1.6",
-    "vite-plugin-pwa": "^1.0.0",
-    "workbox-window": "^7.3.0"
+    "concurrently": "^10.0.7",
+    "eslint": "^10.14.0",
+    "prettier": "^3.9.10",
+    "turbo": "^2.11.10",
+    "typescript": "^7.0.2",
+    "vite-plugin-pwa": "^2.0.0",
+    "workbox-window": "^7.4.1"
   },
   "engines": {
-    "bun": ">=1.0.0",
-    "node": ">=20.0.0"
+    "bun": ">=1.4.4",
+    "node": ">=26.13.0"
   },
   "dependencies": {
-    "dotenv": "^16.5.0",
-    "lru-cache": "^11.1.0",
-    "react-i18next": "^15.4.1",
-    "react-simple-pull-to-refresh": "^1.3.3",
-    "wait-on": "^8.0.3"
+    "dotenv": "^18.0.10",
+    "lru-cache": "^11.5.3",
+    "react-i18next": "^18.0.1",
+    "react-simple-pull-to-refresh": "^1.3.4",
+    "wait-on": "^9.5.1"
+  },
+  "patchedDependencies": {
+    "xtraverse@0.1.0": "patches/xtraverse@0.1.0.patch",
+    "passport-twitter@1.0.4": "patches/passport-twitter@1.0.4.patch",
+    "@shadergradient/react@2.4.20": "patches/@shadergradient%2Freact@2.4.20.patch"
   }
 }

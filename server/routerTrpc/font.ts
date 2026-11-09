@@ -3,9 +3,9 @@ import { prisma } from '../prisma';
 import { router, authProcedure, publicProcedure } from '../middleware';
 
 // Helper to convert Buffer to base64 string for JSON transmission
-function bufferToBase64(buffer: Buffer | null | undefined): string | null {
+function bufferToBase64(buffer: Uint8Array | null | undefined): string | null {
   if (!buffer) return null;
-  return buffer.toString('base64');
+  return Buffer.from(buffer).toString('base64');
 }
 
 // Helper to transform font from DB to API response

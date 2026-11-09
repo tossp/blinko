@@ -1,7 +1,8 @@
-import { Store } from "@/store/standard/base";
-import toast, { Toaster } from "react-hot-toast";
-import { Progress } from "@heroui/react";
-import i18n from "@/lib/i18n";
+import { ProgressBar } from '@heroui/react';
+import { Store } from '@/store/standard/base';
+import toast, { Toaster } from 'react-hot-toast';
+
+import i18n from '@/lib/i18n';
 
 interface UploadProgressProps {
   progress: number;
@@ -17,20 +18,17 @@ const UploadProgressToast = ({ progress, fileName, speed, loaded, total }: Uploa
       <div className="text-sm font-medium truncate" title={fileName}>
         {fileName}
       </div>
-      <Progress 
-        value={progress} 
-        className="max-w-md"
+      <ProgressBar
+        value={progress}
+        className={[['max-w-md', 'rounded-' + 'sm'].filter(Boolean).join(' '), 'max-w-md'].filter(Boolean).join(' ')}
         size="sm"
-        radius="sm"
-        classNames={{
-          base: "max-w-md",
-          track: "drop-shadow-md border border-default",
-          indicator: "bg-gradient-to-r from-pink-500 to-yellow-500",
-          label: "tracking-wider font-medium text-default-600",
-          value: "text-foreground/60"
-        }}
-        showValueLabel={true}
-      />
+        aria-label={'Progress'}
+      >
+        {true && <ProgressBar.Output className={'text-foreground/60'} />}
+        <ProgressBar.Track className={'drop-shadow-md border border-default'}>
+          <ProgressBar.Fill className={'bg-gradient-to-r from-pink-500 to-yellow-500'} />
+        </ProgressBar.Track>
+      </ProgressBar>
       <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
         <span>{speed}/s</span>
         <span>
@@ -42,7 +40,7 @@ const UploadProgressToast = ({ progress, fileName, speed, loaded, total }: Uploa
 );
 
 export class ToastPlugin implements Store {
-  sid = "ToastPlugin";
+  sid = 'ToastPlugin';
   private sizeThreshold = 5;
 
   provider = () => (
@@ -74,7 +72,7 @@ export class ToastPlugin implements Store {
   uploadProgress(file: File) {
     if (file.size < this.sizeThreshold * 1024 * 1024) {
       return {
-        onUploadProgress: () => {}
+        onUploadProgress: () => {},
       };
     }
 
@@ -87,32 +85,38 @@ export class ToastPlugin implements Store {
       const timeElapsed = (currentTime - startTime) / 1000;
       const loadedDiff = loaded - lastLoaded;
       const speed = loadedDiff / timeElapsed;
-      
+
       lastLoaded = loaded;
       startTime = currentTime;
 
       const progress = Math.round((loaded * 100) / total);
 
       if (!toastId) {
-        toastId = toast.custom((t) => (
-          <UploadProgressToast
-            progress={progress}
-            fileName={file.name}
-            speed={this.formatBytes(speed)}
-            loaded={this.formatBytes(loaded)}
-            total={this.formatBytes(total)}
-          />
-        ), { duration: Infinity });
+        toastId = toast.custom(
+          (t) => (
+            <UploadProgressToast
+              progress={progress}
+              fileName={file.name}
+              speed={this.formatBytes(speed)}
+              loaded={this.formatBytes(loaded)}
+              total={this.formatBytes(total)}
+            />
+          ),
+          { duration: Infinity }
+        );
       } else {
-        toast.custom((t) => (
-          <UploadProgressToast
-            progress={progress}
-            fileName={file.name}
-            speed={this.formatBytes(speed)}
-            loaded={this.formatBytes(loaded)}
-            total={this.formatBytes(total)}
-          />
-        ), { id: toastId });
+        toast.custom(
+          (t) => (
+            <UploadProgressToast
+              progress={progress}
+              fileName={file.name}
+              speed={this.formatBytes(speed)}
+              loaded={this.formatBytes(loaded)}
+              total={this.formatBytes(total)}
+            />
+          ),
+          { id: toastId }
+        );
       }
 
       if (progress === 100) {
@@ -126,16 +130,16 @@ export class ToastPlugin implements Store {
     return {
       onUploadProgress: (progressEvent: any) => {
         updateProgress(progressEvent.loaded, progressEvent.total);
-      }
+      },
     };
   }
 
   success(str: string) {
-    toast.success(str, { icon: '👏' })
-  };
+    toast.success(str, { icon: '👏' });
+  }
   error(str: string) {
-    toast.error(this.splitTextIntoLines(str, 60))
-  };
+    toast.error(this.splitTextIntoLines(str, 60));
+  }
   loading = toast.loading;
   custom = toast.custom;
   dismiss = toast.dismiss;

@@ -41,7 +41,8 @@ export class AiUtilities {
         }
 
         vectorStore = new LibSQLVector({
-          connectionUrl: VECTOR_DB_FILE_PATH,
+          id: 'blinko-vector',
+          url: VECTOR_DB_FILE_PATH,
         });
 
         //!index must be created before use
@@ -50,7 +51,8 @@ export class AiUtilities {
         console.error('Failed to initialize vector database:', error);
         // Create a minimal fallback to prevent crashes
         vectorStore = new LibSQLVector({
-          connectionUrl: VECTOR_DB_FILE_PATH,
+          id: 'blinko-vector',
+          url: VECTOR_DB_FILE_PATH,
         });
       }
     }

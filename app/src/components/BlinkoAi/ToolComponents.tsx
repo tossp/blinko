@@ -1,7 +1,7 @@
 import { Icon } from '@/components/Common/Iconify/icons';
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from 'framer-motion';
 import { MarkdownRender } from '@/components/Common/MarkdownRender';
-import { Button, Chip } from '@heroui/react';
+
 import { useState } from 'react';
 import { RootStore } from '@/store';
 import { DialogStore } from '@/store/module/Dialog';
@@ -9,12 +9,12 @@ import { useTranslation } from 'react-i18next';
 
 // Tool icons mapping for different tools
 export const toolIcons: Record<string, string> = {
-  "search-blinko-tool": "material-symbols:search-rounded",
-  "update-blinko-tool": "material-symbols:update",
-  "upsert-blinko-tool": "material-symbols:add-circle-outline",
-  "create-blinko-tool": "material-symbols:add-circle-outline",
-  "jina-web-crawler-tool": "material-symbols:travel-explore",
-  "web-search-tool": "material-symbols:travel-explore",
+  'search-blinko-tool': 'material-symbols:search-rounded',
+  'update-blinko-tool': 'material-symbols:update',
+  'upsert-blinko-tool': 'material-symbols:add-circle-outline',
+  'create-blinko-tool': 'material-symbols:add-circle-outline',
+  'jina-web-crawler-tool': 'material-symbols:travel-explore',
+  'web-search-tool': 'material-symbols:travel-explore',
   // Add more tool mappings as needed
 };
 
@@ -33,13 +33,13 @@ export const getToolIcon = (toolName: string): string => {
   }
 
   // Try to find a partial match
-  const partialMatch = Object.keys(toolIcons).find(key => baseName.includes(key));
+  const partialMatch = Object.keys(toolIcons).find((key) => baseName.includes(key));
   if (partialMatch && toolIcons[partialMatch]) {
     return toolIcons[partialMatch];
   }
 
   // Default icon if no match found
-  return "material-symbols:build-circle";
+  return 'material-symbols:build-circle';
 };
 
 /**
@@ -53,7 +53,7 @@ export const getToolDisplayName = (toolName: string): string => {
     .replace(/Tool$/, '')
     .replace(/-tool$/, '')
     .replace(/([A-Z])/g, ' $1')
-    .replace(/^./, str => str.toUpperCase())
+    .replace(/^./, (str) => str.toUpperCase())
     .replace(/-/g, ' ')
     .trim();
 };
@@ -61,13 +61,7 @@ export const getToolDisplayName = (toolName: string): string => {
 /**
  * Component that displays a tool usage chip with animation
  */
-export const ToolUsageChip = ({
-  toolName,
-  index
-}: {
-  toolName: string,
-  index: number
-}): JSX.Element => {
+export const ToolUsageChip = ({ toolName, index }: { toolName: string; index: number }): React.JSX.Element => {
   const displayName = getToolDisplayName(toolName);
   const icon = getToolIcon(toolName);
 
@@ -79,8 +73,8 @@ export const ToolUsageChip = ({
       transition={{
         duration: 0.4,
         delay: index * 0.1,
-        type: "spring",
-        stiffness: 100
+        type: 'spring',
+        stiffness: 100,
       }}
     >
       {/* @ts-ignore */}
@@ -96,7 +90,7 @@ export const ToolUsageChip = ({
 export const ToolCallBubble = ({
   toolCall,
   toolResult,
-  isStreaming = false
+  isStreaming = false,
 }: {
   toolCall: {
     toolCallId: string;
@@ -110,12 +104,12 @@ export const ToolCallBubble = ({
     result: any;
   };
   isStreaming?: boolean;
-}): JSX.Element => {
+}): React.JSX.Element => {
   const displayName = getToolDisplayName(toolCall.toolName);
   const icon = getToolIcon(toolCall.toolName);
   const isCompleted = !!toolResult;
   const isExecuting = !isCompleted && !isStreaming;
-  const {t} = useTranslation()
+  const { t } = useTranslation();
   const formatJson = (obj: any) => {
     return JSON.stringify(obj, null, 2);
   };
@@ -160,39 +154,49 @@ export const ToolCallBubble = ({
       className="inline-block my-1 max-w-fit"
       initial={{ opacity: 0, scale: 0.95, y: 5 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ duration: 0.3, type: "spring", stiffness: 200 }}
+      transition={{ duration: 0.3, type: 'spring', stiffness: 200 }}
     >
       <div
         className="bg-gray-100 dark:bg-gray-700 rounded-xl cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
         onClick={handleClick}
       >
         <div className="flex items-center gap-2 px-3 py-2">
-          <div className={`flex items-center justify-center w-6 h-6 rounded ${
-            isCompleted ? 'bg-green-100 dark:bg-green-900/30' :
-            isExecuting ? 'bg-blue-100 dark:bg-blue-900/30' :
-            'bg-gray-100 dark:bg-gray-700'
-          }`}>
+          <div
+            className={`flex items-center justify-center w-6 h-6 rounded ${
+              isCompleted
+                ? 'bg-green-100 dark:bg-green-900/30'
+                : isExecuting
+                  ? 'bg-blue-100 dark:bg-blue-900/30'
+                  : 'bg-gray-100 dark:bg-gray-700'
+            }`}
+          >
             <Icon
               icon={icon}
               className={
-                isCompleted ? 'text-green-600 dark:text-green-400' :
-                isExecuting ? 'text-blue-600 dark:text-blue-400' :
-                'text-gray-500 dark:text-gray-400'
+                isCompleted
+                  ? 'text-green-600 dark:text-green-400'
+                  : isExecuting
+                    ? 'text-blue-600 dark:text-blue-400'
+                    : 'text-gray-500 dark:text-gray-400'
               }
               width="14"
               height="14"
             />
           </div>
 
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-            {displayName}
-          </span>
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{displayName}</span>
 
           {isExecuting && (
             <div className="flex items-center gap-1">
               <div className="w-1 h-1 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-              <div className="w-1 h-1 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-              <div className="w-1 h-1 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+              <div
+                className="w-1 h-1 bg-blue-500 rounded-full animate-bounce"
+                style={{ animationDelay: '150ms' }}
+              ></div>
+              <div
+                className="w-1 h-1 bg-blue-500 rounded-full animate-bounce"
+                style={{ animationDelay: '300ms' }}
+              ></div>
             </div>
           )}
 
@@ -200,12 +204,7 @@ export const ToolCallBubble = ({
             <Icon icon="material-symbols:check-circle" className="text-green-500" width="14" height="14" />
           )}
 
-          <Icon
-            icon="material-symbols:info"
-            className="text-gray-400 ml-1"
-            width="14"
-            height="14"
-          />
+          <Icon icon="material-symbols:info" className="text-gray-400 ml-1" width="14" height="14" />
         </div>
       </div>
     </motion.div>
@@ -217,7 +216,7 @@ export const ToolCallBubble = ({
  */
 export const StreamToolRenderer = ({
   toolCalls = [],
-  toolResults = []
+  toolResults = [],
 }: {
   toolCalls: Array<{
     toolCallId: string;
@@ -230,21 +229,17 @@ export const StreamToolRenderer = ({
     args: any;
     result: any;
   }>;
-}): JSX.Element => {
+}): React.JSX.Element => {
   return (
     <div className="space-y-2">
       {toolCalls.map((toolCall) => {
-        const result = toolResults.find(r => r.toolCallId === toolCall.toolCallId);
+        const result = toolResults.find((r) => r.toolCallId === toolCall.toolCallId);
         return (
           <div key={toolCall.toolCallId} className="block w-full">
-            <ToolCallBubble
-              toolCall={toolCall}
-              toolResult={result}
-            />
+            <ToolCallBubble toolCall={toolCall} toolResult={result} />
           </div>
         );
       })}
     </div>
   );
 };
-

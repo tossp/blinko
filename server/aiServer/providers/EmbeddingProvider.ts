@@ -1,27 +1,27 @@
-import { EmbeddingModelV1 } from '@ai-sdk/provider';
+import type { EmbeddingModelV4 } from '@ai-sdk/provider';
 import { createOpenAI } from '@ai-sdk/openai';
 import { createAzure } from '@ai-sdk/azure';
 import { createVoyage } from 'voyage-ai-provider';
-import { createOllama } from 'ollama-ai-provider';
+import { createOllama } from 'ollama-ai-provider-v2';
 import { BaseProvider } from './BaseProvider';
 
 interface EmbeddingConfig {
   provider: string;
-  apiKey?: any;
-  baseURL?: any;
+  apiKey?: string | null;
+  baseURL?: string | null;
   modelKey: string;
-  apiVersion?: any;
+  apiVersion?: string;
 }
 
 export class EmbeddingProvider extends BaseProvider {
 
-  async getEmbeddingModel(config: EmbeddingConfig): Promise<EmbeddingModelV1<string>| null> {
+  async getEmbeddingModel(config: EmbeddingConfig): Promise<EmbeddingModelV4 | null> {
     await this.initializeFetch();
 
     switch (config.provider.toLowerCase()) {
       case 'openai':
         return createOpenAI({
-          apiKey: config.apiKey,
+          apiKey: config.apiKey ?? undefined,
           baseURL: config.baseURL || undefined,
           fetch: this.proxiedFetch
         }).textEmbeddingModel(config.modelKey);
@@ -30,7 +30,7 @@ export class EmbeddingProvider extends BaseProvider {
         return null;
       case 'azure':
         return createAzure({
-          apiKey: config.apiKey,
+          apiKey: config.apiKey ?? undefined,
           baseURL: config.baseURL || undefined,
           apiVersion: config.apiVersion || undefined,
           fetch: this.proxiedFetch
@@ -38,7 +38,7 @@ export class EmbeddingProvider extends BaseProvider {
 
       case 'voyageai':
         return createVoyage({
-          apiKey: config.apiKey,
+          apiKey: config.apiKey ?? undefined,
           fetch: this.proxiedFetch
         }).textEmbeddingModel(config.modelKey);
 
@@ -51,7 +51,7 @@ export class EmbeddingProvider extends BaseProvider {
 
       case 'litellm':
         return createOpenAI({
-          apiKey: config.apiKey,
+          apiKey: config.apiKey ?? undefined,
           baseURL: config.baseURL || 'http://localhost:4000/v1',
           fetch: this.proxiedFetch
         }).textEmbeddingModel(config.modelKey);
@@ -60,7 +60,7 @@ export class EmbeddingProvider extends BaseProvider {
       default:
         // Default to OpenAI-compatible API
         return createOpenAI({
-          apiKey: config.apiKey,
+          apiKey: config.apiKey ?? undefined,
           baseURL: config.baseURL || undefined,
           fetch: this.proxiedFetch
         }).textEmbeddingModel(config.modelKey);

@@ -1,19 +1,19 @@
-import { observer } from "mobx-react-lite";
-import { Button, Card, Input, Switch, Tooltip, Select, SelectItem, Alert } from "@heroui/react";
-import { RootStore } from "@/store";
-import { useTranslation } from "react-i18next";
-import { DialogStore } from "@/store/module/Dialog";
-import { api } from "@/lib/trpc";
-import React, { useEffect, useState } from "react";
-import { PromiseCall } from "@/store/standard/PromiseState";
-import { eventBus } from "@/lib/event";
+import { Alert, Button, Input, Label, ListBox, Select, Spinner, TextField } from '@heroui/react';
+import { observer } from 'mobx-react-lite';
 
+import { RootStore } from '@/store';
+import { useTranslation } from 'react-i18next';
+import { DialogStore } from '@/store/module/Dialog';
+import { api } from '@/lib/trpc';
+import React, { useEffect, useState } from 'react';
+import { PromiseCall } from '@/store/standard/PromiseState';
+import { eventBus } from '@/lib/event';
 
 export const LinkAccountModal = observer(() => {
   const { t } = useTranslation();
-  const [selectedAccount, setSelectedAccount] = useState<string>("");
-  const [password, setPassword] = useState("");
-  const [accounts, setAccounts] = useState<{ id: number, name: string, nickname: string }[]>([]);
+  const [selectedAccount, setSelectedAccount] = useState<string>('');
+  const [password, setPassword] = useState('');
+  const [accounts, setAccounts] = useState<{ id: number; name: string; nickname: string }[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -28,12 +28,14 @@ export const LinkAccountModal = observer(() => {
     if (!selectedAccount || !password) return;
     setLoading(true);
     try {
-      await PromiseCall(api.users.linkAccount.mutate({
-        id: Number(selectedAccount),
-        originalPassword: password
-      }))
+      await PromiseCall(
+        api.users.linkAccount.mutate({
+          id: Number(selectedAccount),
+          originalPassword: password,
+        })
+      );
       RootStore.Get(DialogStore).close();
-      eventBus.emit('user:signout')
+      eventBus.emit('user:signout');
     } catch (error) {
       console.error(error);
     } finally {
@@ -44,34 +46,40 @@ export const LinkAccountModal = observer(() => {
   return (
     <div className="flex flex-col gap-4">
       <Select
-        label={t('select-account')}
         placeholder={'username'}
         value={selectedAccount}
-        onChange={(e) => setSelectedAccount(e.target.value)}
+        onChange={(selectedValue) => setSelectedAccount(String(selectedValue ?? ''))}
       >
-        {accounts.map((account) => (
-          <SelectItem key={account.id} >
-            {account.nickname}
-          </SelectItem>
-        ))}
+        <Label>{t('select-account')}</Label>
+        <Select.Trigger>
+          <Select.Value />
+          <Select.Indicator />
+        </Select.Trigger>
+        <Select.Popover>
+          <ListBox>
+            {accounts.map((account) => (
+              <ListBox.Item key={account.id} id={String(account.id)}>
+                {account.nickname}
+              </ListBox.Item>
+            ))}
+          </ListBox>
+        </Select.Popover>
       </Select>
 
-      <Input
-        type="password"
-        label={t('password')}
-        placeholder={'12345678'}
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
+      <TextField value={password}>
+        <Label>{t('password')}</Label>
+        <Input type="password" placeholder={'12345678'} onChange={(e) => setPassword(e.target.value)} />
+      </TextField>
 
-      <Alert color={'warning'} title={t('link-account-warning')} />
+      <Alert status={'warning'}>
+        <Alert.Indicator />
+        <Alert.Content>
+          <Alert.Title>{t('link-account-warning')}</Alert.Title>
+        </Alert.Content>
+      </Alert>
 
-      <Button
-        color="primary"
-        isLoading={loading}
-        onPress={handleLinkAccount}
-        className="mt-2"
-      >
+      <Button onPress={handleLinkAccount} className="mt-2" variant="primary" isPending={loading}>
+        {loading ? <Spinner color="current" size="sm" /> : null}
         {t('link-account')}
       </Button>
     </div>

@@ -1,3 +1,4 @@
+import { Button } from '@heroui/react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ShowTwoFactorModal } from '@/components/Common/TwoFactorModal';
@@ -9,7 +10,7 @@ import { LoadingPage } from '@/components/Common/LoadingPage';
 import { signIn, getTokenData } from '@/components/Auth/auth-client';
 import { eventBus } from '@/lib/event';
 import { UserStore } from '@/store/user';
-import { Button } from '@heroui/react';
+
 import { newPendingTwoFactor, pendingTwoFactor } from '@/lib/pendingTwoFactor';
 
 export default function OAuthCallback() {
@@ -82,14 +83,10 @@ export default function OAuthCallback() {
           return;
         }
 
-        const freshPending = requiresTwoFactor === 'true'
-          ? newPendingTwoFactor(userId, params.get('challenge'))
-          : null;
+        const freshPending = requiresTwoFactor === 'true' ? newPendingTwoFactor(userId, params.get('challenge')) : null;
         // A refresh follows URL scrubbing and has no bearer token yet. Restore
         // the saved challenge before attempting the authenticated profile route.
-        const savedPending = !location.hash && !location.search
-          ? pendingTwoFactor(userStore.tokenData.value)
-          : null;
+        const savedPending = !location.hash && !location.search ? pendingTwoFactor(userStore.tokenData.value) : null;
         const pending = freshPending || savedPending;
         if (pending) {
           userStore.tokenData.save(pending);
@@ -98,7 +95,10 @@ export default function OAuthCallback() {
           setIsLoading(false);
           return;
         }
-        if (requiresTwoFactor === 'true' || (!location.hash && !location.search && userStore.tokenData.value?.requiresTwoFactor)) {
+        if (
+          requiresTwoFactor === 'true' ||
+          (!location.hash && !location.search && userStore.tokenData.value?.requiresTwoFactor)
+        ) {
           userStore.tokenData.save(null);
           window.history.replaceState(null, '', window.location.pathname);
           setError(t('verification-failed'));
@@ -115,7 +115,7 @@ export default function OAuthCallback() {
                 user: {
                   id: userStore.id || '',
                 },
-                token: token
+                token: token,
               };
               eventBus.emit('user:token', tokenData);
 
@@ -190,11 +190,7 @@ export default function OAuthCallback() {
         <div className="mb-4 text-3xl">😢</div>
         <h1 className="text-xl font-bold mb-2">{t('login-failed')}</h1>
         <p className="text-sm text-red-500 mb-6">{error}</p>
-        <Button 
-          color="primary" 
-          onPress={handleReturnToLogin}
-          className="px-6 py-2"
-        >
+        <Button onPress={handleReturnToLogin} className="px-6 py-2" variant="primary">
           {t('sign-in')}
         </Button>
       </div>
@@ -202,4 +198,4 @@ export default function OAuthCallback() {
   }
 
   return <LoadingPage />;
-} 
+}

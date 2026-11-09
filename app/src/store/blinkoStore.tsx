@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import { useEffect } from 'react';
 import { PromisePageState, PromiseState } from './standard/PromiseState';
 import { Store } from './standard/base';
@@ -21,7 +21,7 @@ type filterType = {
   label: string;
   sortBy: string;
   direction: string;
-}
+};
 
 // Interface for note upsert parameters
 interface UpsertNoteParams {
@@ -67,20 +67,22 @@ export class BlinkoStore implements Store {
   noteContent = '';
   createContentStorage = new StorageState<{ content: string }>({
     key: 'createModeNote',
-    default: { content: '' }
+    default: { content: '' },
   });
-  createAttachmentsStorage = new StorageListState<{ name: string, path: string, type: string, size: number }>({
+  createAttachmentsStorage = new StorageListState<{ name: string; path: string; type: string; size: number }>({
     key: 'createModeAttachments',
   });
-  editContentStorage = new StorageListState<{ content: string, id: number }>({
-    key: 'editModeNotes'
+  editContentStorage = new StorageListState<{ content: string; id: number }>({
+    key: 'editModeNotes',
   });
-  editAttachmentsStorage = new StorageListState<{ name: string, path: string, type: string, size: number, id: number }>({
-    key: 'editModeAttachments'
-  });
+  editAttachmentsStorage = new StorageListState<{ name: string; path: string; type: string; size: number; id: number }>(
+    {
+      key: 'editModeAttachments',
+    }
+  );
 
   searchText: string = '';
-  isCreateMode: boolean = true
+  isCreateMode: boolean = true;
   curSelectedNote: Note | null = null;
   curMultiSelectIds: number[] = [];
   isMultiSelectMode: boolean = false;
@@ -89,8 +91,8 @@ export class BlinkoStore implements Store {
   allTagRouter = {
     title: 'total',
     href: '/?path=all',
-    icon: ''
-  }
+    icon: '',
+  };
   noteListFilterConfig = {
     isArchived: false as boolean | null,
     isRecycle: false,
@@ -103,12 +105,12 @@ export class BlinkoStore implements Store {
     isUseAiQuery: false,
     startDate: null as Date | null,
     endDate: null as Date | null,
-    hasTodo: false
-  }
-  noteTypeDefault: NoteType = NoteType.BLINKO
-  currentCommonFilter: filterType | null = null
-  updateTicker = 0
-  fullNoteList: Note[] = []
+    hasTodo: false,
+  };
+  noteTypeDefault: NoteType = NoteType.BLINKO;
+  currentCommonFilter: filterType | null = null;
+  updateTicker = 0;
+  fullNoteList: Note[] = [];
 
   // For global search
   globalSearchTerm!: '';
@@ -118,7 +120,7 @@ export class BlinkoStore implements Store {
   searchResults = {
     notes: [],
     resources: [],
-    settings: []
+    settings: [],
   };
 
   offlineNoteStorage = new StorageListState<OfflineNote>({ key: 'offlineNotes' });
@@ -136,7 +138,7 @@ export class BlinkoStore implements Store {
   }
 
   private removeOfflineNote(id: number) {
-    const index = this.offlineNoteStorage.list?.findIndex(note => note.id === id);
+    const index = this.offlineNoteStorage.list?.findIndex((note) => note.id === id);
     if (index !== -1) {
       this.offlineNoteStorage.remove(index);
     }
@@ -152,23 +154,22 @@ export class BlinkoStore implements Store {
     let notes: Note[] = [];
 
     if (this.isOnline) {
-      const queryParams = { 
-        ...this.noteListFilterConfig, 
+      const queryParams = {
+        ...this.noteListFilterConfig,
         ...filterConfig,
-        searchText: this.searchText, 
-        page, 
-        size 
+        searchText: this.searchText,
+        page,
+        size,
       };
       notes = await api.notes.list.mutate(queryParams);
 
-      
       if (this.offlineNotes.length > 0) {
         await this.syncOfflineNotes();
       }
     }
 
     const filteredOfflineNotes = this.offlineNotes.filter(offlineFilter);
-    const mergedNotes = [...filteredOfflineNotes, ...notes].map(i => ({ ...i, isExpand: false }));
+    const mergedNotes = [...filteredOfflineNotes, ...notes].map((i) => ({ ...i, isExpand: false }));
 
     if (!this.isOnline) {
       const start = (page - 1) * size;
@@ -182,7 +183,7 @@ export class BlinkoStore implements Store {
   upsertNote = new PromiseState({
     eventKey: 'upsertNote',
     function: async (params: UpsertNoteParams) => {
-      console.log("upsertNote", params)
+      console.log('upsertNote', params);
       const {
         content = null,
         isArchived,
@@ -197,7 +198,7 @@ export class BlinkoStore implements Store {
         references = [],
         createdAt: inputCreatedAt,
         updatedAt: inputUpdatedAt,
-        metadata
+        metadata,
       } = params;
 
       if (!this.isOnline && !id) {
@@ -211,17 +212,17 @@ export class BlinkoStore implements Store {
           attachments: attachments || [],
           isTop: !!isTop,
           isShare: !!isShare,
-          references: references.map(refId => ({ toNoteId: refId })),
+          references: references.map((refId) => ({ toNoteId: refId })),
           createdAt: now,
           updatedAt: now,
           isOffline: true,
           pendingSync: true,
           tags: [],
-          metadata: metadata || {}
+          metadata: metadata || {},
         };
 
         this.saveOfflineNote(offlineNote);
-        showToast && RootStore.Get(ToastPlugin).success(i18n.t("create-successfully") + '-' + i18n.t("offline-status"));
+        showToast && RootStore.Get(ToastPlugin).success(i18n.t('create-successfully') + '-' + i18n.t('offline-status'));
         return offlineNote;
       }
 
@@ -237,38 +238,39 @@ export class BlinkoStore implements Store {
         references,
         createdAt: inputCreatedAt ? new Date(inputCreatedAt) : undefined,
         updatedAt: inputUpdatedAt ? new Date(inputUpdatedAt) : undefined,
-        metadata
+        metadata,
       });
-      eventBus.emit('editor:clear')
-      showToast && RootStore.Get(ToastPlugin).success(id ? i18n.t("update-successfully") : i18n.t("create-successfully"))
-      refresh && this.updateTicker++
-      return res
-    }
-  })
+      eventBus.emit('editor:clear');
+      showToast &&
+        RootStore.Get(ToastPlugin).success(id ? i18n.t('update-successfully') : i18n.t('create-successfully'));
+      refresh && this.updateTicker++;
+      return res;
+    },
+  });
 
   shareNote = new PromiseState({
-    function: async (params: { id: number, isCancel: boolean, password?: string, expireAt?: Date }) => {
-      const res = await api.notes.shareNote.mutate(params)
-      RootStore.Get(ToastPlugin).success(i18n.t("operation-success"))
-      this.updateTicker++
-      return res
-    }
-  })
+    function: async (params: { id: number; isCancel: boolean; password?: string; expireAt?: Date }) => {
+      const res = await api.notes.shareNote.mutate(params);
+      RootStore.Get(ToastPlugin).success(i18n.t('operation-success'));
+      this.updateTicker++;
+      return res;
+    },
+  });
 
   internalShareNote = new PromiseState({
-    function: async (params: { id: number, accountIds: number[], isCancel: boolean }) => {
-      const res = await api.notes.internalShareNote.mutate(params)
-      RootStore.Get(ToastPlugin).success(i18n.t("operation-success"))
-      this.updateTicker++
-      return res
-    }
-  })
+    function: async (params: { id: number; accountIds: number[]; isCancel: boolean }) => {
+      const res = await api.notes.internalShareNote.mutate(params);
+      RootStore.Get(ToastPlugin).success(i18n.t('operation-success'));
+      this.updateTicker++;
+      return res;
+    },
+  });
 
   getInternalSharedUsers = new PromiseState({
     function: async (id: number) => {
-      return await api.notes.getInternalSharedUsers.mutate({ id })
-    }
-  })
+      return await api.notes.getInternalSharedUsers.mutate({ id });
+    },
+  });
 
   async syncOfflineNotes() {
     if (!this.isOnline) return;
@@ -280,8 +282,8 @@ export class BlinkoStore implements Store {
           const { id, isOffline, pendingSync, references, ...noteData } = note;
           const onlineNote: UpsertNoteParams = {
             ...noteData,
-            references: references.map(ref => ref.toNoteId),
-            showToast: false
+            references: references.map((ref) => ref.toNoteId),
+            showToast: false,
           };
           await this.upsertNote.call(onlineNote);
           this.removeOfflineNote(id);
@@ -301,14 +303,14 @@ export class BlinkoStore implements Store {
         filterConfig: {
           type: NoteType.BLINKO,
           isArchived: false,
-          isRecycle: false
+          isRecycle: false,
         },
         offlineFilter: (note: OfflineNote) => {
           return Boolean(note.type === NoteType.BLINKO && !note.isArchived && !note.isRecycle);
-        }
+        },
       });
-    }
-  })
+    },
+  });
 
   noteOnlyList = new PromisePageState({
     function: async ({ page, size }) => {
@@ -318,14 +320,14 @@ export class BlinkoStore implements Store {
         filterConfig: {
           type: NoteType.NOTE,
           isArchived: false,
-          isRecycle: false
+          isRecycle: false,
         },
         offlineFilter: (note: OfflineNote) => {
           return Boolean(note.type === NoteType.NOTE && !note.isArchived && !note.isRecycle);
-        }
+        },
       });
-    }
-  })
+    },
+  });
 
   todoList = new PromisePageState({
     function: async ({ page, size }) => {
@@ -335,14 +337,14 @@ export class BlinkoStore implements Store {
         filterConfig: {
           type: NoteType.TODO,
           isArchived: false,
-          isRecycle: false
+          isRecycle: false,
         },
         offlineFilter: (note: OfflineNote) => {
           return Boolean(note.type === NoteType.TODO && !note.isArchived && !note.isRecycle);
-        }
+        },
       });
-    }
-  })
+    },
+  });
 
   archivedList = new PromisePageState({
     function: async ({ page, size }) => {
@@ -351,14 +353,14 @@ export class BlinkoStore implements Store {
         size,
         filterConfig: {
           isArchived: true,
-          isRecycle: false
+          isRecycle: false,
         },
         offlineFilter: (note: OfflineNote) => {
           return Boolean(note.isArchived && !note.isRecycle);
-        }
+        },
       });
-    }
-  })
+    },
+  });
 
   trashList = new PromisePageState({
     function: async ({ page, size }) => {
@@ -366,14 +368,14 @@ export class BlinkoStore implements Store {
         page,
         size,
         filterConfig: {
-          isRecycle: true
+          isRecycle: true,
         },
         offlineFilter: (note: OfflineNote) => {
           return Boolean(note.isRecycle);
-        }
+        },
       });
-    }
-  })
+    },
+  });
 
   noteList = new PromisePageState({
     function: async ({ page, size, ...filterConfig }) => {
@@ -382,78 +384,78 @@ export class BlinkoStore implements Store {
         size,
         filterConfig: {
           isArchived: false,
-          ...filterConfig
+          ...filterConfig,
         },
         offlineFilter: (note) => {
           // Exclude notes in recycle bin
           return !note.isRecycle;
-        }
+        },
       });
-    }
-  })
+    },
+  });
 
   referenceSearchList = new PromisePageState({
     function: async ({ page, size, searchText }) => {
       return await api.notes.list.mutate({
-        searchText
-      })
-    }
-  })
+        searchText,
+      });
+    },
+  });
 
   userList = new PromiseState({
     function: async () => {
-      return await api.users.list.query()
-    }
-  })
+      return await api.users.list.query();
+    },
+  });
 
   noteDetail = new PromiseState({
-    function: async ({ id }) => {
-      return await api.notes.detail.mutate({ id })
-    }
-  })
+    function: async ({ id }): Promise<Note | null> => {
+      return await api.notes.detail.mutate({ id });
+    },
+  });
 
   dailyReviewNoteList = new PromiseState({
     function: async () => {
-      return await api.notes.dailyReviewNoteList.query()
-    }
-  })
+      return await api.notes.dailyReviewNoteList.query();
+    },
+  });
 
   randomReviewNoteList = new PromiseState({
     function: async ({ limit = 30 }) => {
-      return await api.notes.randomNoteList.query({ limit })
-    }
-  })
+      return await api.notes.randomNoteList.query({ limit });
+    },
+  });
 
   resourceList = new PromisePageState({
     function: async ({ page, size, searchText, folder }) => {
-      return await api.attachments.list.query({ page, size, searchText, folder })
-    }
-  })
+      return await api.attachments.list.query({ page, size, searchText, folder });
+    },
+  });
 
   tagList = new PromiseState({
     function: async () => {
       const falttenTags = await api.tags.list.query(undefined, { context: { skipBatch: true } });
-      const listTags = helper.buildHashTagTreeFromDb(falttenTags)
-      console.log(falttenTags, 'listTags')
+      const listTags = helper.buildHashTagTreeFromDb(falttenTags);
+      console.log(falttenTags, 'listTags');
       let pathTags: string[] = [];
-      listTags.forEach(node => {
+      listTags.forEach((node) => {
         pathTags = pathTags.concat(helper.generateTagPaths(node));
       });
-      return { falttenTags, listTags, pathTags }
-    }
-  })
+      return { falttenTags, listTags, pathTags };
+    },
+  });
 
   get showAi() {
-    return true
+    return true;
   }
 
   config = new PromiseState({
     loadingLock: false,
     function: async () => {
-      const res = await api.config.list.query()
-      return res
-    }
-  })
+      const res = await api.config.list.query();
+      return res;
+    },
+  });
 
   task = new PromiseState({
     function: async () => {
@@ -461,47 +463,45 @@ export class BlinkoStore implements Store {
         if (RootStore.Get(UserStore).role == 'superadmin') {
           return (await api.task.list.query()) ?? [];
         }
-        return []
+        return [];
       } catch (error) {
-        return []
+        return [];
       }
-    }
-  })
+    },
+  });
 
   updateDBTask = new PromiseState({
     function: async (isStart) => {
       if (isStart) {
-        await api.task.upsertTask.mutate({ type: 'start', task: DBBAK_TASK_NAME })
+        await api.task.upsertTask.mutate({ type: 'start', task: DBBAK_TASK_NAME });
       } else {
-        await api.task.upsertTask.mutate({ type: 'stop', task: DBBAK_TASK_NAME })
+        await api.task.upsertTask.mutate({ type: 'stop', task: DBBAK_TASK_NAME });
       }
-      await this.task.call()
-    }
-  })
+      await this.task.call();
+    },
+  });
   updateArchiveTask = new PromiseState({
     function: async (isStart) => {
       if (isStart) {
-        await api.task.upsertTask.mutate({ type: 'start', task: ARCHIVE_BLINKO_TASK_NAME })
+        await api.task.upsertTask.mutate({ type: 'start', task: ARCHIVE_BLINKO_TASK_NAME });
       } else {
-        await api.task.upsertTask.mutate({ type: 'stop', task: ARCHIVE_BLINKO_TASK_NAME })
+        await api.task.upsertTask.mutate({ type: 'stop', task: ARCHIVE_BLINKO_TASK_NAME });
       }
-      await this.task.call()
-    }
-  })
-
+      await this.task.call();
+    },
+  });
 
   get DBTask() {
-    return this.task.value?.find(i => i.name == DBBAK_TASK_NAME)
+    return this.task.value?.find((i) => i.name == DBBAK_TASK_NAME);
   }
 
   get ArchiveTask() {
-    return this.task.value?.find(i => i.name == ARCHIVE_BLINKO_TASK_NAME)
+    return this.task.value?.find((i) => i.name == ARCHIVE_BLINKO_TASK_NAME);
   }
-
 
   async onBottom() {
     const currentPath = new URLSearchParams(window.location.search).get('path');
-    
+
     if (currentPath === 'notes') {
       await this.noteOnlyList.callNextPage({});
     } else if (currentPath === 'todo') {
@@ -519,39 +519,38 @@ export class BlinkoStore implements Store {
 
   onMultiSelectNote(id: number) {
     if (this.curMultiSelectIds.includes(id)) {
-      this.curMultiSelectIds = this.curMultiSelectIds.filter(item => item !== id);
+      this.curMultiSelectIds = this.curMultiSelectIds.filter((item) => item !== id);
     } else {
       this.curMultiSelectIds.push(id);
     }
     if (this.curMultiSelectIds.length == 0) {
-      this.isMultiSelectMode = false
+      this.isMultiSelectMode = false;
     }
   }
 
   onMultiSelectRest() {
-    this.isMultiSelectMode = false
-    this.curMultiSelectIds = []
+    this.isMultiSelectMode = false;
+    this.curMultiSelectIds = [];
     // Fix: Remove updateTicker++ to avoid unnecessary list refresh and duplicate display
     // this.updateTicker++
   }
 
   firstLoad() {
-    this.tagList.call()
-    this.config.call()
-    this.dailyReviewNoteList.call()
-    this.task.call()
+    this.tagList.call();
+    this.config.call();
+    this.dailyReviewNoteList.call();
+    this.task.call();
   }
-
 
   async refreshData() {
     // Fix: Clear multi-select state when refreshing data to avoid stale selections
     this.curMultiSelectIds = [];
     this.isMultiSelectMode = false;
 
-    this.tagList.call()
+    this.tagList.call();
 
     const currentPath = new URLSearchParams(window.location.search).get('path');
-    
+
     if (currentPath === 'notes') {
       this.noteOnlyList.resetAndCall({});
     } else if (currentPath === 'todo') {
@@ -565,29 +564,29 @@ export class BlinkoStore implements Store {
     } else {
       this.blinkoList.resetAndCall({});
     }
-    
-    this.config.call()
-    this.dailyReviewNoteList.call()
+
+    this.config.call();
+    this.dailyReviewNoteList.call();
   }
 
   private clear() {
-    this.createContentStorage.clear()
-    this.editContentStorage.clear()
+    this.createContentStorage.clear();
+    this.editContentStorage.clear();
   }
 
   use() {
     useEffect(() => {
       if (RootStore.Get(UserStore).id) {
-        console.log('firstLoad', RootStore.Get(UserStore).id)
-        this.firstLoad()
+        console.log('firstLoad', RootStore.Get(UserStore).id);
+        this.firstLoad();
       }
-    }, [RootStore.Get(UserStore).id])
+    }, [RootStore.Get(UserStore).id]);
 
     useEffect(() => {
-      if (this.updateTicker == 0) return
-      console.log('updateTicker', this.updateTicker)
-      this.refreshData()
-    }, [this.updateTicker])
+      if (this.updateTicker == 0) return;
+      console.log('updateTicker', this.updateTicker);
+      this.refreshData();
+    }, [this.updateTicker]);
   }
 
   useQuery() {
@@ -598,7 +597,7 @@ export class BlinkoStore implements Store {
       if (tagId && Number(tagId) === this.noteListFilterConfig.tagId) {
         return;
       }
-      
+
       const withoutTag = searchParams.get('withoutTag');
       const withFile = searchParams.get('withFile');
       const withLink = searchParams.get('withLink');
@@ -606,65 +605,65 @@ export class BlinkoStore implements Store {
       const hasTodo = searchParams.get('hasTodo');
       const path = searchParams.get('path');
 
-      this.noteListFilterConfig.type = NoteType.BLINKO
-      this.noteTypeDefault = NoteType.BLINKO
-      this.noteListFilterConfig.tagId = null
-      this.noteListFilterConfig.isArchived = false
-      this.noteListFilterConfig.withoutTag = false
-      this.noteListFilterConfig.withLink = false
-      this.noteListFilterConfig.withFile = false
-      this.noteListFilterConfig.isRecycle = false
-      this.noteListFilterConfig.startDate = null
-      this.noteListFilterConfig.endDate = null
-      this.noteListFilterConfig.isShare = null
-      this.noteListFilterConfig.hasTodo = false
+      this.noteListFilterConfig.type = NoteType.BLINKO;
+      this.noteTypeDefault = NoteType.BLINKO;
+      this.noteListFilterConfig.tagId = null;
+      this.noteListFilterConfig.isArchived = false;
+      this.noteListFilterConfig.withoutTag = false;
+      this.noteListFilterConfig.withLink = false;
+      this.noteListFilterConfig.withFile = false;
+      this.noteListFilterConfig.isRecycle = false;
+      this.noteListFilterConfig.startDate = null;
+      this.noteListFilterConfig.endDate = null;
+      this.noteListFilterConfig.isShare = null;
+      this.noteListFilterConfig.hasTodo = false;
 
       // Fix: Clear multi-select state when switching paths to avoid stale selections
       this.curMultiSelectIds = [];
       this.isMultiSelectMode = false;
 
       if (path == 'notes') {
-        this.noteListFilterConfig.type = NoteType.NOTE
+        this.noteListFilterConfig.type = NoteType.NOTE;
         this.noteOnlyList.resetAndCall({});
       } else if (path == 'todo') {
-        this.noteListFilterConfig.type = NoteType.TODO
+        this.noteListFilterConfig.type = NoteType.TODO;
         this.todoList.resetAndCall({});
       } else if (path == 'all') {
-        this.noteListFilterConfig.type = -1
+        this.noteListFilterConfig.type = -1;
         this.noteList.resetAndCall({});
       } else if (path == 'archived') {
-        this.noteListFilterConfig.type = -1
-        this.noteListFilterConfig.isArchived = true
+        this.noteListFilterConfig.type = -1;
+        this.noteListFilterConfig.isArchived = true;
         this.archivedList.resetAndCall({});
       } else if (path == 'trash') {
-        this.noteListFilterConfig.type = -1
-        this.noteListFilterConfig.isRecycle = true
+        this.noteListFilterConfig.type = -1;
+        this.noteListFilterConfig.isRecycle = true;
         this.trashList.resetAndCall({});
       } else {
         this.blinkoList.resetAndCall({});
       }
 
       if (tagId) {
-        this.noteListFilterConfig.tagId = Number(tagId) as number
+        this.noteListFilterConfig.tagId = Number(tagId) as number;
       }
       if (withoutTag) {
-        this.noteListFilterConfig.withoutTag = true
+        this.noteListFilterConfig.withoutTag = true;
       }
       if (withLink) {
-        this.noteListFilterConfig.withLink = true
+        this.noteListFilterConfig.withLink = true;
       }
       if (withFile) {
-        this.noteListFilterConfig.withFile = true
+        this.noteListFilterConfig.withFile = true;
       }
       if (hasTodo) {
-        this.noteListFilterConfig.hasTodo = true
+        this.noteListFilterConfig.hasTodo = true;
       }
       if (searchText) {
         this.searchText = searchText as string;
       } else {
         this.searchText = '';
       }
-    }, [this.forceQuery, location.pathname, searchParams])
+    }, [this.forceQuery, location.pathname, searchParams]);
   }
 
   excludeEmbeddingTagId: number | null = null;
@@ -675,20 +674,20 @@ export class BlinkoStore implements Store {
 
   settingsSearchText: string = '';
   constructor() {
-    makeAutoObservable(this)
+    makeAutoObservable(this);
     eventBus.on('user:signout', () => {
-      this.clear()
-    })
+      this.clear();
+    });
   }
 
-  removeCreateAttachments(file: { name: string, }) {
-    this.createAttachmentsStorage.removeByFind(f => f.name === file.name);
+  removeCreateAttachments(file: { name: string }) {
+    this.createAttachmentsStorage.removeByFind((f) => f.name === file.name);
     this.updateTicker++;
   }
 
   updateTagFilter(tagId: number) {
     this.noteListFilterConfig.tagId = tagId;
-    this.noteListFilterConfig.type = -1
+    this.noteListFilterConfig.type = -1;
     this.noteList.resetAndCall({});
   }
 }

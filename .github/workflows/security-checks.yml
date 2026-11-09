@@ -9,6 +9,10 @@ on:
       - 'server/**'
       - 'shared/**'
       - 'prisma/**'
+      - 'prisma.config.ts'
+      - 'patches/**'
+      - 'app/package.json'
+      - '**/tsconfig*.json'
       - 'package.json'
       - 'bun.lock'
       - '.github/workflows/security-checks.yml'
@@ -21,26 +25,38 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
-          node-version: '24.22.2'
+          node-version: '26.13.0'
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: '1.2.8'
+          bun-version: '1.4.4'
       - run: bun install --frozen-lockfile
-      - run: bunx prisma generate --schema prisma/schema.prisma
+      - run: bun run prisma:generate
       - name: Security regression suites
         run: cd server && bun run test:security
+      - name: Prisma adapter configuration regressions without a database
+        run: bun test prisma/connection.test.ts
+      - name: AI SDK and protocol regressions without paid endpoints
+        run: bun server/aiServer/test.ts
+      - name: Node runtime regressions
+        run: node --test server/aiServer/providers/__tests__/node-runtime.test.mjs
       - name: Typecheck security policy modules
         run: >-
-          bunx tsc --noEmit --strict --skipLibCheck --esModuleInterop
+          bun run tsc --ignoreConfig --types node --noEmit --strict --skipLibCheck --esModuleInterop
           --moduleResolution bundler --module ESNext --target ES2020
           server/lib/fileAccessPolicy.ts server/lib/providerVisibility.ts
           server/lib/pluginPaths.ts server/lib/mcpStdioPolicy.ts
           server/lib/publicHttp.ts server/lib/twoFactorLogin.ts
           server/lib/attachmentBinding.ts app/src/lib/fileUrl.ts
           app/src/lib/pendingTwoFactor.ts
+      - name: Typecheck frontend and backend
+        run: |
+          bun run tsc --noEmit -p app/tsconfig.json
+          bun run tsc --noEmit -p server/tsconfig.json
+      - name: Build public plugin types
+        run: bun run build:blinko:types
       - name: Build frontend
         run: cd app && bun run build:web
       - name: Build backend

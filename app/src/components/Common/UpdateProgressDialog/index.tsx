@@ -1,5 +1,6 @@
+import { Button, Modal, ProgressBar } from '@heroui/react';
 import React, { useState, useCallback } from 'react';
-import { Modal, ModalContent, ModalHeader, ModalBody, Progress, Button } from '@heroui/react';
+
 import { useTranslation } from 'react-i18next';
 import { Icon } from '@/components/Common/Iconify/icons';
 import { check } from '@tauri-apps/plugin-updater';
@@ -15,11 +16,7 @@ export interface UpdateProgressDialogProps {
 
 type UpdateStatus = 'checking' | 'downloading' | 'installing' | 'completed' | 'error' | 'idle';
 
-export const UpdateProgressDialog: React.FC<UpdateProgressDialogProps> = ({
-  isOpen,
-  onClose,
-  newVersion
-}) => {
+export const UpdateProgressDialog: React.FC<UpdateProgressDialogProps> = ({ isOpen, onClose, newVersion }) => {
   const { t } = useTranslation();
   const [updateStatus, setUpdateStatus] = useState<UpdateStatus>('idle');
   const [downloadProgress, setDownloadProgress] = useState(0);
@@ -70,10 +67,9 @@ export const UpdateProgressDialog: React.FC<UpdateProgressDialogProps> = ({
       setUpdateStatus('installing');
 
       // Small delay to show installing state
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       setUpdateStatus('completed');
-
     } catch (error) {
       console.error('Update failed:', error);
       setUpdateStatus('error');
@@ -150,7 +146,7 @@ export const UpdateProgressDialog: React.FC<UpdateProgressDialogProps> = ({
   const getProgressColor = () => {
     switch (updateStatus) {
       case 'downloading':
-        return 'primary';
+        return 'accent';
       case 'installing':
         return 'warning';
       case 'completed':
@@ -175,111 +171,100 @@ export const UpdateProgressDialog: React.FC<UpdateProgressDialogProps> = ({
   };
 
   return (
-    <Modal
+    <Modal.Backdrop
       isOpen={isOpen}
-      onClose={handleClose}
       isDismissable={updateStatus === 'completed' || updateStatus === 'error'}
-      hideCloseButton={updateStatus === 'downloading' || updateStatus === 'installing'}
-      classNames={{
-        backdrop: "bg-gradient-to-t from-zinc-900 to-zinc-900/10 backdrop-opacity-20"
+      onOpenChange={(open) => {
+        if (!open) handleClose();
       }}
+      className={['', 'bg-gradient-to-t from-zinc-900 to-zinc-900/10 backdrop-opacity-20'].filter(Boolean).join(' ')}
     >
-      <ModalContent>
-        <ModalHeader className="flex items-center gap-2">
-          {getStatusIcon()}
-          <span>{t('app-update')}</span>
-        </ModalHeader>
-        <ModalBody className="pb-6">
-          <div className="space-y-4">
-            <div className="text-center">
-              <p className="text-sm text-default-600 mb-2">{getStatusText()}</p>
-              {newVersion && (
-                <p className="text-xs text-default-500">
-                  {t('updating-to-version')}: v{newVersion}
-                </p>
-              )}
-            </div>
+      <Modal.Container>
+        <Modal.Dialog>
+          {!(updateStatus === 'downloading' || updateStatus === 'installing') && <Modal.CloseTrigger />}
+          <div>
+            <Modal.Header className="flex items-center gap-2">
+              {getStatusIcon()}
+              <Modal.Heading>{t('app-update')}</Modal.Heading>
+            </Modal.Header>
+            <Modal.Body className="pb-6">
+              <div className="space-y-4">
+                <div className="text-center">
+                  <p className="text-sm text-default-600 mb-2">{getStatusText()}</p>
+                  {newVersion && (
+                    <p className="text-xs text-default-500">
+                      {t('updating-to-version')}: v{newVersion}
+                    </p>
+                  )}
+                </div>
 
-            {updateStatus === 'downloading' && (
-              <div className="space-y-3">
-                <Progress
-                  size="lg"
-                  value={downloadProgress}
-                  color={getProgressColor()}
-                  showValueLabel={true}
-                  formatOptions={{
-                    style: "percent",
-                    minimumFractionDigits: 1,
-                    maximumFractionDigits: 1,
-                  }}
-                  classNames={{
-                    base: "max-w-md",
-                    track: "drop-shadow-md border border-default",
-                    indicator: "bg-gradient-to-r from-pink-500 to-yellow-500",
-                    label: "tracking-wider font-medium text-default-600",
-                    value: "text-foreground/60",
-                  }}
-                />
+                {updateStatus === 'downloading' && (
+                  <div className="space-y-3">
+                    <ProgressBar
+                      size="lg"
+                      value={downloadProgress}
+                      color={getProgressColor()}
+                      formatOptions={{
+                        style: 'percent',
+                        minimumFractionDigits: 1,
+                        maximumFractionDigits: 1,
+                      }}
+                      className={['', 'max-w-md'].filter(Boolean).join(' ')}
+                      aria-label={'Progress'}
+                    >
+                      {true && <ProgressBar.Output className={'text-foreground/60'} />}
+                      <ProgressBar.Track className={'drop-shadow-md border border-default'}>
+                        <ProgressBar.Fill className={'bg-gradient-to-r from-pink-500 to-yellow-500'} />
+                      </ProgressBar.Track>
+                    </ProgressBar>
 
-                {downloadedBytes > 0 && totalBytes > 0 && (
-                  <div className="flex justify-between text-xs text-default-500">
-                    <span>
-                      {formatBytes(downloadedBytes)} / {formatBytes(totalBytes)}
-                    </span>
-                    {downloadSpeed > 0 && (
-                      <span>{formatSpeed(downloadSpeed)}</span>
+                    {downloadedBytes > 0 && totalBytes > 0 && (
+                      <div className="flex justify-between text-xs text-default-500">
+                        <span>
+                          {formatBytes(downloadedBytes)} / {formatBytes(totalBytes)}
+                        </span>
+                        {downloadSpeed > 0 && <span>{formatSpeed(downloadSpeed)}</span>}
+                      </div>
                     )}
                   </div>
                 )}
-              </div>
-            )}
 
-            {updateStatus === 'installing' && (
-              <Progress
-                size="lg"
-                isIndeterminate
-                color={getProgressColor()}
-                classNames={{
-                  base: "max-w-md",
-                  track: "drop-shadow-md border border-default",
-                  indicator: "bg-gradient-to-r from-blue-500 to-purple-500",
-                }}
-              />
-            )}
-
-
-            {updateStatus === 'error' && (
-              <div className="text-center space-y-3">
-                <div className="text-danger">
-                  <Icon icon="mdi:alert-circle" width="48" height="48" className="mx-auto" />
-                </div>
-                <p className="text-sm text-default-600">
-                  {errorMessage || t('update-failed-generic')}
-                </p>
-                <div className="flex gap-2">
-                  <Button
-                    color="danger"
-                    variant="flat"
-                    startContent={<Icon icon="mdi:refresh" width="16" height="16" />}
-                    onPress={retryUpdate}
-                    className="flex-1"
+                {updateStatus === 'installing' && (
+                  <ProgressBar
+                    size="lg"
+                    isIndeterminate
+                    color={getProgressColor()}
+                    className={['', 'max-w-md'].filter(Boolean).join(' ')}
+                    aria-label={'Progress'}
                   >
-                    {t('retry')}
-                  </Button>
-                  <Button
-                    color="default"
-                    variant="flat"
-                    onPress={handleClose}
-                    className="flex-1"
-                  >
-                    {t('cancel')}
-                  </Button>
-                </div>
+                    <ProgressBar.Track className={'drop-shadow-md border border-default'}>
+                      <ProgressBar.Fill className={'bg-gradient-to-r from-blue-500 to-purple-500'} />
+                    </ProgressBar.Track>
+                  </ProgressBar>
+                )}
+
+                {updateStatus === 'error' && (
+                  <div className="text-center space-y-3">
+                    <div className="text-danger">
+                      <Icon icon="mdi:alert-circle" width="48" height="48" className="mx-auto" />
+                    </div>
+                    <p className="text-sm text-default-600">{errorMessage || t('update-failed-generic')}</p>
+                    <div className="flex gap-2">
+                      <Button variant="danger-soft" onPress={retryUpdate} className="flex-1">
+                        {<Icon icon="mdi:refresh" width="16" height="16" />}
+                        {t('retry')}
+                      </Button>
+                      <Button variant="tertiary" onPress={handleClose} className="flex-1">
+                        {t('cancel')}
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
+            </Modal.Body>
           </div>
-        </ModalBody>
-      </ModalContent>
-    </Modal>
+        </Modal.Dialog>
+      </Modal.Container>
+    </Modal.Backdrop>
   );
 };

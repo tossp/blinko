@@ -2,17 +2,12 @@ import { AIMessage, HumanMessage } from '@langchain/core/messages';
 import { prisma } from '../prisma';
 import { AiModelFactory } from './aiModelFactory';
 import { ProgressResult } from '@shared/lib/types';
-import { PDFLoader } from '@langchain/community/document_loaders/fs/pdf';
-import { DocxLoader } from '@langchain/community/document_loaders/fs/docx';
-import { CSVLoader } from '@langchain/community/document_loaders/fs/csv';
-import { TextLoader } from 'langchain/document_loaders/fs/text';
-import { UnstructuredLoader } from '@langchain/community/document_loaders/fs/unstructured';
-import { BaseDocumentLoader } from '@langchain/core/document_loaders/base';
+import { loadFileContent } from './fileContent';
 import { FileService } from '../lib/files';
 import { Context } from '../context';
 import { CreateNotification } from '../routerTrpc/notification';
 import { NotificationType } from '@shared/lib/prismaZodType';
-import { CoreMessage } from '@mastra/core';
+import type { ModelMessage } from 'ai';
 import { MDocument } from '@mastra/rag';
 import { embedMany } from 'ai';
 import { RebuildEmbeddingJob } from '../jobs/rebuildEmbeddingJob';
@@ -21,7 +16,7 @@ import { userCaller } from '../routerTrpc/_app';
 import { getAllPathTags } from '@server/lib/helper';
 import { commentWebhookInclude, sendCommentWebhook } from '@server/lib/commentWebhook';
 import { LibSQLVector } from '@mastra/libsql';
-import { RuntimeContext } from "@mastra/core/di";
+import { RequestContext } from "@mastra/core/request-context";
 
 export function isImage(filePath: string): boolean {
   if (!filePath) return false;
@@ -39,34 +34,7 @@ export class AiService {
   static isImage = isImage;
   static isAudio = isAudio;
 
-  static async loadFileContent(filePath: string): Promise<string> {
-    try {
-      let loader: BaseDocumentLoader;
-      switch (true) {
-        case filePath.endsWith('.pdf'):
-          loader = new PDFLoader(filePath);
-          break;
-        case filePath.endsWith('.docx') || filePath.endsWith('.doc'):
-          loader = new DocxLoader(filePath);
-          break;
-        case filePath.endsWith('.txt'):
-          loader = new TextLoader(filePath);
-          break;
-        case filePath.endsWith('.csv'):
-          console.log('load csv');
-          loader = new CSVLoader(filePath);
-          break;
-        default:
-          loader = new UnstructuredLoader(filePath);
-      }
-      const docs = await loader.load();
-      return docs.map((doc) => doc.pageContent).join('\n');
-    } catch (error) {
-      console.error('File loading error:', error);
-      throw new Error(`can not load file: ${filePath}`);
-    }
-    return '';
-  }
+  static loadFileContent = loadFileContent;
 
   static async embeddingDeleteAll(id: number, VectorStore: LibSQLVector) {
     await VectorStore.truncateIndex({ indexName: 'blinko' });
@@ -247,7 +215,7 @@ export class AiService {
     ctx,
   }: {
     question: string;
-    conversations: CoreMessage[];
+    conversations: ModelMessage[];
     withTools?: boolean;
     withRAG?: boolean;
     withOnline?: boolean;
@@ -286,14 +254,14 @@ export class AiService {
         content: question,
       });
       console.log(cleanedConversations, 'conversations');
-      const runtimeContext = new RuntimeContext();
-      runtimeContext.set('accountId', Number(ctx.id));
+      const requestContext = new RequestContext();
+      requestContext.set('accountId', Number(ctx.id));
       const agent = await AiModelFactory.BaseChatAgent({
         withTools,
         withOnlineSearch: withOnline,
         extraInstructions: contextParts.join('\n\n'),
       });
-      const result = await agent.stream(cleanedConversations, { runtimeContext });
+      const result = await agent.stream(cleanedConversations, { requestContext });
       return { result, notes: ragNote };
     } catch (error) {
       console.log(error);
@@ -350,8 +318,8 @@ export class AiService {
 
   static async postProcessNote({ noteId, ctx }: { noteId: number; ctx: Context }) {
     try {
-      const runtimeContext = new RuntimeContext();
-      runtimeContext.set('accountId', ctx.id);
+      const requestContext = new RequestContext();
+      requestContext.set('accountId', ctx.id);
 
       const caller = userCaller(ctx);
       // Get the configuration
@@ -428,7 +396,7 @@ Remember: ALWAYS use tools to implement your suggestions rather than just descri
             Current Note Type: ${noteType}`
           }
         ], {
-          runtimeContext
+          requestContext
         });
 
         return { success: true, message: 'Custom processing completed' };
@@ -515,7 +483,7 @@ Remember: ALWAYS use tools to implement your suggestions rather than just descri
               content: `\nCurrent user id: ${ctx.id}\nCurrent user name: ${ctx.name}\n${smartEditPrompt}\n\nNote ID: ${noteId}\nNote content:\n${note.content}`
             }
           ], {
-            runtimeContext
+            requestContext
           });
           const comment = await prisma.comments.create({
             data: {

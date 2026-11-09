@@ -7,7 +7,6 @@ import { verifyToken } from '@server/lib/helper';
 export const searchBlinkoTool = createTool({
   id: 'search-blinko-tool',
   description: 'you can search note or blinko from blinko api.',
-  //@ts-ignore
   inputSchema: z.object({
     searchText: z.string().default('').optional(),
     page: z.number().default(1),
@@ -24,8 +23,8 @@ export const searchBlinkoTool = createTool({
     hasTodo: z.boolean().default(false).optional().describe('has to do list'),
     token: z.string().optional().describe("internal use, do not pass!")
   }),
-  execute: async ({ context, runtimeContext }) => {
-    const accountId = runtimeContext?.get('accountId') || (await verifyToken(context.token))?.sub;
+  execute: async (context, { requestContext }) => {
+    const accountId = requestContext.get('accountId') || (await verifyToken(context.token ?? ''))?.sub;
     try {
       const caller = userCaller({
         id: String(accountId),

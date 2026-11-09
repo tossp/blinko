@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
+import { fileURLToPath } from 'node:url';
 import zlib from 'zlib';
 import fs from 'fs';
 import authRoutes from './routerExpress/auth';
@@ -89,6 +90,7 @@ async function initializeJobs() {
 }
 
 // Server configuration
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = 1111;
 const appRootDev = path.resolve(__dirname, '../app');

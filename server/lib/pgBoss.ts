@@ -1,4 +1,13 @@
-import { PgBoss } from 'pg-boss';
+import { PgBoss, type QueueOptions } from 'pg-boss';
+
+// pg-boss 12 configures retry and retention per queue, not per instance.
+export const scheduledQueueOptions = {
+  retryLimit: 3,
+  retryDelay: 60,
+  retryBackoff: true,
+  // Completed jobs are retained directly; there is no separate archive table.
+  deleteAfterSeconds: 60 * 60 * 24 * 7,
+} satisfies QueueOptions;
 
 let boss: PgBoss | null = null;
 
@@ -17,25 +26,18 @@ export async function getPgBoss(): Promise<PgBoss> {
     boss = new PgBoss({
       connectionString,
       schema: 'pgboss',
-      // Retry configuration
-      retryLimit: 3,
-      retryDelay: 60, // seconds
-      retryBackoff: true,
-      // Archive completed jobs after 1 day
-      archiveCompletedAfterSeconds: 60 * 60 * 24,
-      // Delete archived jobs after 7 days
-      deleteAfterSeconds: 60 * 60 * 24 * 7,
-      // Monitor state every 30 seconds
-      monitorStateIntervalSeconds: 30,
+      // Refresh queue state every 30 seconds.
+      monitorIntervalSeconds: 30,
     });
 
     boss.on('error', (error) => {
       console.error('[pg-boss] Error:', error);
     });
 
-    boss.on('monitor-states', (states) => {
-      if (states.all.active > 0) {
-        console.log(`[pg-boss] Active jobs: ${states.all.active}`);
+    boss.on('wip', (workers) => {
+      const active = workers.reduce((count, worker) => count + worker.count, 0);
+      if (active > 0) {
+        console.log(`[pg-boss] Active jobs (local workers): ${active}`);
       }
     });
 

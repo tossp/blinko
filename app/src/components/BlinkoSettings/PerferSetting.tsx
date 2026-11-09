@@ -1,5 +1,7 @@
+import { autoSizeTextArea } from '@/lib/autoSizeTextArea';
+import { Input, Switch, TextArea, TextField, Tooltip } from '@heroui/react';
 import { observer } from "mobx-react-lite";
-import { Switch, Input, Tooltip, Textarea } from "@heroui/react";
+
 import { useTranslation } from "react-i18next";
 import { Item, ItemWithTooltip, SelectDropdown } from "./Item";
 import ThemeSwitcher from "../Common/Theme/ThemeSwitcher";
@@ -114,51 +116,39 @@ export const PerferSetting = observer(() => {
 
     <Item
       leftContent={<>{t('hide-notification')}</>}
-      rightContent={<Switch
-        isSelected={blinko.config.value?.isHiddenNotification}
-        onChange={e => {
+      rightContent={<Switch isSelected={blinko.config.value?.isHiddenNotification} onChange={e => {
           PromiseCall(api.config.update.mutate({
             key: 'isHiddenNotification',
-            value: e.target.checked
+            value: e
           }))
-        }}
-      />} />
+        }}><Switch.Content><Switch.Control><Switch.Thumb></Switch.Thumb></Switch.Control></Switch.Content></Switch>} />
 
     <Item
       leftContent={<>{t('show-navigation-bar-on-mobile')}</>}
-      rightContent={<Switch
-        isSelected={blinko.config.value?.isHiddenMobileBar}
-        onChange={e => {
+      rightContent={<Switch isSelected={blinko.config.value?.isHiddenMobileBar} onChange={e => {
           PromiseCall(api.config.update.mutate({
             key: 'isHiddenMobileBar',
-            value: e.target.checked
+            value: e
           }))
-        }}
-      />} />
+        }}><Switch.Content><Switch.Control><Switch.Thumb></Switch.Thumb></Switch.Control></Switch.Content></Switch>} />
 
     <Item
       leftContent={<>{t('hide-comments-in-card')}</>}
-      rightContent={<Switch
-        isSelected={blinko.config.value?.isHideCommentInCard}
-        onChange={e => {
+      rightContent={<Switch isSelected={blinko.config.value?.isHideCommentInCard} onChange={e => {
           PromiseCall(api.config.update.mutate({
             key: 'isHideCommentInCard',
-            value: e.target.checked
+            value: e
           }))
-        }}
-      />} />
+        }}><Switch.Content><Switch.Control><Switch.Thumb></Switch.Thumb></Switch.Control></Switch.Content></Switch>} />
 
     <Item
       leftContent={<>{t('order-by-create-time')}</>}
-      rightContent={<Switch
-        isSelected={blinko.config.value?.isOrderByCreateTime}
-        onChange={e => {
+      rightContent={<Switch isSelected={blinko.config.value?.isOrderByCreateTime} onChange={e => {
           PromiseCall(api.config.update.mutate({
             key: 'isOrderByCreateTime',
-            value: e.target.checked
+            value: e
           }))
-        }}
-      />} />
+        }}><Switch.Content><Switch.Control><Switch.Thumb></Switch.Thumb></Switch.Control></Switch.Content></Switch>} />
 
     <Item
       leftContent={<div className="flex flex-col">
@@ -167,13 +157,7 @@ export const PerferSetting = observer(() => {
       </div>}
       rightContent={
         <div className="flex items-center gap-2">
-          <Input
-            type="number"
-            size='sm'
-            className='w-20'
-            value={maxHomePageWidth}
-            onChange={e => setMaxHomePageWidth(e.target.value)}
-            onBlur={e => {
+          <TextField value={maxHomePageWidth} className={'w-20'}><Input type="number" onChange={e => setMaxHomePageWidth(e.target.value)} onBlur={e => {
               const value = parseInt(e.target.value);
               if (!isNaN(value)) {
                 PromiseCall(api.config.update.mutate({
@@ -181,9 +165,7 @@ export const PerferSetting = observer(() => {
                   value: value
                 }));
               }
-            }}
-            min={0}
-          />
+            }} min={0} /></TextField>
           <span className="text-sm text-default-400">px</span>
         </div>
       }
@@ -202,13 +184,7 @@ export const PerferSetting = observer(() => {
       />}
       rightContent={
         <div className="flex items-center gap-2">
-          <Input
-            type="number"
-            size='sm'
-            className='w-20'
-            value={textLength}
-            onChange={e => setTextLength(e.target.value)}
-            onBlur={e => {
+          <TextField value={textLength} className={'w-20'}><Input type="number" onChange={e => setTextLength(e.target.value)} onBlur={e => {
               const value = parseInt(e.target.value);
               if (!isNaN(value)) {
                 PromiseCall(api.config.update.mutate({
@@ -216,9 +192,7 @@ export const PerferSetting = observer(() => {
                   value: value
                 }));
               }
-            }}
-            min={0}
-          />
+            }} min={0} /></TextField>
           <span className="text-sm text-default-400">{t('chars')}</span>
         </div>
       }
@@ -227,15 +201,12 @@ export const PerferSetting = observer(() => {
     <Item
       leftContent={<>{t('close-daily-review')}</>}
       rightContent={
-        <Switch
-          isSelected={blinko.config.value?.isCloseDailyReview}
-          onChange={e => {
+        <Switch isSelected={blinko.config.value?.isCloseDailyReview} onChange={e => {
             PromiseCall(api.config.update.mutate({
               key: 'isCloseDailyReview',
-              value: e.target.checked
+              value: e
             }))
-          }}
-        />
+          }}><Switch.Content><Switch.Control><Switch.Thumb></Switch.Thumb></Switch.Control></Switch.Content></Switch>
       } />
 
     <Item
@@ -332,15 +303,9 @@ export const PerferSetting = observer(() => {
     <Item
       leftContent={<>{t('page-size')}</>}
       rightContent={
-        <Input
-          type="number"
-          min="10"
-          max="100"
-          value={PageSize.value}
-          onChange={e => {
+        <TextField value={PageSize.value}><Input type="number" min="10" max="100" onChange={e => {
             PageSize.save(Number(e.target.value))
-          }}
-        />
+          }} /></TextField>
       } />
     <Item
       leftContent={<>{t('font-style')}</>}
@@ -378,34 +343,26 @@ export const PerferSetting = observer(() => {
     <Item
       leftContent={<>{t('use-blinko-hub')}</>}
       rightContent={
-        <Switch
-          isSelected={blinko.config.value?.isUseBlinkoHub}
-          onChange={async e => {
+        <Switch isSelected={blinko.config.value?.isUseBlinkoHub} onChange={async e => {
             await PromiseCall(api.config.update.mutate({
               key: 'isUseBlinkoHub',
-              value: e.target.checked
+              value: e
             }))
             window.location.reload()
-          }}
-        />
+          }}><Switch.Content><Switch.Control><Switch.Thumb></Switch.Thumb></Switch.Control></Switch.Content></Switch>
       } />
 
     <Item
       leftContent={<>{t('close-background-animation')}</>}
       rightContent={
-        <Tooltip content={<GradientBackground className="rounded-lg w-[200px] h-[100px]">
-          <div ></div>
-        </GradientBackground>}>
-          <Switch
-            isSelected={blinko.config.value?.isCloseBackgroundAnimation}
-            onChange={e => {
+        <Tooltip><Tooltip.Trigger tabIndex={0}><Switch isSelected={blinko.config.value?.isCloseBackgroundAnimation} onChange={e => {
               PromiseCall(api.config.update.mutate({
                 key: 'isCloseBackgroundAnimation',
-                value: e.target.checked
+                value: e
               }))
-            }}
-          />
-        </Tooltip>
+            }}><Switch.Content><Switch.Control><Switch.Thumb></Switch.Thumb></Switch.Control></Switch.Content></Switch></Tooltip.Trigger><Tooltip.Content>{<GradientBackground className="rounded-lg w-[200px] h-[100px]">
+          <div ></div>
+        </GradientBackground>}</Tooltip.Content></Tooltip>
       } />
 
     {
@@ -416,16 +373,9 @@ export const PerferSetting = observer(() => {
             <div>{t('custom-title')}</div>
             <div className="text-xs text-default-400">{t('custom-title-tip')}</div>
           </div>}
-          rightContent={<Input
-            className="w-full md:w-[400px]"
-            placeholder={t('custom-title-placeholder')}
-            type="text"
-            maxLength={50}
-            value={customTitle}
-            onChange={e => {
+          rightContent={<TextField value={customTitle} className={"w-full md:w-[400px]"}><Input placeholder={t('custom-title-placeholder')} type="text" maxLength={50} onChange={e => {
               setCustomTitle(e.target.value)
-            }}
-            onBlur={async () => {
+            }} onBlur={async () => {
               const titleValue = customTitle.trim().slice(0, 50);
               setCustomTitle(titleValue);
               await PromiseCall(api.config.update.mutate({
@@ -433,7 +383,7 @@ export const PerferSetting = observer(() => {
                 value: titleValue
               }));
               blinko.config.call();
-            }} />} />
+            }} /></TextField>} />
       )
     }
 
@@ -447,20 +397,14 @@ export const PerferSetting = observer(() => {
             <div>{t('custom-background-url')}</div>
             <div className="text-xs text-default-400">{t('custom-bg-tip')}</div>
           </div>}
-          rightContent={<Input
-            className="w-full md:w-[400px]"
-            placeholder="https://www.shadergradient.co/customize?"
-            type="text"
-            value={customBackgroundUrl}
-            onChange={e => {
+          rightContent={<TextField value={customBackgroundUrl} className={"w-full md:w-[400px]"}><Input placeholder="https://www.shadergradient.co/customize?" type="text" onChange={e => {
               setCustomBackgroundUrl(e.target.value)
-            }}
-            onBlur={e => {
+            }} onBlur={e => {
               PromiseCall(api.config.update.mutate({
                 key: 'customBackgroundUrl',
                 value: customBackgroundUrl
               }), { autoAlert: false })
-            }} />} />
+            }} /></TextField>} />
       )
     }
 
@@ -469,16 +413,13 @@ export const PerferSetting = observer(() => {
         <Item
           leftContent={<>{t('enable-signin-footer')}</>}
           rightContent={
-            <Switch
-              isSelected={blinko.config.value?.signinFooterEnabled ?? false}
-              onChange={async (e) => {
+            <Switch isSelected={blinko.config.value?.signinFooterEnabled ?? false} onChange={async (e) => {
                 await PromiseCall(api.config.update.mutate({
                   key: 'signinFooterEnabled',
-                  value: e.target.checked
+                  value: e
                 }));
                 blinko.config.call();
-              }}
-            />
+              }}><Switch.Content><Switch.Control><Switch.Thumb></Switch.Thumb></Switch.Control></Switch.Content></Switch>
           }
         />
       )
@@ -495,23 +436,13 @@ export const PerferSetting = observer(() => {
             </div>
           }
           rightContent={
-            <Textarea
-              radius="lg"
-              minRows={3}
-              maxRows={8}
-              maxLength={1000}
-              value={signinFooterText}
-              onChange={(e) => setSigninFooterText(e.target.value)}
-              onBlur={async () => {
+            <TextField value={signinFooterText} className={["w-full", 'rounded-'+"lg"].filter(Boolean).join(' ')}><TextArea ref={(element) => {  if (element) return autoSizeTextArea(element, { minRows: 3, maxRows: 8 }); }} maxLength={1000} onChange={(e) => setSigninFooterText(e.target.value)} onBlur={async () => {
                 await PromiseCall(api.config.update.mutate({
                   key: 'signinFooterText',
                   value: signinFooterText
                 }));
                 blinko.config.call();
-              }}
-              placeholder={t('signin-footer-placeholder')}
-              className="w-full"
-            />
+              }} placeholder={t('signin-footer-placeholder')} rows={3} /></TextField>
           }
         />
       )

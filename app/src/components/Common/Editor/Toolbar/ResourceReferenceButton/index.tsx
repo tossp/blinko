@@ -1,5 +1,6 @@
+import { InputGroup, Popover, TextField } from '@heroui/react';
 import { Icon } from '@/components/Common/Iconify/icons';
-import { Input, Popover, PopoverContent, PopoverTrigger } from '@heroui/react';
+
 import { observer } from 'mobx-react-lite';
 import { IconButton } from '../IconButton';
 import { ScrollArea } from '../../../ScrollArea';
@@ -66,32 +67,48 @@ export const ResourceReferenceButton = observer(({ store }: Props) => {
   };
 
   return (
-    <Popover isOpen={isOpen} onOpenChange={setIsOpen} placement="bottom">
-      <PopoverTrigger>
+    <Popover isOpen={isOpen} onOpenChange={setIsOpen}>
+      <Popover.Trigger tabIndex={0}>
         <div className="hover:bg-default-100 rounded-md">
           <IconButton icon="hugeicons:file-link" tooltip={t('referenceResource')} />
         </div>
-      </PopoverTrigger>
-      <PopoverContent className="w-[300px] sm:w-[300px]">
-        <div className="p-1 w-full">
-          <Input size="sm" value={searchText} onChange={(e) => setSearchText(e.target.value)} placeholder={t('search')} className="mb-2" startContent={<Icon icon="mdi:magnify" width={20} height={20} />} />
-          <ScrollArea
-            className="h-[300px] "
-            onBottom={() => {
-              blinko.resourceList.callNextPage({});
-            }}
-          >
-            <LoadingAndEmpty isLoading={blinko.resourceList.loading.value} isEmpty={blinko.resourceList.value?.length === 0} />
-            <PhotoProvider>
-              <div className="space-y-2 w-full">
-                {blinko.resourceList.value?.map((attachment) => (
-                  <ResourceItemPreview key={attachment.id} item={attachment} onClick={() => handleSelect(attachment)} showExtraInfo={true} showAssociationIcon={true} />
-                ))}
-              </div>
-            </PhotoProvider>
-          </ScrollArea>
-        </div>
-      </PopoverContent>
+      </Popover.Trigger>
+      <Popover.Content placement={'bottom'} className="w-[300px] sm:w-[300px]">
+        <Popover.Dialog>
+          <div className="p-1 w-full">
+            <TextField value={searchText} className={'mb-2'}>
+              <InputGroup>
+                <InputGroup.Prefix>{<Icon icon="mdi:magnify" width={20} height={20} />}</InputGroup.Prefix>
+                <InputGroup.Input onChange={(e) => setSearchText(e.target.value)} placeholder={t('search')} />
+              </InputGroup>
+            </TextField>
+            <ScrollArea
+              className="h-[300px] "
+              onBottom={() => {
+                blinko.resourceList.callNextPage({});
+              }}
+            >
+              <LoadingAndEmpty
+                isLoading={blinko.resourceList.loading.value}
+                isEmpty={blinko.resourceList.value?.length === 0}
+              />
+              <PhotoProvider>
+                <div className="space-y-2 w-full">
+                  {blinko.resourceList.value?.map((attachment) => (
+                    <ResourceItemPreview
+                      key={attachment.id}
+                      item={attachment}
+                      onClick={() => handleSelect(attachment)}
+                      showExtraInfo={true}
+                      showAssociationIcon={true}
+                    />
+                  ))}
+                </div>
+              </PhotoProvider>
+            </ScrollArea>
+          </div>
+        </Popover.Dialog>
+      </Popover.Content>
     </Popover>
   );
 });

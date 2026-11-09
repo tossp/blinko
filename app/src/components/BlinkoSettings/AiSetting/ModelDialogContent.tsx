@@ -1,5 +1,18 @@
+import {
+  Button,
+  Chip,
+  ComboBox,
+  Description,
+  FieldError,
+  Input,
+  Label,
+  ListBox,
+  Select,
+  TextField,
+  Tooltip,
+} from '@heroui/react';
 import { observer } from 'mobx-react-lite';
-import { Button, Input, Select, SelectItem, Autocomplete, AutocompleteItem, Tooltip, Chip } from '@heroui/react';
+
 import { Icon } from '@/components/Common/Iconify/icons';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
@@ -38,7 +51,7 @@ interface ModelDialogContentProps {
 }
 
 export default observer(function ModelDialogContent({ model }: ModelDialogContentProps) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
   const aiSettingStore = RootStore.Get(AiSettingStore);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
@@ -59,16 +72,16 @@ export default observer(function ModelDialogContent({ model }: ModelDialogConten
         video: false,
         audio: false,
         embedding: false,
-        rerank: false
+        rerank: false,
       },
       config: {
-        embeddingDimensions: 0
+        embeddingDimensions: 0,
       },
-      sortOrder: 0
+      sortOrder: 0,
     };
   });
 
-  const selectedProvider = aiSettingStore.aiProviders.value?.find(p => p.id === editingModel.providerId);
+  const selectedProvider = aiSettingStore.aiProviders.value?.find((p) => p.id === editingModel.providerId);
 
   const getProviderModels = (): ProviderModel[] => {
     if (!selectedProvider) return [];
@@ -87,23 +100,25 @@ export default observer(function ModelDialogContent({ model }: ModelDialogConten
 
   const handleModelSelect = (modelKey: string) => {
     const providerModels = getProviderModels();
-    const providerModel = providerModels.find(m => m.id === modelKey);
-    const defaultTemplate = DEFAULT_MODEL_TEMPLATES.find(t => modelKey.toLowerCase().includes(t.modelKey.toLowerCase()));
+    const providerModel = providerModels.find((m) => m.id === modelKey);
+    const defaultTemplate = DEFAULT_MODEL_TEMPLATES.find((t) =>
+      modelKey.toLowerCase().includes(t.modelKey.toLowerCase())
+    );
 
     if (providerModel) {
       // Use provider model data, but enhance with template capabilities if available
       const capabilities = defaultTemplate?.capabilities || aiSettingStore.inferModelCapabilities(modelKey);
       const config = defaultTemplate?.config || {};
 
-      setEditingModel(prev => ({
+      setEditingModel((prev) => ({
         ...prev,
         modelKey: providerModel.id,
         title: providerModel.name,
         capabilities: capabilities as ModelCapabilities,
         config: {
           ...prev.config,
-          ...config
-        }
+          ...config,
+        },
       }));
     } else {
       // Fallback for manual input
@@ -111,22 +126,22 @@ export default observer(function ModelDialogContent({ model }: ModelDialogConten
       const title = defaultTemplate?.title || modelKey;
       const config = defaultTemplate?.config || {};
 
-      setEditingModel(prev => ({
+      setEditingModel((prev) => ({
         ...prev,
         modelKey,
         title,
         capabilities: capabilities as ModelCapabilities,
         config: {
           ...prev.config,
-          ...config
-        }
+          ...config,
+        },
       }));
     }
   };
 
   const getAllAvailableModels = () => {
     const providerModels = getProviderModels();
-    return providerModels.map(m => ({ id: m.id, name: m.name, source: 'provider' as const }));
+    return providerModels.map((m) => ({ id: m.id, name: m.name, source: 'provider' as const }));
   };
 
   const validateForm = (): boolean => {
@@ -144,9 +159,8 @@ export default observer(function ModelDialogContent({ model }: ModelDialogConten
       newErrors.modelKey = 'Model key is required';
     }
 
-
-    const hasCapabilities = editingModel.capabilities &&
-      Object.values(editingModel.capabilities).some(cap => cap === true);
+    const hasCapabilities =
+      editingModel.capabilities && Object.values(editingModel.capabilities).some((cap) => cap === true);
     if (!hasCapabilities) {
       newErrors.capabilities = 'Please select at least one capability';
     }
@@ -163,7 +177,7 @@ export default observer(function ModelDialogContent({ model }: ModelDialogConten
         api.ai.testConnect.mutate({
           providerId: selectedProvider.id,
           modelKey: editingModel.modelKey,
-          capabilities: editingModel.capabilities
+          capabilities: editingModel.capabilities,
         }),
         {
           loading: t('loading'),
@@ -194,133 +208,127 @@ export default observer(function ModelDialogContent({ model }: ModelDialogConten
       await aiSettingStore.createModel.call(editingModel as any);
     }
     RootStore.Get(DialogStore).close();
-
   };
 
   return (
     <div className="space-y-6">
       <Select
-        label="Provider"
-        placeholder="Select provider"
-        selectedKeys={editingModel.providerId ? [String(editingModel.providerId)] : []}
-        onSelectionChange={(keys) => {
-          const value = Array.from(keys)[0];
-          setEditingModel(prev => ({ ...prev, providerId: Number(value) }));
+        placeholder={'Select provider'}
+        isInvalid={!!errors.providerId}
+        value={editingModel.providerId ? String(editingModel.providerId) : null}
+        onChange={(selectedValue) => {
+          const value = selectedValue;
+          setEditingModel((prev) => ({ ...prev, providerId: Number(value) }));
           // Clear error message
           if (errors.providerId) {
-            setErrors(prev => ({ ...prev, providerId: '' }));
+            setErrors((prev) => ({ ...prev, providerId: '' }));
           }
         }}
-        classNames={{
-          base: "bg-secondbackground",
-          trigger: "bg-secondbackground"
-        }}
-        isInvalid={!!errors.providerId}
-        errorMessage={errors.providerId}
       >
-        {(aiSettingStore.aiProviders.value || []).map(provider => (
-          <SelectItem
-            key={provider.id}
-            startContent={<ProviderIcon provider={provider.provider} className="w-4 h-4" />}
-          >
-            {provider.title}
-          </SelectItem>
-        ))}
+        <Label>{'Provider'}</Label>
+        <Select.Trigger className={'bg-secondbackground'}>
+          <Select.Value />
+          <Select.Indicator />
+        </Select.Trigger>
+        <Select.Popover>
+          <ListBox>
+            {(aiSettingStore.aiProviders.value || []).map((provider) => (
+              <ListBox.Item key={provider.id} id={provider.id}>
+                {<ProviderIcon provider={provider.provider} className="w-4 h-4" />}
+                {provider.title}
+              </ListBox.Item>
+            ))}
+          </ListBox>
+        </Select.Popover>
+        <FieldError>{errors.providerId}</FieldError>
       </Select>
 
-      <Input
-        label={t('model-name')}
-        placeholder="Enter display name"
+      <TextField
         value={editingModel.title || ''}
-        onValueChange={(value) => {
-          setEditingModel(prev => ({ ...prev, title: value }));
+        isInvalid={!!errors.title}
+        onChange={(value) => {
+          setEditingModel((prev) => ({ ...prev, title: value }));
           // Clear error message
           if (errors.title) {
-            setErrors(prev => ({ ...prev, title: '' }));
+            setErrors((prev) => ({ ...prev, title: '' }));
           }
         }}
-        classNames={{
-          base: "bg-secondbackground",
-          inputWrapper: "bg-secondbackground"
-        }}
-        isInvalid={!!errors.title}
-        errorMessage={errors.title}
-      />
+      >
+        <Label>{t('model-name')}</Label>
+        <Input placeholder="Enter display name" />
+        <FieldError>{errors.title}</FieldError>
+      </TextField>
 
       <div className="space-y-3">
         <div className="flex justify-between items-center">
           <p className="text-sm font-semibold text-default-600">{t('model-selection')}</p>
           <Button
+            className="text-primary"
             size="sm"
-            variant="light"
-            color="primary"
-            startContent={
-              aiSettingStore.fetchProviderModels.loading.value ? (
-                <Icon icon="line-md:loading-twotone-loop" width="14" height="14" className="animate-spin" />
-              ) : (
-                <Icon icon="famicons:sync" width="14" height="14" />
-              )
-            }
+            variant="ghost"
             onPress={fetchProviderModels}
             isDisabled={!selectedProvider}
           >
+            {aiSettingStore.fetchProviderModels.loading.value ? (
+              <Icon icon="line-md:loading-twotone-loop" width="14" height="14" className="animate-spin" />
+            ) : (
+              <Icon icon="famicons:sync" width="14" height="14" />
+            )}
             {t('refresh-model-list')}
           </Button>
         </div>
-        <Autocomplete
-          label="Model"
-          placeholder="Select or enter model"
+        <ComboBox
           inputValue={editingModel.modelKey || ''}
           onInputChange={(value) => {
             // Find matching template for the input value
-            const defaultTemplate = DEFAULT_MODEL_TEMPLATES.find(t =>
+            const defaultTemplate = DEFAULT_MODEL_TEMPLATES.find((t) =>
               value.toLowerCase().includes(t.modelKey.toLowerCase())
             );
 
             const capabilities = defaultTemplate?.capabilities || aiSettingStore.inferModelCapabilities(value);
             const config = defaultTemplate?.config || {};
 
-            setEditingModel(prev => ({
+            setEditingModel((prev) => ({
               ...prev,
               modelKey: value,
               capabilities: capabilities,
-              config: config
+              config: config,
             }));
 
             // Clear error message
             if (errors.modelKey) {
-              setErrors(prev => ({ ...prev, modelKey: '' }));
+              setErrors((prev) => ({ ...prev, modelKey: '' }));
             }
           }}
-          onSelectionChange={(key) => {
+          allowsCustomValue
+          isInvalid={!!errors.modelKey}
+          onChange={(key) => {
             if (key) {
               handleModelSelect(String(key));
               // Clear error message
               if (errors.modelKey) {
-                setErrors(prev => ({ ...prev, modelKey: '' }));
+                setErrors((prev) => ({ ...prev, modelKey: '' }));
               }
             }
           }}
-          allowsCustomValue
-          classNames={{
-            base: "bg-secondbackground",
-            popoverContent: "bg-secondbackground",
-            listboxWrapper: "bg-secondbackground"
-          }}
-          isInvalid={!!errors.modelKey}
-          errorMessage={errors.modelKey}
         >
-          {getAllAvailableModels().map(model => (
-            <AutocompleteItem
-              key={model.id}
-              startContent={
-                <ModelIcon modelName={model.id} className="w-4 h-4" />
-              }
-            >
-              {model.name}
-            </AutocompleteItem>
-          ))}
-        </Autocomplete>
+          <Label>{'Model'}</Label>
+          <ComboBox.InputGroup>
+            <Input placeholder={'Select or enter model'} />
+            <ComboBox.Trigger />
+          </ComboBox.InputGroup>
+          <ComboBox.Popover>
+            <ListBox>
+              {getAllAvailableModels().map((model) => (
+                <ListBox.Item key={model.id} id={model.id}>
+                  {<ModelIcon modelName={model.id} className="w-4 h-4" />}
+                  {model.name}
+                </ListBox.Item>
+              ))}
+            </ListBox>
+          </ComboBox.Popover>
+          <FieldError>{errors.modelKey}</FieldError>
+        </ComboBox>
       </div>
 
       <div className="space-y-3">
@@ -338,33 +346,32 @@ export default observer(function ModelDialogContent({ model }: ModelDialogConten
               <Chip
                 key={key}
                 size="sm"
-                startContent={CAPABILITY_ICONS[key as keyof ModelCapabilities]}
-                variant={isSelected ? "solid" : "bordered"}
-                color={isSelected ? CAPABILITY_COLORS[key as keyof ModelCapabilities] : "default"}
-                className={`cursor-pointer transition-all hover:scale-105 ${isSelected ? 'text-white' : 'hover:border-primary'
-                  }`}
+                variant={isSelected ? 'primary' : 'secondary'}
+                color={isSelected ? CAPABILITY_COLORS[key as keyof ModelCapabilities] : 'default'}
+                className={`cursor-pointer transition-all hover:scale-105 ${
+                  isSelected ? 'text-white' : 'hover:border-primary'
+                }`}
                 onClick={() => {
-                  setEditingModel(prev => ({
+                  setEditingModel((prev) => ({
                     ...prev,
                     capabilities: {
                       ...prev.capabilities,
-                      [key]: !isSelected
-                    }
+                      [key]: !isSelected,
+                    },
                   }));
                   // Clear error message
                   if (errors.capabilities) {
-                    setErrors(prev => ({ ...prev, capabilities: '' }));
+                    setErrors((prev) => ({ ...prev, capabilities: '' }));
                   }
                 }}
               >
-                {label}
+                {CAPABILITY_ICONS[key as keyof ModelCapabilities]}
+                <Chip.Label>{label}</Chip.Label>
               </Chip>
             );
           })}
         </div>
-        {errors.capabilities && (
-          <p className="text-sm text-danger">{errors.capabilities}</p>
-        )}
+        {errors.capabilities && <p className="text-sm text-danger">{errors.capabilities}</p>}
 
         {/* Audio capability warning */}
         {editingModel.capabilities?.audio && (
@@ -383,49 +390,51 @@ export default observer(function ModelDialogContent({ model }: ModelDialogConten
           <div className="flex items-center gap-2">
             <Icon icon="hugeicons:search-list-02" width="16" height="16" />
             <p className="text-sm font-semibold text-default-600">Embedding Dimensions</p>
-            <Tooltip content="Specify the dimensions for this embedding model. Leave 0 for auto-detection.">
-              <Icon icon="proicons:info" width="14" height="14" />
+            <Tooltip>
+              <Tooltip.Trigger tabIndex={0}>
+                <Icon icon="proicons:info" width="14" height="14" />
+              </Tooltip.Trigger>
+              <Tooltip.Content>
+                {'Specify the dimensions for this embedding model. Leave 0 for auto-detection.'}
+              </Tooltip.Content>
             </Tooltip>
           </div>
-          <Input
-            type="number"
-            label="Dimensions"
-            placeholder="0 (auto-detect)"
-            value={String(editingModel.config?.embeddingDimensions || 0)}
-            onChange={(e) => {
-              const dimensions = parseInt(e.target.value) || 0;
-              setEditingModel(prev => ({
-                ...prev,
-                config: {
-                  ...prev.config,
-                  embeddingDimensions: dimensions
-                }
-              }));
-            }}
-            description="Common values: 384, 512, 768, 1024, 1536, 3072. Set to 0 for auto-detection."
-            classNames={{
-              base: "bg-secondbackground",
-              inputWrapper: "bg-secondbackground"
-            }}
-          />
+          <TextField value={String(editingModel.config?.embeddingDimensions || 0)}>
+            <Label>{'Dimensions'}</Label>
+            <Input
+              type="number"
+              placeholder="0 (auto-detect)"
+              onChange={(e) => {
+                const dimensions = parseInt(e.target.value) || 0;
+                setEditingModel((prev) => ({
+                  ...prev,
+                  config: {
+                    ...prev.config,
+                    embeddingDimensions: dimensions,
+                  },
+                }));
+              }}
+            />
+            <Description>{'Common values: 384, 512, 768, 1024, 1536, 3072. Set to 0 for auto-detection.'}</Description>
+          </TextField>
         </div>
       )}
 
       <div className="flex justify-between gap-2 pt-6 border-t border-default-200">
         <Button
-          color="primary"
-          variant='light'
-          startContent={<Icon icon="hugeicons:connect" width="16" height="16" />}
+          className="text-primary"
+          variant="ghost"
           onPress={testModelConnection}
           isDisabled={!editingModel.modelKey || !selectedProvider}
         >
+          {<Icon icon="hugeicons:connect" width="16" height="16" />}
           {t('test-connection')}
         </Button>
         <div className="flex gap-2">
-          <Button variant="flat" onPress={() => RootStore.Get(DialogStore).close()}>
+          <Button variant="tertiary" onPress={() => RootStore.Get(DialogStore).close()}>
             Cancel
           </Button>
-          <Button color="primary" onPress={handleSaveModel}>
+          <Button onPress={handleSaveModel} variant="primary">
             {editingModel.id ? t('update') : t('create')}
           </Button>
         </div>

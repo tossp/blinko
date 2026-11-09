@@ -1,5 +1,6 @@
+import { Button, Input, ListBox, Select, Switch, TextField } from '@heroui/react';
 import { observer } from 'mobx-react-lite';
-import { Button, Input, Switch, Code, Card, CardBody, CardHeader, Divider, Kbd, Select, SelectItem, Checkbox } from '@heroui/react';
+
 import { RootStore } from '@/store';
 import { BlinkoStore } from '@/store/blinkoStore';
 import { PromiseCall } from '@/store/standard/PromiseState';
@@ -427,10 +428,7 @@ export const HotkeySetting = observer(() => {
               />
             }
             rightContent={
-              <Switch
-                isSelected={autoStartEnabled}
-                onValueChange={toggleAutoStart}
-              />
+              <Switch isSelected={autoStartEnabled} onChange={toggleAutoStart}><Switch.Content><Switch.Control><Switch.Thumb></Switch.Thumb></Switch.Control></Switch.Content></Switch>
             }
           />
 
@@ -443,10 +441,7 @@ export const HotkeySetting = observer(() => {
               />
             }
             rightContent={
-              <Switch
-                isSelected={hotkeyConfig.enabled}
-                onValueChange={(enabled) => saveConfig({ enabled })}
-              />
+              <Switch isSelected={hotkeyConfig.enabled} onChange={(enabled) => saveConfig({ enabled })}><Switch.Content><Switch.Control><Switch.Thumb></Switch.Thumb></Switch.Control></Switch.Content></Switch>
             }
           />
 
@@ -455,39 +450,10 @@ export const HotkeySetting = observer(() => {
             leftContent={t('hotkey.quickNoteShortcut')}
             rightContent={
               <div className="flex items-center gap-2">
-                <Input
-                  ref={recordingRef}
-                  value={isRecording ? recordedKeys.join('+') || t('hotkey.pressShortcut') : hotkeyConfig.quickNote}
-                  placeholder={t('hotkey.clickRecordButton')}
-                  readOnly
-                  onKeyDown={handleKeyDown}
-                  classNames={{
-                    input: "text-center font-mono",
-                    inputWrapper: isRecording ? "ring-2 ring-primary" : ""
-                  }}
-                />
-                <Button
-                  size="sm"
-                  color={isRecording ? "danger" : "primary"}
-                  variant={isRecording ? "flat" : "solid"}
-                  onPress={toggleRecording}
-                  startContent={
-                    <Icon icon={isRecording ? "material-symbols:stop" : "material-symbols:keyboard"} />
-                  }
-                >
-                  {isRecording ? t('hotkey.stop') : t('hotkey.record')}
-                </Button>
+                <TextField value={isRecording ? recordedKeys.join('+') || t('hotkey.pressShortcut') : hotkeyConfig.quickNote}><Input ref={recordingRef} placeholder={t('hotkey.clickRecordButton')} readOnly onKeyDown={handleKeyDown} className={"text-center font-mono"} /></TextField>
+                <Button size="sm" variant={isRecording ? 'danger-soft' : 'primary'} onPress={toggleRecording}>{<Icon icon={isRecording ? "material-symbols:stop" : "material-symbols:keyboard"} />}{isRecording ? t('hotkey.stop') : t('hotkey.record')}</Button>
                 {isQuickNoteNotDefault && (
-                  <Button
-                    size="sm"
-                    color="default"
-                    variant="flat"
-                    isIconOnly
-                    onPress={resetQuickNoteToDefault}
-                    className="opacity-70 hover:opacity-100"
-                  >
-                    <Icon icon="material-symbols:refresh" />
-                  </Button>
+                  <Button size="sm" variant="tertiary" isIconOnly onPress={resetQuickNoteToDefault} className="opacity-70 hover:opacity-100"><Icon icon="material-symbols:refresh" /></Button>
                 )}
               </div>
             }
@@ -513,10 +479,7 @@ export const HotkeySetting = observer(() => {
               />
             }
             rightContent={
-              <Switch
-                isSelected={hotkeyConfig.aiEnabled}
-                onValueChange={(enabled) => saveConfig({ aiEnabled: enabled })}
-              />
+              <Switch isSelected={hotkeyConfig.aiEnabled} onChange={(enabled) => saveConfig({ aiEnabled: enabled })}><Switch.Content><Switch.Control><Switch.Thumb></Switch.Thumb></Switch.Control></Switch.Content></Switch>
             }
           />
 
@@ -525,39 +488,10 @@ export const HotkeySetting = observer(() => {
             leftContent="Quick AI Shortcut"
             rightContent={
               <div className="flex items-center gap-2">
-                <Input
-                  ref={recordingAIRef}
-                  value={isRecordingAI ? recordedAIKeys.join('+') || t('hotkey.pressShortcut') : hotkeyConfig.quickAI}
-                  placeholder={t('hotkey.clickRecordButton')}
-                  readOnly
-                  onKeyDown={handleAIKeyDown}
-                  classNames={{
-                    input: "text-center font-mono",
-                    inputWrapper: isRecordingAI ? "ring-2 ring-primary" : ""
-                  }}
-                />
-                <Button
-                  size="sm"
-                  color={isRecordingAI ? "danger" : "primary"}
-                  variant={isRecordingAI ? "flat" : "solid"}
-                  onPress={toggleAIRecording}
-                  startContent={
-                    <Icon icon={isRecordingAI ? "material-symbols:stop" : "material-symbols:keyboard"} />
-                  }
-                >
-                  {isRecordingAI ? t('hotkey.stop') : t('hotkey.record')}
-                </Button>
+                <TextField value={isRecordingAI ? recordedAIKeys.join('+') || t('hotkey.pressShortcut') : hotkeyConfig.quickAI}><Input ref={recordingAIRef} placeholder={t('hotkey.clickRecordButton')} readOnly onKeyDown={handleAIKeyDown} className={"text-center font-mono"} /></TextField>
+                <Button size="sm" variant={isRecordingAI ? 'danger-soft' : 'primary'} onPress={toggleAIRecording}>{<Icon icon={isRecordingAI ? "material-symbols:stop" : "material-symbols:keyboard"} />}{isRecordingAI ? t('hotkey.stop') : t('hotkey.record')}</Button>
                 {isQuickAINotDefault && (
-                  <Button
-                    size="sm"
-                    color="default"
-                    variant="flat"
-                    isIconOnly
-                    onPress={resetQuickAIToDefault}
-                    className="opacity-70 hover:opacity-100"
-                  >
-                    <Icon icon="material-symbols:refresh" />
-                  </Button>
+                  <Button size="sm" variant="tertiary" isIconOnly onPress={resetQuickAIToDefault} className="opacity-70 hover:opacity-100"><Icon icon="material-symbols:refresh" /></Button>
                 )}
               </div>
             }
@@ -583,9 +517,7 @@ export const HotkeySetting = observer(() => {
               />
             }
             rightContent={
-              <Switch
-                isSelected={hotkeyConfig.textSelectionToolbar?.enabled ?? DEFAULT_TEXT_SELECTION_TOOLBAR_CONFIG.enabled}
-                onValueChange={(enabled) =>
+              <Switch isSelected={hotkeyConfig.textSelectionToolbar?.enabled ?? DEFAULT_TEXT_SELECTION_TOOLBAR_CONFIG.enabled} onChange={(enabled) =>
                   saveConfig({
                     textSelectionToolbar: {
                       ...hotkeyConfig.textSelectionToolbar,
@@ -593,8 +525,7 @@ export const HotkeySetting = observer(() => {
                       enabled
                     }
                   })
-                }
-              />
+                }><Switch.Content><Switch.Control><Switch.Thumb></Switch.Thumb></Switch.Control></Switch.Content></Switch>
             }
           />
 
@@ -602,11 +533,8 @@ export const HotkeySetting = observer(() => {
           <Item
             leftContent={t('trigger-modifier')}
             rightContent={
-              <Select
-                size="sm"
-                selectedKeys={[hotkeyConfig.textSelectionToolbar?.triggerModifier ?? DEFAULT_TEXT_SELECTION_TOOLBAR_CONFIG.triggerModifier]}
-                onSelectionChange={(keys) => {
-                  const modifier = Array.from(keys)[0] as 'ctrl' | 'shift' | 'alt';
+              <Select className="w-32" value={hotkeyConfig.textSelectionToolbar?.triggerModifier ?? DEFAULT_TEXT_SELECTION_TOOLBAR_CONFIG.triggerModifier} onChange={(selectedValue) => {
+                  const modifier = selectedValue as 'ctrl' | 'shift' | 'alt';
                   saveConfig({
                     textSelectionToolbar: {
                       ...hotkeyConfig.textSelectionToolbar,
@@ -614,13 +542,7 @@ export const HotkeySetting = observer(() => {
                       triggerModifier: modifier
                     }
                   });
-                }}
-                className="w-32"
-              >
-                <SelectItem key="ctrl" >Ctrl + `</SelectItem>
-                <SelectItem key="shift">Shift + `</SelectItem>
-                <SelectItem key="alt">Alt + `</SelectItem>
-              </Select>
+                }}><Select.Trigger><Select.Value /><Select.Indicator /></Select.Trigger><Select.Popover><ListBox><ListBox.Item key="ctrl" id={"ctrl"}>Ctrl + `</ListBox.Item><ListBox.Item key="shift" id={"shift"}>Shift + `</ListBox.Item><ListBox.Item key="alt" id={"alt"}>Alt + `</ListBox.Item></ListBox></Select.Popover></Select>
             }
             type="col"
           />
@@ -630,11 +552,8 @@ export const HotkeySetting = observer(() => {
             leftContent={t('translation-languages')}
             rightContent={
               <div className="flex gap-2">
-                <Select
-                  size="sm"
-                  selectedKeys={[hotkeyConfig.textSelectionToolbar?.translationFromLang ?? DEFAULT_TEXT_SELECTION_TOOLBAR_CONFIG.translationFromLang]}
-                  onSelectionChange={(keys) => {
-                    const fromLang = Array.from(keys)[0] as string;
+                <Select className="w-24" value={hotkeyConfig.textSelectionToolbar?.translationFromLang ?? DEFAULT_TEXT_SELECTION_TOOLBAR_CONFIG.translationFromLang} onChange={(selectedValue) => {
+                    const fromLang = selectedValue as string;
                     saveConfig({
                       textSelectionToolbar: {
                         ...hotkeyConfig.textSelectionToolbar,
@@ -642,24 +561,10 @@ export const HotkeySetting = observer(() => {
                         translationFromLang: fromLang
                       }
                     });
-                  }}
-                  className="w-24"
-                >
-                  <SelectItem key="auto">Auto</SelectItem>
-                  <SelectItem key="en">English</SelectItem>
-                  <SelectItem key="zh">Chinese</SelectItem>
-                  <SelectItem key="ja">Japanese</SelectItem>
-                  <SelectItem key="ko">Korean</SelectItem>
-                  <SelectItem key="fr">French</SelectItem>
-                  <SelectItem key="de">German</SelectItem>
-                  <SelectItem key="es">Spanish</SelectItem>
-                </Select>
+                  }}><Select.Trigger><Select.Value /><Select.Indicator /></Select.Trigger><Select.Popover><ListBox><ListBox.Item key="auto" id={"auto"}>Auto</ListBox.Item><ListBox.Item key="en" id={"en"}>English</ListBox.Item><ListBox.Item key="zh" id={"zh"}>Chinese</ListBox.Item><ListBox.Item key="ja" id={"ja"}>Japanese</ListBox.Item><ListBox.Item key="ko" id={"ko"}>Korean</ListBox.Item><ListBox.Item key="fr" id={"fr"}>French</ListBox.Item><ListBox.Item key="de" id={"de"}>German</ListBox.Item><ListBox.Item key="es" id={"es"}>Spanish</ListBox.Item></ListBox></Select.Popover></Select>
                 <span className="text-sm text-gray-500 self-center">→</span>
-                <Select
-                  size="sm"
-                  selectedKeys={[hotkeyConfig.textSelectionToolbar?.translationToLang ?? DEFAULT_TEXT_SELECTION_TOOLBAR_CONFIG.translationToLang]}
-                  onSelectionChange={(keys) => {
-                    const toLang = Array.from(keys)[0] as string;
+                <Select className="w-24" value={hotkeyConfig.textSelectionToolbar?.translationToLang ?? DEFAULT_TEXT_SELECTION_TOOLBAR_CONFIG.translationToLang} onChange={(selectedValue) => {
+                    const toLang = selectedValue as string;
                     saveConfig({
                       textSelectionToolbar: {
                         ...hotkeyConfig.textSelectionToolbar,
@@ -667,17 +572,7 @@ export const HotkeySetting = observer(() => {
                         translationToLang: toLang
                       }
                     });
-                  }}
-                  className="w-24"
-                >
-                  <SelectItem key="en">English</SelectItem>
-                  <SelectItem key="zh">Chinese</SelectItem>
-                  <SelectItem key="ja">Japanese</SelectItem>
-                  <SelectItem key="ko">Korean</SelectItem>
-                  <SelectItem key="fr">French</SelectItem>
-                  <SelectItem key="de">German</SelectItem>
-                  <SelectItem key="es">Spanish</SelectItem>
-                </Select>
+                  }}><Select.Trigger><Select.Value /><Select.Indicator /></Select.Trigger><Select.Popover><ListBox><ListBox.Item key="en" id={"en"}>English</ListBox.Item><ListBox.Item key="zh" id={"zh"}>Chinese</ListBox.Item><ListBox.Item key="ja" id={"ja"}>Japanese</ListBox.Item><ListBox.Item key="ko" id={"ko"}>Korean</ListBox.Item><ListBox.Item key="fr" id={"fr"}>French</ListBox.Item><ListBox.Item key="de" id={"de"}>German</ListBox.Item><ListBox.Item key="es" id={"es"}>Spanish</ListBox.Item></ListBox></Select.Popover></Select>
               </div>
             }
             type="col"

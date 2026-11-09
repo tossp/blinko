@@ -15,7 +15,7 @@ const modelRead = mock(async () => ({
     baseURL: null,
   },
 }));
-const proxy = mock(async () => ({ status: 200, data: "" }));
+const proxy = mock(async (_url: string, _options: { config: { maxRedirects: number } }) => ({ status: 200, data: "" }));
 const preview = mock(async (_url: string, _options: any) => ({
   title: "Public preview",
   description: "Description",

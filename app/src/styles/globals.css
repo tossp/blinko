@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@import "@heroui/styles";
+@import "./heroui-theme.css";
 @config "../../tailwind.config.js";
 
 .bm-burger-button {
@@ -182,8 +184,8 @@ body {
     --popover: hsl(0 0% 100%);
     --popover-foreground: hsl(222.2 47.4% 11.2%);
 
-    --muted: hsl(210 40% 96.1%);
-    --muted-foreground: hsl(215.4 16.3% 46.9%);
+    --blinko-muted: hsl(210 40% 96.1%);
+    --blinko-muted-foreground: hsl(215.4 16.3% 46.9%);
 
     --card: hsl(0 0% 100%);
     --card-foreground: hsl(222.2 47.4% 11.2%);
@@ -197,8 +199,8 @@ body {
     --secondary: hsl(253, 53%, 59%);
     --secondary-foreground: hsl(210 40% 98%);
 
-    --accent: hsl(240, 5%, 96%);
-    --accent-foreground: hsl(222.2 47.4% 11.2%);
+    --blinko-accent: hsl(240, 5%, 96%);
+    --blinko-accent-foreground: hsl(222.2 47.4% 11.2%);
 
     --destructive: hsl(0 100% 50%);
     --destructive-foreground: hsl(210 40% 98%);
@@ -225,8 +227,8 @@ body {
     --hover: #292929;
     --hover-foreground: hsl(215.4 16.3% 46.9%);
 
-    --muted: hsl(224, 20%, 19%);
-    --muted-foreground: hsl(215.4 16.3% 56.9%);
+    --blinko-muted: hsl(224, 20%, 19%);
+    --blinko-muted-foreground: hsl(215.4 16.3% 56.9%);
 
     --desc: #999999;
     --ignore: #6d6d6d;
@@ -250,8 +252,8 @@ body {
     --secondary: hsl(253, 53%, 59%);
     --secondary-foreground: hsl(210 40% 98%);
 
-    --accent: hsl(214, 9%, 15%);
-    --accent-foreground: hsl(210 40% 98%);
+    --blinko-accent: hsl(214, 9%, 15%);
+    --blinko-accent-foreground: hsl(210 40% 98%);
 
     --destructive: hsl(0 63% 31%);
     --destructive-foreground: hsl(210 40% 98%);

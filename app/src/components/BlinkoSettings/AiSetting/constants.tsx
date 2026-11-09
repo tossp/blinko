@@ -11,7 +11,7 @@ export const CAPABILITY_ICONS = {
   video: <Icon icon="hugeicons:video-01" width="16" height="16" />,
   audio: <Icon icon="mingcute:voice-line" width="16" height="16" />,
   embedding: <Icon icon="hugeicons:search-list-02" width="16" height="16" />,
-  rerank: <Icon icon="hugeicons:arrow-up-down" width="16" height="16" />
+  rerank: <Icon icon="hugeicons:arrow-up-down" width="16" height="16" />,
 };
 
 export const CAPABILITY_LABELS = {
@@ -22,18 +22,18 @@ export const CAPABILITY_LABELS = {
   video: 'Video',
   audio: 'Audio',
   embedding: 'Embedding',
-  rerank: 'Rerank'
+  rerank: 'Rerank',
 };
 
 export const CAPABILITY_COLORS = {
-  image: 'primary',
-  tools: 'secondary',
+  image: 'accent',
+  tools: 'accent',
   inference: 'success',
   imageGeneration: 'warning',
   video: 'danger',
   audio: 'success',
   embedding: 'warning',
-  rerank: 'secondary'
+  rerank: 'accent',
 } as const;
 
 export const PROVIDER_TEMPLATES = [
@@ -45,7 +45,7 @@ export const PROVIDER_TEMPLATES = [
     website: 'https://openai.com',
     docs: 'https://platform.openai.com/docs',
     icon: 'openai',
-    description: 'GPT-4, GPT-3.5 and other OpenAI models'
+    description: 'GPT-4, GPT-3.5 and other OpenAI models',
   },
   {
     value: 'anthropic',
@@ -55,7 +55,7 @@ export const PROVIDER_TEMPLATES = [
     website: 'https://anthropic.com',
     docs: 'https://docs.anthropic.com',
     icon: 'anthropic',
-    description: 'Claude 3.5 Sonnet, Claude 3 Opus and other Claude models'
+    description: 'Claude 3.5 Sonnet, Claude 3 Opus and other Claude models',
   },
   {
     value: 'azure',
@@ -65,7 +65,7 @@ export const PROVIDER_TEMPLATES = [
     website: 'https://azure.microsoft.com/en-us/products/ai-services/openai-service',
     docs: 'https://docs.microsoft.com/en-us/azure/cognitive-services/openai/',
     icon: 'azure',
-    description: 'OpenAI models hosted on Microsoft Azure'
+    description: 'OpenAI models hosted on Microsoft Azure',
   },
   {
     value: 'google',
@@ -75,7 +75,7 @@ export const PROVIDER_TEMPLATES = [
     website: 'https://ai.google.dev',
     docs: 'https://ai.google.dev/docs',
     icon: 'google',
-    description: 'Gemini Pro, Gemini Flash and other Google models'
+    description: 'Gemini Pro, Gemini Flash and other Google models',
   },
   {
     value: 'ollama',
@@ -85,7 +85,7 @@ export const PROVIDER_TEMPLATES = [
     website: 'https://ollama.ai',
     docs: 'https://ollama.ai/docs',
     icon: 'ollama',
-    description: 'Run large language models locally'
+    description: 'Run large language models locally',
   },
   {
     value: 'openrouter',
@@ -95,7 +95,7 @@ export const PROVIDER_TEMPLATES = [
     website: 'https://openrouter.ai',
     docs: 'https://openrouter.ai/docs',
     icon: 'openrouter',
-    description: 'Access to multiple AI models through one API'
+    description: 'Access to multiple AI models through one API',
   },
   {
     value: 'deepseek',
@@ -105,7 +105,7 @@ export const PROVIDER_TEMPLATES = [
     website: 'https://www.deepseek.com',
     docs: 'https://api-docs.deepseek.com',
     icon: 'deepseek',
-    description: 'DeepSeek AI models'
+    description: 'DeepSeek AI models',
   },
   {
     value: 'siliconflow',
@@ -115,7 +115,7 @@ export const PROVIDER_TEMPLATES = [
     website: 'https://siliconflow.cn',
     docs: 'https://docs.siliconflow.cn',
     icon: 'siliconflow',
-    description: 'High-performance AI inference platform'
+    description: 'High-performance AI inference platform',
   },
   {
     value: 'grok',
@@ -125,7 +125,7 @@ export const PROVIDER_TEMPLATES = [
     website: 'https://x.ai',
     docs: 'https://docs.x.ai',
     icon: 'grok',
-    description: 'Grok AI by X.AI'
+    description: 'Grok AI by X.AI',
   },
   {
     value: 'voyageai',
@@ -135,7 +135,7 @@ export const PROVIDER_TEMPLATES = [
     website: 'https://www.voyageai.com',
     docs: 'https://docs.voyageai.com',
     icon: 'voyageai',
-    description: 'High-quality embedding models for retrieval and search'
+    description: 'High-quality embedding models for retrieval and search',
   },
   {
     value: 'minimax',
@@ -145,7 +145,7 @@ export const PROVIDER_TEMPLATES = [
     website: 'https://www.minimaxi.com',
     docs: 'https://platform.minimaxi.com/document/introduction',
     icon: 'minimax',
-    description: 'MiniMax M3, M2.7 and other MiniMax models'
+    description: 'MiniMax M3, M2.7 and other MiniMax models',
   },
   {
     value: 'litellm',
@@ -155,6 +155,6 @@ export const PROVIDER_TEMPLATES = [
     website: 'https://litellm.ai',
     docs: 'https://docs.litellm.ai/docs',
     icon: 'litellm',
-    description: 'AI gateway proxy - access 100+ LLM providers through a single endpoint'
-  }
+    description: 'AI gateway proxy - access 100+ LLM providers through a single endpoint',
+  },
 ];

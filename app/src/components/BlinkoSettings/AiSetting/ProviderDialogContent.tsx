@@ -1,5 +1,6 @@
+import { Button, Card, Input, InputGroup, Label, TextField } from '@heroui/react';
 import { observer } from 'mobx-react-lite';
-import { Button, Input, Select, SelectItem, Card, CardBody, user } from '@heroui/react';
+
 import { Icon } from '@/components/Common/Iconify/icons';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
@@ -21,17 +22,15 @@ const StepsIndicator = ({ currentStep, totalSteps }: { currentStep: number; tota
       {Array.from({ length: totalSteps }, (_, index) => (
         <div key={index} className="flex items-center">
           <div
-            className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all ${index + 1 <= currentStep
-              ? 'bg-primary text-primary-foreground'
-              : 'bg-default-100 text-default-500'
-              }`}
+            className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all ${
+              index + 1 <= currentStep ? 'bg-primary text-primary-foreground' : 'bg-default-100 text-default-500'
+            }`}
           >
             {index + 1}
           </div>
           {index < totalSteps - 1 && (
             <div
-              className={`w-12 h-0.5 mx-2 transition-all ${index + 1 < currentStep ? 'bg-primary' : 'bg-default-200'
-                }`}
+              className={`w-12 h-0.5 mx-2 transition-all ${index + 1 < currentStep ? 'bg-primary' : 'bg-default-200'}`}
             />
           )}
         </div>
@@ -57,7 +56,7 @@ export default observer(function ProviderDialogContent({ provider }: ProviderDia
       baseURL: '',
       apiKey: '',
       sortOrder: 0,
-      models: []
+      models: [],
     };
   });
 
@@ -72,21 +71,21 @@ export default observer(function ProviderDialogContent({ provider }: ProviderDia
   const handleTemplateSelect = (templateValue: string) => {
     if (templateValue === 'custom') {
       setSelectedTemplate('custom');
-      setEditingProvider(prev => ({
+      setEditingProvider((prev) => ({
         ...prev,
         provider: 'custom',
         title: 'Custom Provider',
-        baseURL: 'https://api.example.com/v1'
+        baseURL: 'https://api.example.com/v1',
       }));
     } else {
-      const template = PROVIDER_TEMPLATES.find(t => t.value === templateValue);
+      const template = PROVIDER_TEMPLATES.find((t) => t.value === templateValue);
       if (template) {
         setSelectedTemplate(templateValue);
-        setEditingProvider(prev => ({
+        setEditingProvider((prev) => ({
           ...prev,
           provider: template.value,
           title: template.defaultName,
-          baseURL: template.defaultBaseURL
+          baseURL: template.defaultBaseURL,
         }));
       }
     }
@@ -109,12 +108,23 @@ export default observer(function ProviderDialogContent({ provider }: ProviderDia
     <div className="space-y-6">
       {/* Custom Configuration Option */}
       <Card
-        shadow='none'
-        isPressable
-        className="hover:bg-default-50 transition-colors cursor-pointer bg-secondbackground w-full"
-        onPress={() => handleTemplateSelect('custom')}
+        className={[
+          'hover:bg-default-50 transition-colors cursor-pointer bg-secondbackground w-full',
+          'shadow-' + 'none',
+        ]
+          .filter(Boolean)
+          .join(' ')}
+        role={'button'}
+        tabIndex={0}
+        onClick={() => handleTemplateSelect('custom')}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            event.currentTarget.click();
+          }
+        }}
       >
-        <CardBody className="flex flex-row items-center gap-4 p-4">
+        <Card.Content className="flex flex-row items-center gap-4 p-4">
           <div className="flex-shrink-0">
             <div className="w-12 h-12 rounded-lg flex items-center justify-center relative">
               <ProviderIcon provider="openai" className="w-6 h-6 text-primary" />
@@ -128,7 +138,7 @@ export default observer(function ProviderDialogContent({ provider }: ProviderDia
             <p className="text-sm text-default-500">{t('configure-your-own-api-endpoint')}</p>
           </div>
           <Icon icon="hugeicons:arrow-right-02" className="w-5 h-5 text-default-400" />
-        </CardBody>
+        </Card.Content>
       </Card>
 
       {/* Provider Templates */}
@@ -137,13 +147,24 @@ export default observer(function ProviderDialogContent({ provider }: ProviderDia
           {PROVIDER_TEMPLATES.map((template) => {
             return (
               <Card
-                shadow='none'
                 key={template.value}
-                isPressable
-                className="hover:bg-default-50 transition-colors cursor-pointer bg-secondbackground"
-                onPress={() => handleTemplateSelect(template.value)}
+                className={[
+                  'hover:bg-default-50 transition-colors cursor-pointer bg-secondbackground',
+                  'shadow-' + 'none',
+                ]
+                  .filter(Boolean)
+                  .join(' ')}
+                role={'button'}
+                tabIndex={0}
+                onClick={() => handleTemplateSelect(template.value)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    event.currentTarget.click();
+                  }
+                }}
               >
-                <CardBody className="flex flex-row items-center gap-3 p-4">
+                <Card.Content className="flex flex-row items-center gap-3 p-4">
                   <div className="flex-shrink-0">
                     <ProviderIcon provider={template.value} className="w-8 h-8" />
                   </div>
@@ -152,7 +173,7 @@ export default observer(function ProviderDialogContent({ provider }: ProviderDia
                     <p className="text-xs text-default-500 line-clamp-2">{template.description}</p>
                   </div>
                   <Icon icon="hugeicons:arrow-right-02" className="w-4 h-4 text-default-400" />
-                </CardBody>
+                </Card.Content>
               </Card>
             );
           })}
@@ -163,7 +184,7 @@ export default observer(function ProviderDialogContent({ provider }: ProviderDia
 
   // Step 2: Configuration
   const renderConfiguration = () => {
-    const template = PROVIDER_TEMPLATES.find(t => t.value === selectedTemplate);
+    const template = PROVIDER_TEMPLATES.find((t) => t.value === selectedTemplate);
 
     return (
       <div className="space-y-4">
@@ -174,50 +195,55 @@ export default observer(function ProviderDialogContent({ provider }: ProviderDia
           </h3>
         </div>
 
-        <Input
-          label={t('provider-name')}
-          placeholder={t('enter-provider-name')}
+        <TextField
           value={editingProvider.title || ''}
-          onValueChange={(value) => {
-            setEditingProvider(prev => ({ ...prev, title: value }));
+          onChange={(value) => {
+            setEditingProvider((prev) => ({ ...prev, title: value }));
           }}
-        />
+        >
+          <Label>{t('provider-name')}</Label>
+          <Input placeholder={t('enter-provider-name')} />
+        </TextField>
 
-        <Input
-          label={t('base-url')}
-          placeholder={t('enter-api-base-url')}
+        <TextField
           value={editingProvider.baseURL || ''}
-          onValueChange={(value) => {
-            setEditingProvider(prev => ({ ...prev, baseURL: value }));
+          onChange={(value) => {
+            setEditingProvider((prev) => ({ ...prev, baseURL: value }));
           }}
-        />
+        >
+          <Label>{t('base-url')}</Label>
+          <Input placeholder={t('enter-api-base-url')} />
+        </TextField>
 
-        <Input
-          label={t('api-key')}
-          placeholder={t('enter-api-key')}
-          type="password"
+        <TextField
           value={editingProvider.apiKey || ''}
-          onValueChange={(value) => {
-            setEditingProvider(prev => ({ ...prev, apiKey: value }));
+          onChange={(value) => {
+            setEditingProvider((prev) => ({ ...prev, apiKey: value }));
           }}
-          endContent={<Copy size={20} content={editingProvider.apiKey ?? ''} />}
-        />
+        >
+          <Label>{t('api-key')}</Label>
+          <InputGroup>
+            <InputGroup.Input placeholder={t('enter-api-key')} type="password" />
+            <InputGroup.Suffix>{<Copy size={20} content={editingProvider.apiKey ?? ''} />}</InputGroup.Suffix>
+          </InputGroup>
+        </TextField>
 
         {(editingProvider.provider === 'azure' || editingProvider.provider === 'azureopenai') && (
-          <Input
-            label={t('api-version')}
-            placeholder="Enter API version (e.g., 2024-02-01)"
+          <TextField
             value={editingProvider.config?.apiVersion || ''}
-            onValueChange={(value) => {
-              setEditingProvider(prev => ({
+            onChange={(value) => {
+              setEditingProvider((prev) => ({
                 ...prev,
                 config: {
                   ...prev.config,
-                  apiVersion: value
-                }
+                  apiVersion: value,
+                },
               }));
             }}
-          />
+          >
+            <Label>{t('api-version')}</Label>
+            <Input placeholder="Enter API version (e.g., 2024-02-01)" />
+          </TextField>
         )}
       </div>
     );
@@ -238,11 +264,8 @@ export default observer(function ProviderDialogContent({ provider }: ProviderDia
       <div className="flex justify-between items-center pt-6 border-t border-default-200">
         <div>
           {currentStep > 1 && (
-            <Button
-              variant="flat"
-              startContent={<Icon icon="hugeicons:arrow-left-02" width="16" height="16" />}
-              onPress={() => setCurrentStep(currentStep - 1)}
-            >
+            <Button variant="tertiary" onPress={() => setCurrentStep(currentStep - 1)}>
+              {<Icon icon="hugeicons:arrow-left-02" width="16" height="16" />}
               {t('back')}
             </Button>
           )}
@@ -250,7 +273,7 @@ export default observer(function ProviderDialogContent({ provider }: ProviderDia
 
         <div className="flex gap-2">
           {currentStep === 2 && (
-            <Button color="primary" onPress={handleSaveProvider}>
+            <Button onPress={handleSaveProvider} variant="primary">
               {editingProvider.id ? t('update') : t('create')}
             </Button>
           )}

@@ -8,7 +8,7 @@ mock.module('@server/lib/proxy', () => ({
 // Mock @ai-sdk/openai
 const mockLanguageModel = { modelId: 'MiniMax-M3' };
 const mockCreateOpenAI = mock((config: any) => ({
-  languageModel: mock((modelKey: string) => mockLanguageModel)
+  chat: mock((modelKey: string) => mockLanguageModel)
 }));
 
 mock.module('@ai-sdk/openai', () => ({
@@ -22,7 +22,7 @@ mock.module('@ai-sdk/anthropic', () => ({
 mock.module('@ai-sdk/google', () => ({
   createGoogleGenerativeAI: mock(() => ({ languageModel: mock(() => ({})) }))
 }));
-mock.module('ollama-ai-provider', () => ({
+mock.module('ollama-ai-provider-v2', () => ({
   createOllama: mock(() => ({ languageModel: mock(() => ({})) }))
 }));
 mock.module('@ai-sdk/deepseek', () => ({

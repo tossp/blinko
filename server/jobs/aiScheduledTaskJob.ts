@@ -1,7 +1,7 @@
-import { getPgBoss } from "../lib/pgBoss";
+import { getPgBoss, scheduledQueueOptions } from "../lib/pgBoss";
 import { prisma } from "../prisma";
 import { AiService } from "@server/aiServer";
-import { RuntimeContext } from "@mastra/core/di";
+import { RequestContext } from "@mastra/core/request-context";
 import { AiModelFactory } from "@server/aiServer/aiModelFactory";
 
 export const AI_SCHEDULED_TASK_QUEUE = "ai-scheduled-task";
@@ -15,7 +15,7 @@ interface AITaskPayload {
 export class AIScheduledTaskJob {
   private static isWorkerRegistered = false;
   // Store worker references for each scheduled task to allow proper cleanup
-  private static taskWorkers: Map<number, Promise<void>> = new Map();
+  private static taskWorkers: Map<number, Promise<string>> = new Map();
 
   /**
    * Initialize the AI scheduled task worker
@@ -27,8 +27,9 @@ export class AIScheduledTaskJob {
 
     const boss = await getPgBoss();
 
-    // Create the queue
-    await boss.createQueue(AI_SCHEDULED_TASK_QUEUE);
+    // createQueue alone leaves existing queue defaults unchanged.
+    await boss.createQueue(AI_SCHEDULED_TASK_QUEUE, scheduledQueueOptions);
+    await boss.updateQueue(AI_SCHEDULED_TASK_QUEUE, scheduledQueueOptions);
 
     // Register the worker
     await boss.work(AI_SCHEDULED_TASK_QUEUE, { batchSize: 1 }, async (jobs: any[]) => {
@@ -98,8 +99,8 @@ export class AIScheduledTaskJob {
    * Execute an AI prompt and return the result
    */
   private static async executeAIPrompt(prompt: string, accountId: number): Promise<string> {
-    const runtimeContext = new RuntimeContext();
-    runtimeContext.set('accountId', accountId);
+    const requestContext = new RequestContext();
+    requestContext.set('accountId', accountId);
     
     const agent = await AiModelFactory.BaseChatAgent({ 
       withTools: true, 
@@ -111,12 +112,12 @@ export class AIScheduledTaskJob {
       { role: 'user' as const, content: prompt }
     ];
     
-    const result = await agent.stream(conversations, { runtimeContext });
+    const result = await agent.stream(conversations, { requestContext });
     
     let output = '';
     for await (const chunk of result.fullStream) {
-      if (chunk.type === 'text-delta' && chunk.textDelta) {
-        output += chunk.textDelta;
+      if (chunk.type === 'text-delta') {
+        output += chunk.payload.text;
       }
     }
     
@@ -145,7 +146,8 @@ export class AIScheduledTaskJob {
         const scheduleName = `${AI_SCHEDULED_TASK_QUEUE}-${task.id}`;
         
         // Create queue for this schedule
-        await boss.createQueue(scheduleName);
+        await boss.createQueue(scheduleName, scheduledQueueOptions);
+        await boss.updateQueue(scheduleName, scheduledQueueOptions);
         
         // Schedule sends jobs to queue with same name as schedule
         await boss.schedule(scheduleName, task.schedule, {
@@ -206,7 +208,8 @@ export class AIScheduledTaskJob {
     const scheduleName = `${AI_SCHEDULED_TASK_QUEUE}-${task.id}`;
     
     // Create queue for this schedule
-    await boss.createQueue(scheduleName);
+    await boss.createQueue(scheduleName, scheduledQueueOptions);
+    await boss.updateQueue(scheduleName, scheduledQueueOptions);
     
     // Schedule sends jobs to queue with same name as schedule
     await boss.schedule(scheduleName, schedule, {
@@ -292,7 +295,8 @@ export class AIScheduledTaskJob {
 
     if (enabled) {
       // Create queue for this schedule
-      await boss.createQueue(scheduleName);
+      await boss.createQueue(scheduleName, scheduledQueueOptions);
+      await boss.updateQueue(scheduleName, scheduledQueueOptions);
       
       // Schedule sends jobs to queue with same name as schedule
       await boss.schedule(scheduleName, task.schedule, {

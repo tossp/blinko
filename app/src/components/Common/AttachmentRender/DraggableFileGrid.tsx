@@ -1,5 +1,5 @@
 import React from 'react';
-import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd-next';
+import { DragDropContext, Draggable, Droppable } from '@hello-pangea/dnd';
 import { FileType } from '../Editor/type';
 import { api } from '@/lib/trpc';
 
@@ -19,20 +19,20 @@ export const DraggableFileGrid = ({
   onReorder,
   type,
   className,
-  renderItem
+  renderItem,
 }: DraggableFileGridProps) => {
   const handleDragEnd = async (result: any) => {
     if (!result.destination) return;
-    
+
     const { source, destination } = result;
-    const filteredFiles = files.filter(i => i.previewType === type);
+    const filteredFiles = files.filter((i) => i.previewType === type);
     const allFiles = Array.from(files);
-    
+
     const [reorderedItem] = filteredFiles.splice(source.index, 1);
     if (reorderedItem) {
       filteredFiles.splice(destination.index, 0, reorderedItem);
-      
-      const newFiles = allFiles.map(file => {
+
+      const newFiles = allFiles.map((file) => {
         if (file.previewType === type) {
           return filteredFiles.shift() || file;
         }
@@ -45,8 +45,8 @@ export const DraggableFileGrid = ({
         await api.notes.updateAttachmentsOrder.mutate({
           attachments: newFiles.map((file, index) => ({
             name: file.name,
-            sortOrder: index
-          }))
+            sortOrder: index,
+          })),
         });
       } catch (error) {
         console.error('Failed to update attachments order:', error);
@@ -63,32 +63,34 @@ export const DraggableFileGrid = ({
             {...provided.droppableProps}
             className={`${className} ${snapshot.isDraggingOver ? 'bg-hover/50' : ''}`}
           >
-            {files.filter(i => i.previewType === type).map((file, index) => (
-              <Draggable
-                key={`${file.name}-${index}`}
-                draggableId={`${file.name}-${index}`}
-                index={index}
-                isDragDisabled={preview}
-              >
-                {(provided, snapshot) => (
-                  <div
-                    ref={provided.innerRef}
-                    {...provided.draggableProps}
-                    {...provided.dragHandleProps}
-                    style={{
-                      ...provided.draggableProps.style,
-                      opacity: snapshot.isDragging ? 0.5 : 1,
-                    }}
-                  >
-                    {renderItem?.(file)}
-                  </div>
-                )}
-              </Draggable>
-            ))}
+            {files
+              .filter((i) => i.previewType === type)
+              .map((file, index) => (
+                <Draggable
+                  key={`${file.name}-${index}`}
+                  draggableId={`${file.name}-${index}`}
+                  index={index}
+                  isDragDisabled={preview}
+                >
+                  {(provided, snapshot) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      style={{
+                        ...provided.draggableProps.style,
+                        opacity: snapshot.isDragging ? 0.5 : 1,
+                      }}
+                    >
+                      {renderItem?.(file)}
+                    </div>
+                  )}
+                </Draggable>
+              ))}
             {provided.placeholder}
           </div>
         )}
       </Droppable>
     </DragDropContext>
   );
-}; 
+};

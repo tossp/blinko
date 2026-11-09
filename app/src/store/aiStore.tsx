@@ -10,14 +10,13 @@ import { BlinkoStore } from './blinkoStore';
 import { eventBus } from '@/lib/event';
 import { PromiseCall, PromisePageState, PromiseState } from './standard/PromiseState';
 import { DialogStore } from './module/Dialog';
-import { Image } from '@heroui/react';
+
 import { AiTag } from '@/components/BlinkoAi/aiTag';
 import i18n from '@/lib/i18n';
 import { AiEmoji } from '@/components/BlinkoAi/aiEmoji';
 import { StorageState } from './standard/StorageState';
 import { BlinkoItem } from '@/components/BlinkoCard';
 import { AiSettingStore, ModelCapabilities, AiProvider, AiModel, ProviderModel } from './aiSettingStore';
-
 
 type Chat = {
   content: string;
@@ -117,7 +116,7 @@ export class AiStore implements Store {
             conversationId: this.currentConversationId,
             content: userQuestion,
             role: 'user',
-            metadata: ""
+            metadata: '',
           });
         }
 
@@ -136,7 +135,7 @@ export class AiStore implements Store {
             withTools: this.withTools.value ?? false,
             withOnline: this.withOnline.value ?? false,
           },
-          { signal: this.aiChatabortController.signal },
+          { signal: this.aiChatabortController.signal }
         );
 
         for await (const item of res) {
@@ -154,7 +153,7 @@ export class AiStore implements Store {
             this.currentMessageResult.toolCalls.push({
               toolCallId: item.chunk.toolCallId,
               toolName: item.chunk.toolName,
-              args: item.chunk.args
+              args: item.chunk.args,
             });
           }
           if (item.chunk?.type == 'tool-result') {
@@ -163,7 +162,7 @@ export class AiStore implements Store {
               toolCallId: item.chunk.toolCallId,
               toolName: item.chunk.toolName,
               args: item.chunk.args,
-              result: item.chunk.result
+              result: item.chunk.result,
             });
           }
           if (item.chunk?.type == 'finish') {
@@ -204,7 +203,11 @@ export class AiStore implements Store {
         // this.clearCurrentMessageResult()
       }
     } catch (error) {
-      if (!error.message.includes('interrupted') && !error.message.includes('aborted') && !error.message.includes('BodyStreamBuffer was aborted')) {
+      if (
+        !error.message.includes('interrupted') &&
+        !error.message.includes('aborted') &&
+        !error.message.includes('BodyStreamBuffer was aborted')
+      ) {
         RootStore.Get(ToastPlugin).error(error.message);
       }
       this.isAnswering = false;
@@ -224,7 +227,7 @@ export class AiStore implements Store {
       // Update the message content
       await api.message.update.mutate({
         id: messageId,
-        content: newContent
+        content: newContent,
       });
 
       // Clear all messages after this message
@@ -268,7 +271,7 @@ export class AiStore implements Store {
         conversationId: this.currentConversationId,
         content: prompt,
         role: 'system',
-        metadata: ""
+        metadata: '',
       });
       await this.currentConversation.call();
     }
@@ -302,10 +305,9 @@ export class AiStore implements Store {
           type: writeType,
           content,
         },
-        { signal: this.aiWriteAbortController.signal },
+        { signal: this.aiWriteAbortController.signal }
       );
       for await (const item of res) {
-
         if (item.type == 'error') {
           const errorMessage = (item.error as any)?.name || 'ai error';
           RootStore.Get(ToastPlugin).error(errorMessage);
@@ -317,7 +319,7 @@ export class AiStore implements Store {
           //@ts-ignore
           this.writingResponseText += item.textDelta;
         } else {
-          console.log(JSON.stringify(item))
+          console.log(JSON.stringify(item));
         }
         this.scrollTicker++;
       }
@@ -437,8 +439,6 @@ export class AiStore implements Store {
     this.clearCurrentMessageResult();
     await this.currentConversation.call();
   }
-
-
 
   private clear() {
     this.chatHistory.clear();

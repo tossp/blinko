@@ -49,7 +49,7 @@ async function generateThumbnail(s3ClientInstance: any, config: any, fullPath: s
     }
 
     const thumbnail = await sharp(buffer, {
-      failOnError: false,
+      failOn: 'none',
       limitInputPixels: false
     })
       .rotate()

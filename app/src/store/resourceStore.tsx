@@ -1,24 +1,24 @@
-import { Store } from "./standard/base";
-import { makeAutoObservable } from "mobx";
-import { useLocation, useSearchParams, useNavigate } from "react-router-dom";
-import { BlinkoStore } from "./blinkoStore";
-import { RootStore } from ".";
-import { ResourceType } from "@shared/lib/types";
-import { useEffect, useState } from "react";
-import { api } from "@/lib/trpc";
-import { PromiseCall } from "./standard/PromiseState";
-import { t } from "i18next";
-import { ToastPlugin } from "./module/Toast/Toast";
-import { DialogStore } from "./module/Dialog";
-import { Button, Input } from "@heroui/react";
+import { Button, FieldError, Input, Label, TextField } from '@heroui/react';
+import { Store } from './standard/base';
+import { makeAutoObservable } from 'mobx';
+import { useLocation, useSearchParams, useNavigate } from 'react-router-dom';
+import { BlinkoStore } from './blinkoStore';
+import { RootStore } from '.';
+import { ResourceType } from '@shared/lib/types';
+import { useEffect, useState } from 'react';
+import { api } from '@/lib/trpc';
+import { PromiseCall } from './standard/PromiseState';
+import { t } from 'i18next';
+import { ToastPlugin } from './module/Toast/Toast';
+import { DialogStore } from './module/Dialog';
 
 export class ResourceStore implements Store {
   sid = 'resourceStore';
   currentFolder: string | null = null;
   selectedItems: Set<number> = new Set();
   contextMenuResource: ResourceType | null = null;
-  refreshTicker = 0
-  clipboard: { type: 'cut' | 'copy', items: ResourceType[] } | null = null;
+  refreshTicker = 0;
+  clipboard: { type: 'cut' | 'copy'; items: ResourceType[] } | null = null;
 
   constructor() {
     makeAutoObservable(this);
@@ -30,11 +30,11 @@ export class ResourceStore implements Store {
 
   setCurrentFolder = (folder: string | null) => {
     this.currentFolder = folder;
-  }
+  };
 
   selectAllFiles = (resources: ResourceType[]) => {
     this.selectedItems.clear();
-    resources.forEach(resource => {
+    resources.forEach((resource) => {
       if (!resource.isFolder && resource.id) {
         this.selectedItems.add(resource.id);
       }
@@ -49,24 +49,24 @@ export class ResourceStore implements Store {
       newSet.add(id);
     }
     this.selectedItems = newSet;
-  }
+  };
 
   clearSelection = () => {
     this.selectedItems = new Set();
-  }
+  };
 
   loadResources = (folder?: string) => {
     this.clearSelection();
     this.blinko.resourceList.resetAndCall({
       folder: folder || undefined,
     });
-  }
+  };
 
   loadNextPage = () => {
     this.blinko.resourceList.callNextPage({
       folder: this.currentFolder || undefined,
     });
-  }
+  };
 
   handleDragEnd = async (result: any) => {
     if (!result.destination) return;
@@ -76,9 +76,9 @@ export class ResourceStore implements Store {
     const destItem = this.blinko.resourceList.value?.[destination.index];
     if (!destItem?.isFolder) return;
 
-    const itemsToMove = Array.from(this.selectedItems).map(id =>
-      this.blinko.resourceList.value?.find(item => item.id === Number(id))
-    ).filter((item): item is NonNullable<typeof item> => item != null);
+    const itemsToMove = Array.from(this.selectedItems)
+      .map((id) => this.blinko.resourceList.value?.find((item) => item.id === Number(id)))
+      .filter((item): item is NonNullable<typeof item> => item != null);
 
     if (itemsToMove.length === 0) {
       const draggedItem = this.blinko.resourceList.value?.[source.index];
@@ -86,19 +86,20 @@ export class ResourceStore implements Store {
       itemsToMove.push(draggedItem);
     }
 
-    const targetPath = this.currentFolder
-      ? `${this.currentFolder}/${destItem.folderName}`
-      : destItem.folderName;
+    const targetPath = this.currentFolder ? `${this.currentFolder}/${destItem.folderName}` : destItem.folderName;
 
     await RootStore.Get(ToastPlugin).promise(
-      PromiseCall(api.attachments.move.mutate({
-        sourceIds: itemsToMove.map(item => item.id!),
-        targetFolder: targetPath!.split('/').join(',')
-      }), { autoAlert: false }),
+      PromiseCall(
+        api.attachments.move.mutate({
+          sourceIds: itemsToMove.map((item) => item.id!),
+          targetFolder: targetPath!.split('/').join(','),
+        }),
+        { autoAlert: false }
+      ),
       {
-        loading: t("operation-in-progress"),
-        success: t("operation-success"),
-        error: t("operation-failed")
+        loading: t('operation-in-progress'),
+        success: t('operation-success'),
+        error: t('operation-failed'),
       }
     );
 
@@ -107,15 +108,13 @@ export class ResourceStore implements Store {
   };
 
   navigateToFolder = async (folderName: string, navigate: any) => {
-    const newPath = this.currentFolder
-      ? `${this.currentFolder}/${folderName}`
-      : folderName;
+    const newPath = this.currentFolder ? `${this.currentFolder}/${folderName}` : folderName;
 
     this.setCurrentFolder(newPath);
     this.loadResources(newPath);
 
     await navigate(`/resources?folder=${encodeURIComponent(newPath)}`);
-  }
+  };
 
   navigateBack = async (navigate: any) => {
     if (!this.currentFolder) return;
@@ -132,11 +131,11 @@ export class ResourceStore implements Store {
     } else {
       await navigate('/resources');
     }
-  }
+  };
 
   setContextMenuResource = (resource: ResourceType | null) => {
     this.contextMenuResource = resource;
-  }
+  };
 
   setCutItems = (items: ResourceType[]) => {
     this.clipboard = { type: 'cut', items };
@@ -181,7 +180,7 @@ export class ResourceStore implements Store {
           }
 
           const isDuplicate = currentResources.some(
-            resource => resource.isFolder && resource.folderName?.toLowerCase() === newName.trim().toLowerCase()
+            (resource) => resource.isFolder && resource.folderName?.toLowerCase() === newName.trim().toLowerCase()
           );
 
           if (isDuplicate) {
@@ -194,10 +193,10 @@ export class ResourceStore implements Store {
             await PromiseCall(
               api.attachments.createFolder.mutate({
                 folderName: newName.trim(),
-                parentFolder: this.currentFolder || undefined
+                parentFolder: this.currentFolder || undefined,
               })
             );
-            
+
             // Refresh the resource list
             this.refreshTicker++;
             RootStore.Get(DialogStore).close();
@@ -208,27 +207,22 @@ export class ResourceStore implements Store {
 
         return (
           <div className="flex flex-col gap-2 p-2">
-            <Input
-              label={t('folder-name')}
-              value={newName}
-              onChange={(e) => {
-                setNewName(e.target.value);
-                setError('');
-              }}
-              errorMessage={error}
-              isInvalid={!!error}
-            />
-            <Button
-              color="primary"
-              className="mt-2"
-              onPress={validateAndCreateFolder}
-              isDisabled={!newName.trim()}
-            >
+            <TextField value={newName} isInvalid={!!error}>
+              <Label>{t('folder-name')}</Label>
+              <Input
+                onChange={(e) => {
+                  setNewName(e.target.value);
+                  setError('');
+                }}
+              />
+              <FieldError>{error}</FieldError>
+            </TextField>
+            <Button className="mt-2" onPress={validateAndCreateFolder} isDisabled={!newName.trim()} variant="primary">
               {t('confirm')}
             </Button>
           </div>
         );
-      }
+      },
     });
   };
 
@@ -240,14 +234,17 @@ export class ResourceStore implements Store {
     const parentFolder = folders.length > 0 ? folders.join(',') : '';
 
     await RootStore.Get(ToastPlugin).promise(
-      PromiseCall(api.attachments.move.mutate({
-        sourceIds: items.map(item => item.id!),
-        targetFolder: parentFolder
-      }), { autoAlert: false }),
+      PromiseCall(
+        api.attachments.move.mutate({
+          sourceIds: items.map((item) => item.id!),
+          targetFolder: parentFolder,
+        }),
+        { autoAlert: false }
+      ),
       {
-        loading: t("operation-in-progress"),
-        success: t("operation-success"),
-        error: t("operation-failed")
+        loading: t('operation-in-progress'),
+        success: t('operation-success'),
+        error: t('operation-failed'),
       }
     );
     this.refreshTicker++;

@@ -1,8 +1,8 @@
-import { useState, useEffect, lazy, Suspense } from "react";
-import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation, useSearchParams } from "react-router-dom";
+import { useState, useEffect, lazy, Suspense } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { ThemeProvider } from 'next-themes';
 import { Inspector, InspectParams } from 'react-dev-inspector';
-import { HeroUIProvider } from '@heroui/react';
+
 import './styles/github-markdown.css';
 import 'react-photo-view/dist/react-photo-view.css';
 import '@/lib/i18n';
@@ -20,12 +20,12 @@ import { BlinkoStore } from '@/store/blinkoStore';
 import { useAndroidShortcuts } from '@/lib/hooks';
 import { useQuickaiHotkey } from '@/hooks/useQuickaiHotkey';
 import { useInitialHotkeySetup } from '@/hooks/useInitialHotkeySetup';
-import { isInTauri, isDesktop } from "@/lib/tauriHelper";
-import { listen } from "@tauri-apps/api/event";
-import QuickNotePage from "./pages/quicknote";
-import QuickAIPage from "./pages/quickai";
-import QuickToolPage from "./pages/quicktool";
-import { useQuicknoteHotkey } from "./hooks/useQuicknoteHotkey";
+import { isInTauri, isDesktop } from '@/lib/tauriHelper';
+import { listen } from '@tauri-apps/api/event';
+import QuickNotePage from './pages/quicknote';
+import QuickAIPage from './pages/quickai';
+import QuickToolPage from './pages/quicktool';
+import { useQuicknoteHotkey } from './hooks/useQuicknoteHotkey';
 
 const HomePage = lazy(() => import('./pages/index'));
 const SignInPage = lazy(() => import('./pages/signin'));
@@ -50,7 +50,7 @@ const HomeRedirect = () => {
   const blinko = RootStore.Get(BlinkoStore);
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
-  
+
   useEffect(() => {
     const redirectToDefaultPage = async () => {
       await blinko.config.call();
@@ -61,17 +61,17 @@ const HomeRedirect = () => {
         setLoading(false);
         return;
       }
-      
+
       navigate(`/?path=${defaultHomePage}`, { replace: true });
     };
-    
+
     redirectToDefaultPage();
   }, [navigate, searchParams, location]);
-  
+
   if (loading) {
     return <LoadingPage />;
   }
-  
+
   return <HomePage />;
 };
 
@@ -87,9 +87,20 @@ const ProtectedRoute = ({ children }) => {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const publicRoutes = ['/signin', '/signup', '/share', '/_offline', '/oauth-callback', '/ai-share', '/oauth-callback'];
-      const isPublicRoute = publicRoutes.some(route =>
-        location.pathname === route || location.pathname.startsWith('/share/') || location.pathname.startsWith('/ai-share/')
+      const publicRoutes = [
+        '/signin',
+        '/signup',
+        '/share',
+        '/_offline',
+        '/oauth-callback',
+        '/ai-share',
+        '/oauth-callback',
+      ];
+      const isPublicRoute = publicRoutes.some(
+        (route) =>
+          location.pathname === route ||
+          location.pathname.startsWith('/share/') ||
+          location.pathname.startsWith('/ai-share/')
       );
       if (!userStore.isLogin && !isPublicRoute) {
         const tokenData = await getTokenData();
@@ -148,7 +159,11 @@ function AppRoutes() {
         if (!isMounted) return;
 
         unlistenNavigation = await listen('navigate-to-route', (event) => {
-          const { route, replace = false, targetWindow } = event.payload as {
+          const {
+            route,
+            replace = false,
+            targetWindow,
+          } = event.payload as {
             route: string;
             replace?: boolean;
             targetWindow?: string;
@@ -166,7 +181,7 @@ function AppRoutes() {
 
             // Emit event to notify components to refresh configuration
             if (windowType === 'quicktool') {
-              console.log("🔄 Emitting config refresh event for quicktool");
+              console.log('🔄 Emitting config refresh event for quicktool');
               // This will be picked up by quicktool component to refresh its config
               window.dispatchEvent(new CustomEvent('quicktool-config-refresh'));
             }
@@ -229,19 +244,89 @@ function AppRoutes() {
       return (
         <Suspense fallback={<LoadingPage />}>
           <Routes>
-            <Route path="/" element={<ProtectedRoute><HomeRedirect /></ProtectedRoute>} />
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <HomeRedirect />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/signin" element={<SignInPage />} />
             <Route path="/signup" element={<SignUpPage />} />
-            <Route path="/hub" element={<ProtectedRoute><HubPage /></ProtectedRoute>} />
-            <Route path="/ai" element={<ProtectedRoute><AIPage /></ProtectedRoute>} />
-            <Route path="/resources" element={<ProtectedRoute><ResourcesPage /></ProtectedRoute>} />
-            <Route path="/review" element={<ProtectedRoute><ReviewPage /></ProtectedRoute>} />
-            <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
-            <Route path="/plugin" element={<ProtectedRoute><PluginPage /></ProtectedRoute>} />
-            <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
-            <Route path="/all" element={<ProtectedRoute><AllPage /></ProtectedRoute>} />
+            <Route
+              path="/hub"
+              element={
+                <ProtectedRoute>
+                  <HubPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/ai"
+              element={
+                <ProtectedRoute>
+                  <AIPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/resources"
+              element={
+                <ProtectedRoute>
+                  <ResourcesPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/review"
+              element={
+                <ProtectedRoute>
+                  <ReviewPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <SettingsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/plugin"
+              element={
+                <ProtectedRoute>
+                  <PluginPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/analytics"
+              element={
+                <ProtectedRoute>
+                  <AnalyticsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/all"
+              element={
+                <ProtectedRoute>
+                  <AllPage />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/oauth-callback" element={<OAuthCallbackPage />} />
-            <Route path="/detail/*" element={<ProtectedRoute><DetailPage /></ProtectedRoute>} />
+            <Route
+              path="/detail/*"
+              element={
+                <ProtectedRoute>
+                  <DetailPage />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/share" element={<ShareIndexPage />} />
             <Route path="/share/:id" element={<ShareDetailPage />} />
             <Route path="/ai-share/:id" element={<AiSharePage />} />
@@ -257,7 +342,7 @@ function AppRoutes() {
 
 function App() {
   initStore();
-  
+
   // Initialize Android shortcuts handler
   useAndroidShortcuts();
 
@@ -275,13 +360,13 @@ function App() {
       <Inspector
         keys={['control', 'alt', 'x']}
         onClickElement={({ codeInfo }: InspectParams) => {
-          if (!codeInfo?.absolutePath) return
-          const { absolutePath, lineNumber, columnNumber } = codeInfo
-          window.open(`cursor://file/${absolutePath}:${lineNumber}:${columnNumber}`)
+          if (!codeInfo?.absolutePath) return;
+          const { absolutePath, lineNumber, columnNumber } = codeInfo;
+          window.open(`cursor://file/${absolutePath}:${lineNumber}:${columnNumber}`);
         }}
       />
       <BrowserRouter>
-        <HeroUIProvider>
+        <>
           <ThemeProvider attribute="class" enableSystem={false}>
             <AppProvider />
             <CommonLayout>
@@ -291,7 +376,7 @@ function App() {
               </div>
             </CommonLayout>
           </ThemeProvider>
-        </HeroUIProvider>
+        </>
         <BlinkoMusicPlayer />
       </BrowserRouter>
     </>

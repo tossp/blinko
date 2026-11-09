@@ -1,6 +1,7 @@
+import { Tooltip } from '@heroui/react';
 import { observer } from 'mobx-react-lite';
 import { Icon } from '@/components/Common/Iconify/icons';
-import { Tooltip } from '@heroui/react';
+
 import { RootStore } from '@/store';
 import { DialogStore } from '@/store/module/Dialog';
 import NoteHistoryModal from './NoteHistoryModal';
@@ -25,10 +26,13 @@ export const HistoryButton = observer(({ noteId, className = '' }: HistoryButton
   };
 
   return (
-    <Tooltip content={t('View History Versions')}>
-      <div className="flex items-center gap-2">
-        <Icon className={className} onClick={handleOpenHistory} icon="lucide:history" width="16" height="16" />
-      </div>
+    <Tooltip>
+      <Tooltip.Trigger tabIndex={0}>
+        <div className="flex items-center gap-2">
+          <Icon className={className} onClick={handleOpenHistory} icon="lucide:history" width="16" height="16" />
+        </div>
+      </Tooltip.Trigger>
+      <Tooltip.Content>{t('View History Versions')}</Tooltip.Content>
     </Tooltip>
   );
 });

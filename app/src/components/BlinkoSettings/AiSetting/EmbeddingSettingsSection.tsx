@@ -1,5 +1,6 @@
+import { Button, Label, Slider } from '@heroui/react';
 import { observer } from 'mobx-react-lite';
-import { Slider, Button } from '@heroui/react';
+
 import { Icon } from '@/components/Common/Iconify/icons';
 import { CollapsibleCard } from '../../Common/CollapsibleCard';
 import { useTranslation } from 'react-i18next';
@@ -22,7 +23,7 @@ export const EmbeddingSettingsSection = observer(function EmbeddingSettingsSecti
   const [localState, setLocalState] = useState({
     embeddingTopK: blinko.config.value?.embeddingTopK ?? 5,
     embeddingScore: blinko.config.value?.embeddingScore ?? 0.6,
-    excludeEmbeddingTagId: blinko.config.value?.excludeEmbeddingTagId
+    excludeEmbeddingTagId: blinko.config.value?.excludeEmbeddingTagId,
   });
 
   // Rebuild embedding state
@@ -66,7 +67,6 @@ export const EmbeddingSettingsSection = observer(function EmbeddingSettingsSecti
     return () => stopPolling();
   }, []);
 
-
   const handleRebuildClick = async () => {
     try {
       // Check the latest status from database
@@ -101,7 +101,6 @@ export const EmbeddingSettingsSection = observer(function EmbeddingSettingsSecti
     }
   };
 
-
   return (
     <CollapsibleCard icon="mingcute:vector-line" title="Embedding Management">
       <div className="space-y-4">
@@ -126,24 +125,27 @@ export const EmbeddingSettingsSection = observer(function EmbeddingSettingsSecti
                       key: 'embeddingTopK',
                       value: localState.embeddingTopK,
                     }),
-                    { autoAlert: false },
+                    { autoAlert: false }
                   );
                 }}
                 onChange={(value) => {
                   const newValue = Number(value);
-                  setLocalState(prev => ({ ...prev, embeddingTopK: newValue }));
+                  setLocalState((prev) => ({ ...prev, embeddingTopK: newValue }));
                 }}
                 value={localState.embeddingTopK}
-                size="md"
                 step={1}
-                color="foreground"
-                label={'value'}
-                showSteps={false}
                 maxValue={50}
                 minValue={1}
                 defaultValue={5}
                 className="w-full"
-              />
+              >
+                <Label>{t('embedding-top-k')}</Label>
+                <Slider.Output />
+                <Slider.Track>
+                  <Slider.Fill />
+                  <Slider.Thumb />
+                </Slider.Track>
+              </Slider>
             </div>
           }
         />
@@ -169,24 +171,27 @@ export const EmbeddingSettingsSection = observer(function EmbeddingSettingsSecti
                       key: 'embeddingScore',
                       value: localState.embeddingScore,
                     }),
-                    { autoAlert: false },
+                    { autoAlert: false }
                   );
                 }}
                 onChange={(value) => {
                   const newValue = Number(value);
-                  setLocalState(prev => ({ ...prev, embeddingScore: newValue }));
+                  setLocalState((prev) => ({ ...prev, embeddingScore: newValue }));
                 }}
                 value={localState.embeddingScore}
-                size="md"
                 step={0.01}
-                color="foreground"
-                label={'value'}
-                showSteps={false}
                 maxValue={1.0}
                 minValue={0.2}
                 defaultValue={0.6}
                 className="w-full"
-              />
+              >
+                <Label>{t('embedding-score')}</Label>
+                <Slider.Output />
+                <Slider.Track>
+                  <Slider.Fill />
+                  <Slider.Thumb />
+                </Slider.Track>
+              </Slider>
             </div>
           }
         />
@@ -207,13 +212,13 @@ export const EmbeddingSettingsSection = observer(function EmbeddingSettingsSecti
               selectedTag={localState.excludeEmbeddingTagId?.toString() || null}
               onSelectionChange={(key) => {
                 const newValue = key ? Number(key) : null;
-                setLocalState(prev => ({ ...prev, excludeEmbeddingTagId: newValue }));
+                setLocalState((prev) => ({ ...prev, excludeEmbeddingTagId: newValue }));
                 PromiseCall(
                   api.config.update.mutate({
                     key: 'excludeEmbeddingTagId',
                     value: newValue,
                   }),
-                  { autoAlert: false },
+                  { autoAlert: false }
                 );
               }}
             />
@@ -229,25 +234,21 @@ export const EmbeddingSettingsSection = observer(function EmbeddingSettingsSecti
                 content={<>{t('rebuild-embedding-index')}</>}
                 toolTipContent={t('if-you-have-a-lot-of-notes-you-may-consume-a-certain-number-of-tokens')}
               />
-              <div className="text-desc text-xs">{t('notes-imported-by-other-means-may-not-have-embedded-vectors')}</div>
+              <div className="text-desc text-xs">
+                {t('notes-imported-by-other-means-may-not-have-embedded-vectors')}
+              </div>
             </div>
           }
           rightContent={
-            <Button
-              color="danger"
-              variant="flat"
-              startContent={
-                rebuildProgress?.isRunning ? (
-                  <div className="flex items-center gap-1">
-                    <Icon icon="line-md:loading-twotone-loop" width="16" height="16" />
-                    {rebuildProgress?.percentage || 0}%
-                  </div>
-                ) : (
-                  <Icon icon="mingcute:refresh-4-ai-line" width="16" height="16" />
-                )
-              }
-              onPress={handleRebuildClick}
-            >
+            <Button variant="danger-soft" onPress={handleRebuildClick}>
+              {rebuildProgress?.isRunning ? (
+                <div className="flex items-center gap-1">
+                  <Icon icon="line-md:loading-twotone-loop" width="16" height="16" />
+                  {rebuildProgress?.percentage || 0}%
+                </div>
+              ) : (
+                <Icon icon="mingcute:refresh-4-ai-line" width="16" height="16" />
+              )}
               {rebuildProgress?.isRunning ? t('rebuild-in-progress') : t('force-rebuild')}
             </Button>
           }

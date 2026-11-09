@@ -1,6 +1,7 @@
+import { Button, ScrollShadow } from '@heroui/react';
 import { Icon } from '@/components/Common/Iconify/icons';
 import { observer } from 'mobx-react-lite';
-import { Button, ScrollShadow } from '@heroui/react';
+
 import { RootStore } from '@/store';
 import { BaseStore } from '@/store/baseStore';
 import { SideBarItem } from './index';
@@ -29,7 +30,7 @@ export const Sidebar = observer(({ onItemClick }: SidebarProps) => {
 
   const routerInfo = {
     pathname: location.pathname,
-    searchParams
+    searchParams,
   };
 
   useEffect(() => {
@@ -42,8 +43,8 @@ export const Sidebar = observer(({ onItemClick }: SidebarProps) => {
   return (
     <div
       style={{ width: isPc ? `${base.sideBarWidth}px` : '100%' }}
-      className={`flex h-full flex-1 flex-col p-4 relative bg-background 
-        ${!base.isDragging ? '!transition-all duration-300' : 'transition-none'} 
+      className={`flex h-full flex-1 flex-col p-4 relative bg-background
+        ${!base.isDragging ? '!transition-all duration-300' : 'transition-none'}
         group/sidebar`}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
@@ -59,17 +60,23 @@ export const Sidebar = observer(({ onItemClick }: SidebarProps) => {
       )}
 
       <div className={`flex items-center ${base.isSidebarCollapsed ? 'justify-center' : 'justify-between'}`}>
-        <div className={`flex w-full ${base.isSidebarCollapsed ? 'flex-col-reverse gap-2 justify-center items-center mr-2 mb-2' : 'items-center '}`}>
+        <div
+          className={`flex w-full ${base.isSidebarCollapsed ? 'flex-col-reverse gap-2 justify-center items-center mr-2 mb-2' : 'items-center '}`}
+        >
           {/* Mobile: Display avatar dropdown at the top */}
           <div className={`${base.isSidebarCollapsed ? 'w-full flex justify-center' : ''}`}>
-            <UserAvatarDropdown onItemClick={onItemClick} collapsed={base.isSidebarCollapsed} showOverlay={isHovering} />
+            <UserAvatarDropdown
+              onItemClick={onItemClick}
+              collapsed={base.isSidebarCollapsed}
+              showOverlay={isHovering}
+            />
           </div>
 
           {/* Toggle sidebar button for PC */}
           {isPc ? (
             <Button
               isIconOnly
-              variant="light"
+              variant="ghost"
               className={`opacity-0 group-hover/sidebar:opacity-100 ml-auto ${!base.isSidebarCollapsed ? 'group-hover/sidebar:-translate-x-1 ' : 'opacity-100 translate-x-0'}`}
               onPress={base.toggleSidebar}
             >
@@ -78,11 +85,11 @@ export const Sidebar = observer(({ onItemClick }: SidebarProps) => {
           ) : (
             <Button
               isIconOnly
-              variant="light"
+              variant="ghost"
               className="ml-auto"
               onPress={() => {
-                navigate('/settings')
-                eventBus.emit('close-sidebar')
+                navigate('/settings');
+                eventBus.emit('close-sidebar');
               }}
             >
               <Icon icon="hugeicons:settings-01" width="20" height="20" />
@@ -92,7 +99,9 @@ export const Sidebar = observer(({ onItemClick }: SidebarProps) => {
       </div>
 
       <ScrollShadow className="-mr-[16px] mt-[-5px] h-full max-h-full pr-6 hide-scrollbar">
-        <div className={`flex flex-col gap-1 mt-4 font-semibold ${base.isSidebarCollapsed ? 'items-center gap-4' : ''}`}>
+        <div
+          className={`flex flex-col gap-1 mt-4 font-semibold ${base.isSidebarCollapsed ? 'items-center gap-4' : ''}`}
+        >
           {base.routerList
             .filter((i) => !i.hiddenSidebar)
             .map((i) => (
@@ -109,7 +118,9 @@ export const Sidebar = observer(({ onItemClick }: SidebarProps) => {
                 {!base.isSidebarCollapsed && <span className="!transition-all">{t(i.title)}</span>}
               </Link>
             ))}
-          {!base.isSidebarCollapsed && blinkoStore.tagList.value?.listTags.length != 0 && blinkoStore.tagList.value?.listTags && <TagListPanel />}
+          {!base.isSidebarCollapsed &&
+            blinkoStore.tagList.value?.listTags.length != 0 &&
+            blinkoStore.tagList.value?.listTags && <TagListPanel />}
         </div>
       </ScrollShadow>
 

@@ -1,20 +1,18 @@
-// blinko.public.value?.version
+import { Button, Chip, Link } from '@heroui/react';
+import { observer } from 'mobx-react-lite';
 
-import { observer } from "mobx-react-lite";
-import { Link, Image, Chip, Button } from "@heroui/react";
-import { RootStore } from "@/store";
-import { PromiseState } from "@/store/standard/PromiseState";
+import { RootStore } from '@/store';
+import { PromiseState } from '@/store/standard/PromiseState';
 import { Icon } from '@/components/Common/Iconify/icons';
-import { api } from "@/lib/trpc";
-import { useTranslation } from "react-i18next";
-import { Item } from "./Item";
-import { useEffect, useState } from "react";
-import { CollapsibleCard } from "@/components/Common/CollapsibleCard";
+import { api } from '@/lib/trpc';
+import { useTranslation } from 'react-i18next';
+import { Item } from './Item';
+import { useEffect, useState } from 'react';
+import { CollapsibleCard } from '@/components/Common/CollapsibleCard';
 import packageJson from '../../../src-tauri/tauri.conf.json';
-import { isDesktop, isInTauri } from "@/lib/tauriHelper";
-import { ToastPlugin } from "@/store/module/Toast/Toast";
-import { UpdateProgressDialog } from "@/components/Common/UpdateProgressDialog";
-
+import { isDesktop, isInTauri } from '@/lib/tauriHelper';
+import { ToastPlugin } from '@/store/module/Toast/Toast';
+import { UpdateProgressDialog } from '@/components/Common/UpdateProgressDialog';
 
 export const AboutSetting = observer(() => {
   const { t } = useTranslation();
@@ -22,47 +20,43 @@ export const AboutSetting = observer(() => {
   const store = RootStore.Local(() => ({
     serverVersion: new PromiseState({
       function: async () => {
-        return await api.public.serverVersion.query()
-      }
+        return await api.public.serverVersion.query();
+      },
     }),
     latestServerVersion: new PromiseState({
       function: async () => {
-        return await api.public.latestServerVersion.query()
-      }
+        return await api.public.latestServerVersion.query();
+      },
     }),
     latestClientVersion: new PromiseState({
       function: async () => {
-        return await api.public.latestClientVersion.query()
-      }
-    })
-  }))
+        return await api.public.latestClientVersion.query();
+      },
+    }),
+  }));
 
   useEffect(() => {
-    store.serverVersion.call()
-    store.latestServerVersion.call()
-    store.latestClientVersion.call()
-  }, [])
+    store.serverVersion.call();
+    store.latestServerVersion.call();
+    store.latestClientVersion.call();
+  }, []);
 
   const clearBrowserCache = async () => {
     try {
       // Clear service worker caches (disk cache)
       if ('caches' in window) {
         const cacheNames = await caches.keys();
-        await Promise.all(
-          cacheNames.map(cacheName => caches.delete(cacheName))
-        );
+        await Promise.all(cacheNames.map((cacheName) => caches.delete(cacheName)));
       }
-      
+
       // Unregister all service workers to clear their cache
       if ('serviceWorker' in navigator) {
         const registrations = await navigator.serviceWorker.getRegistrations();
-        await Promise.all(
-          registrations.map(registration => registration.unregister())
-        );
+        await Promise.all(registrations.map((registration) => registration.unregister()));
       }
-      
+
       RootStore.Get(ToastPlugin).success(t('cache-cleared-successfully'));
-      
+
       // Force hard reload (bypass cache) similar to Ctrl+Shift+R
       setTimeout(() => {
         // Method 1: Use location.reload with force flag (deprecated but still works in some browsers)
@@ -76,7 +70,6 @@ export const AboutSetting = observer(() => {
           window.location.href = url.toString();
         }
       }, 1000);
-      
     } catch (error) {
       console.error('Failed to clear cache:', error);
       RootStore.Get(ToastPlugin).error(t('failed-to-clear-cache'));
@@ -84,71 +77,59 @@ export const AboutSetting = observer(() => {
   };
 
   return (
-    <CollapsibleCard
-      icon="tabler:info-circle"
-      title={t('about')}
-    >
+    <CollapsibleCard icon="tabler:info-circle" title={t('about')}>
       <div className="flex items-start space-x-4 mb-6">
-        <Image src="/logo.png" alt="Blinko" className="w-16 h-16 rounded-xl" />
+        <img src="/logo.png" alt="Blinko" className="w-16 h-16 rounded-xl" />
         <div>
           <h2 className="text-xl font-semibold">Blinko</h2>
           <div className="flex flex-col gap-2 mt-1">
             <div className="flex items-center gap-2">
-              <Chip
-                color="warning"
-                variant="flat"
-                size="sm"
-                className="text-xs"
-                startContent={<Icon icon="mingcute:version-fill" width="16" height="16" />}
-              >
-                {t('server')}: v{store.serverVersion.value}
+              <Chip color="warning" variant={'soft'} size="sm" className="text-xs">
+                {<Icon icon="mingcute:version-fill" width="16" height="16" />}
+                <Chip.Label>
+                  {t('server')}: v{store.serverVersion.value}
+                </Chip.Label>
               </Chip>
-              {store.latestServerVersion.value != '' && store.latestServerVersion.value != store.serverVersion.value && (
-                <Chip
-                  classNames={{
-                    base: "bg-gradient-to-br from-indigo-500 to-pink-500 border-small border-white/50 shadow-pink-500/30",
-                    content: "drop-shadow shadow-black text-white",
-                  }}
-                  size="sm"
-                  className="cursor-pointer"
-                  onClick={() => {
-                    window.open(`https://hub.docker.com/r/blinkospace/blinko/tags`, '_blank')
-                  }}
-                >
-                  {t('new-server-version-available')}: v{store.latestServerVersion.value}
-                </Chip>
-              )}
+              {store.latestServerVersion.value != '' &&
+                store.latestServerVersion.value != store.serverVersion.value && (
+                  <Chip
+                    size="sm"
+                    className="cursor-pointer"
+                    onClick={() => {
+                      window.open(`https://hub.docker.com/r/blinkospace/blinko/tags`, '_blank');
+                    }}
+                  >
+                    <Chip.Label className={'drop-shadow shadow-black text-white'}>
+                      {t('new-server-version-available')}: v{store.latestServerVersion.value}
+                    </Chip.Label>
+                  </Chip>
+                )}
             </div>
             <div className="flex items-center gap-2">
-              {
-                isInTauri() && <Chip
-                  color="primary"
-                  variant="flat"
-                  size="sm"
-                  className="text-xs"
-                  startContent={<Icon icon="mingcute:version-fill" width="16" height="16" />}
-                >
-                  {t('client')}: v{packageJson.version}
+              {isInTauri() && (
+                <Chip color={'accent'} variant={'soft'} size="sm" className="text-xs">
+                  {<Icon icon="mingcute:version-fill" width="16" height="16" />}
+                  <Chip.Label>
+                    {t('client')}: v{packageJson.version}
+                  </Chip.Label>
                 </Chip>
-              }
+              )}
 
               {store.latestClientVersion.value != '' && store.latestClientVersion.value != packageJson.version && (
                 <Chip
-                  classNames={{
-                    base: "bg-gradient-to-br from-indigo-500 to-pink-500 border-small border-white/50 shadow-pink-500/30",
-                    content: "drop-shadow shadow-black text-white",
-                  }}
                   size="sm"
                   className="cursor-pointer"
                   onClick={async () => {
                     if (!isDesktop()) {
-                      window.open(`https://github.com/blinko-space/blinko/releases`, '_blank')
+                      window.open(`https://github.com/blinko-space/blinko/releases`, '_blank');
                     } else {
                       setShowUpdateDialog(true);
                     }
                   }}
                 >
-                  {t('new-client-version-available')}: v{store.latestClientVersion.value}
+                  <Chip.Label className={'drop-shadow shadow-black text-white'}>
+                    {t('new-client-version-available')}: v{store.latestClientVersion.value}
+                  </Chip.Label>
                 </Chip>
               )}
             </div>
@@ -174,11 +155,7 @@ export const AboutSetting = observer(() => {
         <Item
           leftContent={<>Discord</>}
           rightContent={
-            <Link
-              href="https://discord.gg/e5UdKX7w"
-              target="_blank"
-              className="text-primary flex items-center gap-1"
-            >
+            <Link href="https://discord.gg/e5UdKX7w" target="_blank" className="text-primary flex items-center gap-1">
               <Icon icon="mdi:discord" width="20" />
               Blinko Community
             </Link>
@@ -187,17 +164,12 @@ export const AboutSetting = observer(() => {
         <Item
           leftContent={<>Telegram</>}
           rightContent={
-            <Link
-              href="https://t.me/blinkoEnglish"
-              target="_blank"
-              className="text-primary flex items-center gap-1"
-            >
+            <Link href="https://t.me/blinkoEnglish" target="_blank" className="text-primary flex items-center gap-1">
               <Icon icon="mdi:telegram" width="20" />
               @blinko
             </Link>
           }
         />
-
       </div>
 
       <div className="space-y-4 mt-6">
@@ -205,13 +177,8 @@ export const AboutSetting = observer(() => {
         <Item
           leftContent={<>{t('clear-browser-cache')}</>}
           rightContent={
-            <Button
-              size="sm"
-              color="warning"
-              variant="flat"
-              startContent={<Icon icon="mdi:cached" width="16" />}
-              onPress={clearBrowserCache}
-            >
+            <Button className="bg-warning/20 text-warning" size="sm" variant="tertiary" onPress={clearBrowserCache}>
+              {<Icon icon="mdi:cached" width="16" />}
               {t('clear-cache')}
             </Button>
           }

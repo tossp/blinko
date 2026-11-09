@@ -1,0 +1,9 @@
+diff --git a/lib/collection.js b/lib/collection.js
+index 5bfc377..3f45583 100644
+--- a/lib/collection.js
++++ b/lib/collection.js
+@@ -22,3 +22,3 @@ function wrap(nodes) {
+   if ('string' == typeof nodes) {
+-    nodes = new DOMParser().parseFromString(nodes);
++    nodes = new DOMParser().parseFromString(nodes, 'application/xml');
+   }

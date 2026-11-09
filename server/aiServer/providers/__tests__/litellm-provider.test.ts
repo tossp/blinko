@@ -9,7 +9,7 @@ mock.module('@server/lib/proxy', () => ({
 const mockLanguageModel = { modelId: 'anthropic/claude-3-5-sonnet' };
 const mockEmbeddingModel = { modelId: 'text-embedding-3-small' };
 const mockCreateOpenAI = mock((config: any) => ({
-  languageModel: mock((modelKey: string) => mockLanguageModel),
+  chat: mock((modelKey: string) => mockLanguageModel),
   textEmbeddingModel: mock((modelKey: string) => mockEmbeddingModel)
 }));
 
@@ -24,7 +24,7 @@ mock.module('@ai-sdk/anthropic', () => ({
 mock.module('@ai-sdk/google', () => ({
   createGoogleGenerativeAI: mock(() => ({ languageModel: mock(() => ({})) }))
 }));
-mock.module('ollama-ai-provider', () => ({
+mock.module('ollama-ai-provider-v2', () => ({
   createOllama: mock(() => ({ languageModel: mock(() => ({})), textEmbeddingModel: mock(() => ({})) }))
 }));
 mock.module('@ai-sdk/deepseek', () => ({

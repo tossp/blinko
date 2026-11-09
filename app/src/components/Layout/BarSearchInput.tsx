@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
 import { Button } from '@heroui/react';
+import React, { useEffect, useState } from 'react';
+
 import { Icon } from '@/components/Common/Iconify/icons';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
@@ -89,18 +90,45 @@ export const BarSearchInput = observer(({ isPc }: BarSearchInputProps) => {
     <>
       <GlobalSearch isOpen={isGlobalSearchOpen} onOpenChange={setIsGlobalSearchOpen} />
       {!isPc && !showSearchInput ? (
-        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.2 }}>
-          <Button isIconOnly className="ml-auto mt-[2px]" size="sm" variant="light" onPress={() => handleGlobalSearch()}>
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: 20 }}
+          transition={{ duration: 0.2 }}
+        >
+          <Button
+            isIconOnly
+            className="ml-auto mt-[2px]"
+            size="sm"
+            variant="ghost"
+            onPress={() => handleGlobalSearch()}
+          >
             <Icon className="text-default-600" icon="lets-icons:search" width="24" height="24" />
           </Button>
         </motion.div>
       ) : (
         <div className="hidden md:flex items-center relative">
-          <Button size="sm" variant="light" onPress={() => setIsGlobalSearchOpen(true)} className={`${!hasActiveFilters() ? 'w-[170px]' : 'w-auto min-w-[120px] max-w-[250px]'} justify-center flex gap-1 px-3 border-2 border-desc`}>
+          <Button
+            size="sm"
+            variant="ghost"
+            onPress={() => setIsGlobalSearchOpen(true)}
+            className={`${!hasActiveFilters() ? 'w-[170px]' : 'w-auto min-w-[120px] max-w-[250px]'} justify-center flex gap-1 px-3 border-2 border-desc`}
+          >
             <Icon className="text-default-500 mr-1" icon="lets-icons:search" width="16" height="16" />
-            <span className={`${localSearchText.length > 0 ? 'text-primary-foreground bg-primary rounded-md px-2' : 'text-default-500'} truncate mr-auto`}>{localSearchText.length > 0 ? localSearchText : t('search')}</span>
-            {localSearchText && <Icon icon="ph:x-bold" width="14" height="14" className="ml-1 p-0 hover:text-danger transition-colors" onClick={handleClearSearch} />}
-
+            <span
+              className={`${localSearchText.length > 0 ? 'text-primary-foreground bg-primary rounded-md px-2' : 'text-default-500'} truncate mr-auto`}
+            >
+              {localSearchText.length > 0 ? localSearchText : t('search')}
+            </span>
+            {localSearchText && (
+              <Icon
+                icon="ph:x-bold"
+                width="14"
+                height="14"
+                className="ml-1 p-0 hover:text-danger transition-colors"
+                onClick={handleClearSearch}
+              />
+            )}
             {!localSearchText && (
               <div className="flex items-center gap-1 ml-2">
                 <kbd className="px-1.5 py-0.5 bg-default-100 rounded text-default-600 text-xs">Ctrl</kbd>

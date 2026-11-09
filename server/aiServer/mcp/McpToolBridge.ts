@@ -106,7 +106,7 @@ function convertMcpToolToMastra(mcpTool: McpTool) {
     id: `mcp-${mcpTool.serverName}-${mcpTool.name}`.replace(/[^a-zA-Z0-9-_]/g, '-'),
     description: mcpTool.description || `MCP tool: ${mcpTool.name} from ${mcpTool.serverName}`,
     inputSchema: inputSchema instanceof z.ZodObject ? inputSchema : z.object({}),
-    execute: async ({ context }) => {
+    execute: async (context) => {
       try {
         const result = await mcpClientManager.callTool(
           mcpTool.serverId,

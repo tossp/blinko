@@ -3,7 +3,8 @@ import { z } from 'zod';
 import { AiService } from '@server/aiServer';
 import { prisma } from '../prisma';
 import { TRPCError } from '@trpc/server';
-import { CoreMessage } from '@mastra/core';
+import type { ModelMessage } from 'ai';
+import { toLegacyAiStream } from '@server/aiServer/streamProtocol';
 import { AiModelFactory } from '@server/aiServer/aiModelFactory';
 import { RebuildEmbeddingJob } from '../jobs/rebuildEmbeddingJob';
 import { getAllPathTags } from '@server/lib/helper';
@@ -74,10 +75,9 @@ export const aiRouter = router({
     .mutation(async function* ({ input, ctx }) {
       try {
         const { question, conversations, withTools = false, withOnline = false, withRAG = true, systemPrompt } = input
-        let _conversations = conversations as CoreMessage[]
         const { result: responseStream, notes } = await AiService.completions({
           question,
-          conversations: _conversations,
+          conversations: conversations as ModelMessage[],
           ctx,
           withTools,
           withOnline,
@@ -85,7 +85,7 @@ export const aiRouter = router({
           systemPrompt
         })
         yield { notes }
-        for await (const chunk of responseStream.fullStream) {
+        for await (const chunk of toLegacyAiStream(responseStream.fullStream)) {
           yield { chunk }
         }
       } catch (error) {
@@ -167,7 +167,7 @@ export const aiRouter = router({
           content: `${question}\n\nThis is the user's note content: ${content || ''}`
         }
       ]);
-      for await (const chunk of result.fullStream) {
+      for await (const chunk of toLegacyAiStream(result.fullStream)) {
         yield chunk
       }
     }),
@@ -327,7 +327,7 @@ export const aiRouter = router({
 
             const { embed } = await import('ai');
             const result = await embed({
-              model: embeddingModel as any,
+              model: embeddingModel!,
               value: 'test embedding'
             });
             testResults.embedding = { success: true, dimensions: result.embedding?.length || 0 };

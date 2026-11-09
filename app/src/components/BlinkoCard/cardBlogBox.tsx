@@ -1,4 +1,3 @@
-import { Image } from '@heroui/react';
 import { Note } from '@shared/lib/types';
 import { helper } from '@/lib/helper';
 import { RootStore } from '@/store/root';
@@ -56,41 +55,44 @@ export const CardBlogBox = ({ blinkoItem, isExpanded }: BlogContentProps) => {
     <div className={`flex items-start gap-2 mt-4 w-full mb-4`}>
       <div
         ref={contentRef}
-        className='blog-content flex flex-col pr-2'
+        className="blog-content flex flex-col pr-2"
         style={{
-          width: '100%'
+          width: '100%',
         }}
       >
         <div className={`font-bold mb-1 line-clamp-2 ${isExpanded ? 'text-lg' : 'text-md'}`}>
           {blinkoItem.title?.replace(/#/g, '').replace(/\*/g, '')}
         </div>
-        <div className={`text-desc flex-1 ${isExpanded ? 'text-sm' : 'text-sm'} line-clamp-4`}
-        >
-          {blinkoItem.content?.replace(blinkoItem.title ?? '', '').replace(/#/g, '').replace(/\*/g, '')}
+        <div className={`text-desc flex-1 ${isExpanded ? 'text-sm' : 'text-sm'} line-clamp-4`}>
+          {blinkoItem.content
+            ?.replace(blinkoItem.title ?? '', '')
+            .replace(/#/g, '')
+            .replace(/\*/g, '')}
         </div>
-        {
-          !!blinkoItem?.tags?.length && blinkoItem?.tags?.length > 0 && (
-            <div className='flex flex-nowrap gap-1 overflow-x-scroll mt-1 hide-scrollbar'>
-              {(() => {
-                const tagTree = helper.buildHashTagTreeFromDb(blinkoItem.tags.map(t => t.tag));
-                const tagPaths = tagTree.flatMap(node => helper.generateTagPaths(node));
-                const uniquePaths = tagPaths.filter(path => {
-                  return !tagPaths.some(otherPath =>
-                    otherPath !== path && otherPath.startsWith(path + '/')
-                  );
-                });
-                return uniquePaths.map((path) => (
-                  <div key={path} className='text-desc text-xs blinko-tag whitespace-nowrap font-bold hover:opacity-80 !transition-all cursor-pointer' onClick={(e) => {
-                    e.stopPropagation()
-                    navigate(`/?path=all&searchText=${encodeURIComponent("#" + path)}`)
-                    RootStore.Get(BlinkoStore).forceQuery++
-                  }}>
-                    #{path}
-                  </div>
-                ));
-              })()}
-            </div>
-          )}
+        {!!blinkoItem?.tags?.length && blinkoItem?.tags?.length > 0 && (
+          <div className="flex flex-nowrap gap-1 overflow-x-scroll mt-1 hide-scrollbar">
+            {(() => {
+              const tagTree = helper.buildHashTagTreeFromDb(blinkoItem.tags.map((t) => t.tag));
+              const tagPaths = tagTree.flatMap((node) => helper.generateTagPaths(node));
+              const uniquePaths = tagPaths.filter((path) => {
+                return !tagPaths.some((otherPath) => otherPath !== path && otherPath.startsWith(path + '/'));
+              });
+              return uniquePaths.map((path) => (
+                <div
+                  key={path}
+                  className="text-desc text-xs blinko-tag whitespace-nowrap font-bold hover:opacity-80 !transition-all cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/?path=all&searchText=${encodeURIComponent('#' + path)}`);
+                    RootStore.Get(BlinkoStore).forceQuery++;
+                  }}
+                >
+                  #{path}
+                </div>
+              ));
+            })()}
+          </div>
+        )}
       </div>
     </div>
   );

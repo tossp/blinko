@@ -8,13 +8,16 @@ import {
   mock,
 } from "bun:test";
 import express from "express";
-import { authenticator } from "otplib";
+import { createGuardrails, generateSync } from "otplib";
 
 const rows = new Map<string, any>();
 let accountQueries = 0;
 let tokenIssues = 0;
 let enabled = true;
+// Persisted otplib 12 secrets are 10 bytes, below the new default minimum.
 const secret = "JBSWY3DPEHPK3PXP";
+const guardrails = createGuardrails({ MIN_SECRET_BYTES: 10 });
+const generateCode = () => generateSync({ secret, guardrails });
 const match = (row: any, where: any) =>
   (!where.id ||
     (typeof where.id === "string"
@@ -136,7 +139,7 @@ describe("real Express 2FA HTTP flow", () => {
       (
         await post("verify-2fa", {
           userId: 1,
-          code: authenticator.generate(secret),
+          code: generateCode(),
           challenge: params.get("challenge"),
         })
       ).status,
@@ -145,7 +148,7 @@ describe("real Express 2FA HTTP flow", () => {
   test("valid TOTP alone cannot mint a token or query an account", async () => {
     const response = await post("verify-2fa", {
       userId: 1,
-      code: authenticator.generate(secret),
+      code: generateCode(),
     });
     expect(response.status).toBe(401);
     expect(accountQueries).toBe(0);
@@ -165,7 +168,7 @@ describe("real Express 2FA HTTP flow", () => {
     expect(pending.token).toBeUndefined();
     const body = {
       userId: 1,
-      code: authenticator.generate(secret),
+      code: generateCode(),
       challenge: pending.challenge,
     };
     expect((await post("verify-2fa", body)).status).toBe(200);
@@ -178,7 +181,7 @@ describe("real Express 2FA HTTP flow", () => {
       (
         await post("verify-2fa", {
           userId: 2,
-          code: authenticator.generate(secret),
+          code: generateCode(),
           challenge: pending.challenge,
         })
       ).status,
@@ -189,7 +192,7 @@ describe("real Express 2FA HTTP flow", () => {
       (
         await post("verify-2fa", {
           userId: 1,
-          code: authenticator.generate(secret),
+          code: generateCode(),
           challenge: pending.challenge,
         })
       ).status,
@@ -198,7 +201,7 @@ describe("real Express 2FA HTTP flow", () => {
   });
   test("five wrong codes exhaust the challenge even if the next code is correct", async () => {
     const pending = await login();
-    const valid = authenticator.generate(secret);
+    const valid = generateCode();
     const wrong = valid === "000000" ? "999999" : "000000";
     for (let i = 0; i < 5; i++)
       expect(
@@ -228,7 +231,7 @@ describe("real Express 2FA HTTP flow", () => {
       [1, 2].map(() =>
         post("verify-2fa", {
           userId: 1,
-          code: authenticator.generate(secret),
+          code: generateCode(),
           challenge: pending.challenge,
         }),
       ),

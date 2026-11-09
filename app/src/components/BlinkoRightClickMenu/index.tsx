@@ -1,6 +1,7 @@
+import { Button, Calendar, DateField, DatePicker, Dropdown, Label } from '@heroui/react';
 import { observer } from "mobx-react-lite";
 import { BlinkoStore } from '@/store/blinkoStore';
-import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Button, DatePicker } from '@heroui/react';
+
 import { useTranslation } from 'react-i18next';
 import { ContextMenu, ContextMenuItem } from '@/components/Common/ContextMenu';
 import { Icon } from '@/components/Common/Iconify/icons';
@@ -48,7 +49,7 @@ export const ShowEditTimeModel = (showExpired: boolean = false) => {
         if (showExpired) {
           // Handle expired date save
           const existingMetadata = blinko.curSelectedNote?.metadata || {};
-          
+
           blinko.upsertNote.call({
             id: blinko.curSelectedNote?.id,
             metadata: {
@@ -75,102 +76,43 @@ export const ShowEditTimeModel = (showExpired: boolean = false) => {
           {showExpired ? (
             // Show expired date picker for TODO
             <>
-              <DatePicker
-                label={i18n.t('expiry-time')}
-                value={expireAt}
-                onChange={setExpireAt}
-                labelPlacement="outside"
-                showMonthAndYearPickers
-                granularity="second"
-                hideTimeZone
-              />
-              
+              <DatePicker value={expireAt} onChange={setExpireAt} granularity="second" hideTimeZone><Label>{i18n.t('expiry-time')}</Label><DateField.Group><DateField.Input>{(segment) => <DateField.Segment segment={segment} />}</DateField.Input><DatePicker.Trigger><DatePicker.TriggerIndicator /></DatePicker.Trigger></DateField.Group><DatePicker.Popover><Calendar><Calendar.Header><Calendar.NavButton slot="previous" /><Calendar.Heading /><Calendar.NavButton slot="next" /></Calendar.Header><Calendar.Grid><Calendar.GridHeader>{(day) => <Calendar.HeaderCell>{day}</Calendar.HeaderCell>}</Calendar.GridHeader><Calendar.GridBody>{(date) => <Calendar.Cell date={date} />}</Calendar.GridBody></Calendar.Grid></Calendar></DatePicker.Popover></DatePicker>
+
               {/* Quick time selection buttons */}
               <div className="flex flex-col gap-2">
                 <div className="text-sm text-gray-600 font-medium">{i18n.t('quick-select') || 'Quick Select'}:</div>
                 <div className="flex flex-wrap gap-2">
-                  <Button
-                    size="sm"
-                    variant="bordered"
-                    onPress={() => {
+                  <Button size="sm" variant="outline" onPress={() => {
                       const now = new Date();
                       const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
                       setExpireAt(parseAbsoluteToLocal(tomorrow.toISOString()));
-                    }}
-                  >
-                    {i18n.t('1-day') || '1 Day'}
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="bordered"
-                    onPress={() => {
+                    }}>{i18n.t('1-day') || '1 Day'}</Button>
+                  <Button size="sm" variant="outline" onPress={() => {
                       const now = new Date();
                       const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
                       setExpireAt(parseAbsoluteToLocal(nextWeek.toISOString()));
-                    }}
-                  >
-                    {i18n.t('1-week') || '1 Week'}
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="bordered"
-                    onPress={() => {
+                    }}>{i18n.t('1-week') || '1 Week'}</Button>
+                  <Button size="sm" variant="outline" onPress={() => {
                       const now = new Date();
                       const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds());
                       setExpireAt(parseAbsoluteToLocal(nextMonth.toISOString()));
-                    }}
-                  >
-                    {i18n.t('1-month') || '1 Month'}
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="bordered"
-                    color="warning"
-                    onPress={() => {
+                    }}>{i18n.t('1-month') || '1 Month'}</Button>
+                  <Button className="border-warning text-warning" size="sm" variant="outline" onPress={() => {
                       setExpireAt(null);
-                    }}
-                  >
-                    {i18n.t('cancel')}
-                  </Button>
+                    }}>{i18n.t('cancel')}</Button>
                 </div>
               </div>
 
               <div className="flex gap-2">
-                <Button
-                  color="primary"
-                  className="flex-1"
-                  onPress={handleSave}
-                >
-                  {i18n.t('save')}
-                </Button>
+                <Button className="flex-1" onPress={handleSave} variant="primary">{i18n.t('save')}</Button>
               </div>
             </>
           ) : (
             // Show created/updated date pickers
             <>
-              <DatePicker
-                label={i18n.t('created-at')}
-                value={createdAt}
-                onChange={setCreatedAt}
-                labelPlacement="outside"
-                granularity="second"
-                hideTimeZone
-              />
-              <DatePicker
-                label={i18n.t('updated-at')}
-                value={updatedAt}
-                onChange={setUpdatedAt}
-                labelPlacement="outside"
-                granularity="second"
-                hideTimeZone
-              />
-              <Button
-                color="primary"
-                className="mt-2"
-                onPress={handleSave}
-              >
-                {i18n.t('save')}
-              </Button>
+              <DatePicker value={createdAt} onChange={setCreatedAt} granularity="second" hideTimeZone><Label>{i18n.t('created-at')}</Label><DateField.Group><DateField.Input>{(segment) => <DateField.Segment segment={segment} />}</DateField.Input><DatePicker.Trigger><DatePicker.TriggerIndicator /></DatePicker.Trigger></DateField.Group><DatePicker.Popover><Calendar><Calendar.Header><Calendar.NavButton slot="previous" /><Calendar.Heading /><Calendar.NavButton slot="next" /></Calendar.Header><Calendar.Grid><Calendar.GridHeader>{(day) => <Calendar.HeaderCell>{day}</Calendar.HeaderCell>}</Calendar.GridHeader><Calendar.GridBody>{(date) => <Calendar.Cell date={date} />}</Calendar.GridBody></Calendar.Grid></Calendar></DatePicker.Popover></DatePicker>
+              <DatePicker value={updatedAt} onChange={setUpdatedAt} granularity="second" hideTimeZone><Label>{i18n.t('updated-at')}</Label><DateField.Group><DateField.Input>{(segment) => <DateField.Segment segment={segment} />}</DateField.Input><DatePicker.Trigger><DatePicker.TriggerIndicator /></DatePicker.Trigger></DateField.Group><DatePicker.Popover><Calendar><Calendar.Header><Calendar.NavButton slot="previous" /><Calendar.Heading /><Calendar.NavButton slot="next" /></Calendar.Header><Calendar.Grid><Calendar.GridHeader>{(day) => <Calendar.HeaderCell>{day}</Calendar.HeaderCell>}</Calendar.GridHeader><Calendar.GridBody>{(date) => <Calendar.Cell date={date} />}</Calendar.GridBody></Calendar.Grid></Calendar></DatePicker.Popover></DatePicker>
+              <Button className="mt-2" onPress={handleSave} variant="primary">{i18n.t('save')}</Button>
             </>
           )}
         </div>
@@ -474,7 +416,7 @@ export const EditTimeItem = observer(() => {
 export const BlinkoRightClickMenu = observer(() => {
   const [isDetailPage, setIsDetailPage] = useState(false)
   const location = useLocation()
-  
+
   const blinko = RootStore.Get(BlinkoStore)
   const pluginApi = RootStore.Get(PluginApiStore)
   const isPc = useMediaQuery('(min-width: 768px)')
@@ -483,64 +425,64 @@ export const BlinkoRightClickMenu = observer(() => {
     setIsDetailPage(location.pathname.includes('/detail'))
   }, [location.pathname])
 
-  return <ContextMenu className='font-bold' id="blink-item-context-menu" hideOnLeave={false} animation="zoom">
-    <ContextMenuItem onClick={() => handleEdit(isDetailPage)}>
+  return <ContextMenu className='font-bold' id="blink-item-context-menu" hideOnLeave={false} onMouseLeave={event => event.preventDefault()} animation="zoom">
+    <ContextMenuItem className="" onClick={() => handleEdit(isDetailPage)}>
       <EditItem />
     </ContextMenuItem>
 
     {!isDetailPage ? (
       <>
-        <ContextMenuItem onClick={() => handleMultiSelect()}>
+        <ContextMenuItem className="" onClick={() => handleMultiSelect()}>
           <MutiSelectItem />
         </ContextMenuItem>
-        <ContextMenuItem onClick={() => handleSelectAll()}>
+        <ContextMenuItem className="" onClick={() => handleSelectAll()}>
           <SelectAllItem />
         </ContextMenuItem>
       </>
     ) : <></>}
 
-    <ContextMenuItem onClick={() => ShowEditTimeModel()}>
+    <ContextMenuItem className="" onClick={() => ShowEditTimeModel()}>
       <EditTimeItem />
     </ContextMenuItem>
 
-    <ContextMenuItem onClick={ConvertItemFunction}>
+    <ContextMenuItem className="" onClick={ConvertItemFunction}>
       <ConvertItem />
     </ContextMenuItem>
 
-    <ContextMenuItem onClick={handleTop}>
+    <ContextMenuItem className="" onClick={handleTop}>
       <TopItem />
     </ContextMenuItem>
 
-    <ContextMenuItem onClick={handleArchived}>
+    <ContextMenuItem className="" onClick={handleArchived}>
       <ArchivedItem />
     </ContextMenuItem>
 
     {!blinko.curSelectedNote?.isRecycle ? (
-      <ContextMenuItem onClick={handlePublic}>
+      <ContextMenuItem className="" onClick={handlePublic}>
       <PublicItem />
     </ContextMenuItem>
     ) : <></>}
 
     {!isPc ? (
-      <ContextMenuItem onClick={handleComment}>
+      <ContextMenuItem className="" onClick={handleComment}>
         <CommentItem />
       </ContextMenuItem>
     ) : <></>}
 
     {blinko.config.value?.mainModelId ? (
-      <ContextMenuItem onClick={handleAITag}>
+      <ContextMenuItem className="" onClick={handleAITag}>
         <AITagItem />
       </ContextMenuItem>
     ) : <></>}
 
     {blinko.config.value?.mainModelId ? (
-      <ContextMenuItem onClick={handleRelatedNotes}>
+      <ContextMenuItem className="" onClick={handleRelatedNotes}>
         <RelatedNotesItem />
       </ContextMenuItem>
     ) : <></>}
 
     {pluginApi.customRightClickMenus.map((menu) => (
-      <ContextMenuItem key={menu.name} onClick={() => menu.onClick(blinko.curSelectedNote!)} disabled={menu.disabled}>
+      <ContextMenuItem className="" key={menu.name} onClick={() => menu.onClick(blinko.curSelectedNote!)} disabled={menu.disabled}>
         <div className="flex items-start gap-2">
           {menu.icon && <Icon icon={menu.icon} width="20" height="20" />}
           <div>{menu.label}</div>
@@ -549,13 +491,13 @@ export const BlinkoRightClickMenu = observer(() => {
     ))}
 
     {!blinko.curSelectedNote?.isRecycle ? (
-      <ContextMenuItem onClick={handleTrash}>
+      <ContextMenuItem className="" onClick={handleTrash}>
         <TrashItem />
       </ContextMenuItem>
     ) : <></>}
 
     {blinko.curSelectedNote?.isRecycle ? (
-      <ContextMenuItem onClick={handleDelete}>
+      <ContextMenuItem className="" onClick={handleDelete}>
         <DeleteItem />
       </ContextMenuItem>
     ) : <></>}
@@ -575,84 +517,37 @@ export const LeftCickMenu = observer(({ onTrigger, className }: { onTrigger: () 
 
   const disabledKeys = isDetailPage ? ['MutiSelectItem'] : []
 
-  return <Dropdown onOpenChange={e => onTrigger()}>
-    <DropdownTrigger >
-      <div onClick={onTrigger} className={`${className} text-desc hover:text-primary cursor-pointer hover:scale-1.3 !transition-all`}>
+  return <Dropdown onOpenChange={e => onTrigger()}><Button className="bg-transparent p-0 min-w-0 h-auto"><div onClick={onTrigger} className={`${className} text-desc hover:text-primary cursor-pointer hover:scale-1.3 !transition-all`}>
         <Icon icon="fluent:more-vertical-16-regular" width="16" height="16" />
-      </div>
-    </DropdownTrigger>
-    <DropdownMenu aria-label="Static Actions" disabledKeys={disabledKeys}>
-      <DropdownItem key="EditItem" onPress={() => handleEdit(isDetailPage)}><EditItem /></DropdownItem>
-      {!isDetailPage ? (
+      </div></Button><Dropdown.Popover><Dropdown.Menu aria-label="Static Actions" disabledKeys={disabledKeys}><Dropdown.Item key="EditItem" id={"EditItem"} onAction={() => handleEdit(isDetailPage)}><EditItem /></Dropdown.Item>{!isDetailPage ? (
         <>
-          <DropdownItem key="MutiSelectItem" onPress={() => handleMultiSelect()}>
-            <MutiSelectItem />
-          </DropdownItem>
-          <DropdownItem key="SelectAllItem" onPress={() => handleSelectAll()}>
-            <SelectAllItem />
-          </DropdownItem>
+          <Dropdown.Item key="MutiSelectItem" id={"MutiSelectItem"} onAction={() => handleMultiSelect()}><MutiSelectItem /></Dropdown.Item>
+          <Dropdown.Item key="SelectAllItem" id={"SelectAllItem"} onAction={() => handleSelectAll()}><SelectAllItem /></Dropdown.Item>
         </>
-      ) : null}
-      <DropdownItem key="EditTimeItem" onPress={() => ShowEditTimeModel()}> <EditTimeItem /></DropdownItem>
-      <DropdownItem key="ConvertItem" onPress={ConvertItemFunction}> <ConvertItem /></DropdownItem>
-      <DropdownItem key="TopItem" onPress={handleTop}> <TopItem />  </DropdownItem>
-      <DropdownItem key="ArchivedItem" onPress={handleArchived}>
-        <ArchivedItem />
-      </DropdownItem>
-
-      {!blinko.curSelectedNote?.isRecycle ? (
-        <DropdownItem key="ShareItem" onPress={handlePublic}> 
-          <PublicItem />  
-        </DropdownItem>
-      ) : <></>}
-
-      {!isPc ? (
-        <DropdownItem key="CommentItem" onPress={handleComment}>
-          <CommentItem />
-        </DropdownItem>
-      ) : <></>}
-
-      {blinko.config.value?.mainModelId ? (
-        <DropdownItem key="AITagItem" onPress={handleAITag}>
-          <AITagItem />
-        </DropdownItem>
-      ) : <></>}
-
-      {blinko.config.value?.mainModelId ? (
-        <DropdownItem key="RelatedNotesItem" onPress={handleRelatedNotes}>
-          <RelatedNotesItem />
-        </DropdownItem>
-      ) : <></>}
-
-      {
+      ) : null}<Dropdown.Item key="EditTimeItem" id={"EditTimeItem"} onAction={() => ShowEditTimeModel()}><EditTimeItem /></Dropdown.Item><Dropdown.Item key="ConvertItem" id={"ConvertItem"} onAction={ConvertItemFunction}><ConvertItem /></Dropdown.Item><Dropdown.Item key="TopItem" id={"TopItem"} onAction={handleTop}><TopItem /></Dropdown.Item><Dropdown.Item key="ArchivedItem" id={"ArchivedItem"} onAction={handleArchived}><ArchivedItem /></Dropdown.Item>{!blinko.curSelectedNote?.isRecycle ? (
+        <Dropdown.Item key="ShareItem" id={"ShareItem"} onAction={handlePublic}><PublicItem /></Dropdown.Item>
+      ) : <></>}{!isPc ? (
+        <Dropdown.Item key="CommentItem" id={"CommentItem"} onAction={handleComment}><CommentItem /></Dropdown.Item>
+      ) : <></>}{blinko.config.value?.mainModelId ? (
+        <Dropdown.Item key="AITagItem" id={"AITagItem"} onAction={handleAITag}><AITagItem /></Dropdown.Item>
+      ) : <></>}{blinko.config.value?.mainModelId ? (
+        <Dropdown.Item key="RelatedNotesItem" id={"RelatedNotesItem"} onAction={handleRelatedNotes}><RelatedNotesItem /></Dropdown.Item>
+      ) : <></>}{
         pluginApi.customRightClickMenus.length > 0 ?
           <>
             {
               pluginApi.customRightClickMenus.map((menu) => (
-                <DropdownItem key={menu.name} onPress={() => menu.onClick(blinko.curSelectedNote!)}>
-                  <div className="flex items-start gap-2">
+                <Dropdown.Item key={menu.name} id={menu.name} onAction={() => menu.onClick(blinko.curSelectedNote!)}><div className="flex items-start gap-2">
                     {menu.icon && <Icon icon={menu.icon} width="20" height="20" />}
                     <div>{menu.label}</div>
-                  </div>
-                </DropdownItem>
+                  </div></Dropdown.Item>
               ))
             }
           </> :
           <></>
-      }
-
-      {!blinko.curSelectedNote?.isRecycle ? (
-        <DropdownItem key="TrashItem" onPress={handleTrash}>
-          <TrashItem />
-        </DropdownItem>
-      ) : <></>}
-
-      {blinko.curSelectedNote?.isRecycle ? (
-        <DropdownItem key="DeleteItem" className="text-danger" onPress={handleDelete}>
-          <DeleteItem />
-        </DropdownItem>
-      ) : <></>}
-
-    </DropdownMenu>
-  </Dropdown>
+      }{!blinko.curSelectedNote?.isRecycle ? (
+        <Dropdown.Item key="TrashItem" id={"TrashItem"} onAction={handleTrash}><TrashItem /></Dropdown.Item>
+      ) : <></>}{blinko.curSelectedNote?.isRecycle ? (
+        <Dropdown.Item key="DeleteItem" className="text-danger" id={"DeleteItem"} onAction={handleDelete}><DeleteItem /></Dropdown.Item>
+      ) : <></>}</Dropdown.Menu></Dropdown.Popover></Dropdown>
 })

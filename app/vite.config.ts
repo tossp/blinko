@@ -121,38 +121,24 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
-      '@shared': path.resolve(__dirname, '../shared')
+      '@': path.resolve(import.meta.dirname, './src'),
+      '@shared': path.resolve(import.meta.dirname, '../shared')
     }
   },
   build: {
     outDir: "../dist/public",
     emptyOutDir: true,
     chunkSizeWarningLimit: 2000,
-    rollupOptions: {
+    rolldownOptions: {
       output: {
-        manualChunks: (id) => {
-          if (id.includes('node_modules/react') || 
-              id.includes('node_modules/react-dom') || 
-              id.includes('node_modules/react-router-dom')) {
-            return 'react-vendor';
-          }
-          
-          if (id.includes('node_modules/@react-') || 
-              id.includes('node_modules/react-') || 
-              id.includes('node_modules/@ui-') || 
-              id.includes('node_modules/@headlessui') || 
-              id.includes('node_modules/headlessui')) {
-            return 'ui-components';
-          }
-          
-          if (id.includes('node_modules/lodash') || 
-              id.includes('node_modules/axios') || 
-              id.includes('node_modules/date-fns')) {
-            return 'utils';
-          }
-        }
-      }
+        codeSplitting: {
+          groups: [
+            { name: 'react-vendor', test: /node_modules[\/](?:react|react-dom|react-router|react-router-dom)(?:[\/]|$)/, priority: 30 },
+            { name: 'ui-components', test: /node_modules[\/](?:@react-|react-|@ui-|@headlessui|headlessui)/, priority: 20 },
+            { name: 'utils', test: /node_modules[\/](?:lodash|axios|date-fns)/, priority: 10 },
+          ],
+        },
+      },
     }
   },
   clearScreen: false,
@@ -175,7 +161,6 @@ export default defineConfig({
   },
   cacheDir: 'node_modules/.vite',
   experimental: {
-    renderBuiltUrl: (filename) => ({ relative: true }),
-    hmrPartialAccept: true
+    renderBuiltUrl: () => ({ relative: true })
   }
 });

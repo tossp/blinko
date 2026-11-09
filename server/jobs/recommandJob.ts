@@ -91,7 +91,7 @@ export class RecommandJob extends BaseScheduleJob {
     return results;
   }
 
-  protected static async RunTask() {
+  static async RunTask() {
     let cachedList: { [key: string]: RecommandListType } = {};
 
     try {

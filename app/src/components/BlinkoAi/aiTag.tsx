@@ -1,5 +1,6 @@
+import { Button, CheckboxGroup, Label, Radio, RadioGroup } from '@heroui/react';
 import React from 'react';
-import { CheckboxGroup, Button, Radio, RadioGroup } from "@heroui/react";
+
 import { CustomCheckbox } from '../Common/CustomCheckbox';
 import { useTranslation } from 'react-i18next';
 
@@ -11,14 +12,10 @@ interface AiTagProps {
   label?: string;
 }
 
-export const AiTag: React.FC<AiTagProps> = ({
-  tags,
-  defaultSelected = [],
-  onSelect,
-}) => {
+export const AiTag: React.FC<AiTagProps> = ({ tags, defaultSelected = [], onSelect }) => {
   const [selected, setSelected] = React.useState<string[]>(defaultSelected);
   const [isInsertBefore, setIsInsertBefore] = React.useState(false);
-  const { t } = useTranslation()
+  const { t } = useTranslation();
   const handleConfirm = () => {
     onSelect(selected, isInsertBefore);
   };
@@ -29,37 +26,43 @@ export const AiTag: React.FC<AiTagProps> = ({
 
   return (
     <div className="flex flex-col gap-4">
-      <CheckboxGroup
-        className="gap-1"
-        orientation="horizontal"
-        value={selected}
-        onChange={setSelected}
-      >
+      <CheckboxGroup className="gap-1" value={selected} onChange={setSelected}>
         {tags.map((tag) => (
           <CustomCheckbox key={tag} value={tag}>
             {tag}
           </CustomCheckbox>
         ))}
       </CheckboxGroup>
-      <div className='flex mt-2 gap-2 items-center'>
+      <div className="flex mt-2 gap-2 items-center">
         <RadioGroup
           orientation="horizontal"
-          color='primary'
-          className='flex-1'
+          className="flex-1"
           value={isInsertBefore ? 'insert-before' : 'insert-after'}
           onChange={(e) => {
-            setIsInsertBefore(e.target.value === 'insert-before')
+            setIsInsertBefore(e === 'insert-before');
           }}
         >
-          <Radio value="insert-before">{t('insert-before')}</Radio>
-          <Radio value="insert-after">{t('insert-after')}</Radio>
+          <Radio value="insert-before">
+            <Radio.Content>
+              <Radio.Control>
+                <Radio.Indicator />
+              </Radio.Control>
+              <Label>{t('insert-before')}</Label>
+            </Radio.Content>
+          </Radio>
+          <Radio value="insert-after">
+            <Radio.Content>
+              <Radio.Control>
+                <Radio.Indicator />
+              </Radio.Control>
+              <Label>{t('insert-after')}</Label>
+            </Radio.Content>
+          </Radio>
         </RadioGroup>
-        <Button onPress={handleSelectAll}>{t('select-all')}</Button>
-        <Button
-          color="primary"
-          onPress={handleConfirm}
-          className="w-fit ml-auto"
-        >
+        <Button variant="tertiary" onPress={handleSelectAll}>
+          {t('select-all')}
+        </Button>
+        <Button onPress={handleConfirm} className="w-fit ml-auto" variant="primary">
           {t('confirm')}
         </Button>
       </div>

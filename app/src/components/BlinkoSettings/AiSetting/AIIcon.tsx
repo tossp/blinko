@@ -1,27 +1,25 @@
-import {
-  OpenAI,
-  Anthropic,
-  Microsoft,
-  Google,
-  Ollama,
-  OpenRouter,
-  DeepSeek,
-  Grok,
-  SiliconCloud,
-  Meta,
-  Qwen,
-  BAAI,
-  Voyage,
-  Jina,
-  Cohere,
-  HuggingFace,
-  Mistral,
-  Perplexity,
-  Together,
-  LangChain,
-  LlamaIndex,
-  Alibaba
-} from '@lobehub/icons';
+import OpenAI from '@lobehub/icons/es/OpenAI/components/Mono.js';
+import Anthropic from '@lobehub/icons/es/Anthropic/components/Mono.js';
+import Ollama from '@lobehub/icons/es/Ollama/components/Mono.js';
+import OpenRouter from '@lobehub/icons/es/OpenRouter/components/Mono.js';
+import Grok from '@lobehub/icons/es/Grok/components/Mono.js';
+import BAAI from '@lobehub/icons/es/BAAI/components/Mono.js';
+import Jina from '@lobehub/icons/es/Jina/components/Mono.js';
+import LangChain from '@lobehub/icons/es/LangChain/components/Mono.js';
+import LlamaIndex from '@lobehub/icons/es/LlamaIndex/components/Mono.js';
+import MicrosoftColor from '@lobehub/icons/es/Microsoft/components/Color.js';
+import GoogleColor from '@lobehub/icons/es/Google/components/Color.js';
+import DeepSeekColor from '@lobehub/icons/es/DeepSeek/components/Color.js';
+import SiliconCloudColor from '@lobehub/icons/es/SiliconCloud/components/Color.js';
+import MetaColor from '@lobehub/icons/es/Meta/components/Color.js';
+import QwenColor from '@lobehub/icons/es/Qwen/components/Color.js';
+import VoyageColor from '@lobehub/icons/es/Voyage/components/Color.js';
+import CohereColor from '@lobehub/icons/es/Cohere/components/Color.js';
+import HuggingFaceColor from '@lobehub/icons/es/HuggingFace/components/Color.js';
+import MistralColor from '@lobehub/icons/es/Mistral/components/Color.js';
+import PerplexityColor from '@lobehub/icons/es/Perplexity/components/Color.js';
+import TogetherColor from '@lobehub/icons/es/Together/components/Color.js';
+import AlibabaColor from '@lobehub/icons/es/Alibaba/components/Color.js';
 import { Icon } from '@/components/Common/Iconify/icons';
 
 // Provider Icon Component
@@ -33,23 +31,23 @@ interface ProviderIconProps {
 const PROVIDER_ICONS: Record<string, React.ComponentType<any>> = {
   openai: OpenAI,
   anthropic: Anthropic,
-  azure: Microsoft.Color,
-  azureopenai: Microsoft.Color,
-  google: Google.Color,
-  gemini: Google.Color,
+  azure: MicrosoftColor,
+  azureopenai: MicrosoftColor,
+  google: GoogleColor,
+  gemini: GoogleColor,
   ollama: Ollama,
   openrouter: OpenRouter,
-  deepseek: DeepSeek.Color,
+  deepseek: DeepSeekColor,
   grok: Grok,
   xai: Grok,
-  siliconflow: SiliconCloud.Color,
-  voyageai: Voyage.Color,
-  voyage: Voyage.Color,
+  siliconflow: SiliconCloudColor,
+  voyageai: VoyageColor,
+  voyage: VoyageColor,
   litellm: OpenRouter,
   custom: OpenAI,
 };
 
-export function ProviderIcon({ provider, className = "w-6 h-6" }: ProviderIconProps) {
+export function ProviderIcon({ provider, className = 'w-6 h-6' }: ProviderIconProps) {
   const normalizedProvider = provider.toLowerCase();
   const IconComponent = PROVIDER_ICONS[normalizedProvider] || PROVIDER_ICONS.custom;
 
@@ -69,127 +67,149 @@ const MODEL_ICON_MAP: Array<{
   // OpenAI models
   {
     keywords: ['gpt', 'openai', 'text-davinci', 'text-embedding'],
-    icon: OpenAI
+    icon: OpenAI,
   },
   // Anthropic models
   {
     keywords: ['claude', 'anthropic'],
-    icon: Anthropic
+    icon: Anthropic,
   },
   // Google models
   {
     keywords: ['gemini', 'google', 'bison', 'palm'],
-    icon: Google.Color
+    icon: GoogleColor,
   },
   // Meta models
   {
     keywords: ['llama', 'meta', 'code-llama'],
-    icon: Meta.Color
+    icon: MetaColor,
   },
   // Microsoft models
   {
     keywords: ['azure', 'microsoft'],
-    icon: Microsoft.Color
+    icon: MicrosoftColor,
   },
   // Qwen models
   {
     keywords: ['qwen', 'tongyi'],
-    icon: Qwen.Color
+    icon: QwenColor,
   },
   // DeepSeek models
   {
     keywords: ['deepseek'],
-    icon: DeepSeek.Color
+    icon: DeepSeekColor,
   },
   // Grok models
   {
     keywords: ['grok', 'xai'],
-    icon: Grok
+    icon: Grok,
   },
   // Ollama models
   {
     keywords: ['ollama'],
-    icon: Ollama
+    icon: Ollama,
   },
   // OpenRouter models
   {
     keywords: ['openrouter'],
-    icon: OpenRouter
+    icon: OpenRouter,
   },
   // SiliconFlow models
   {
     keywords: ['siliconflow', 'silicon'],
-    icon: SiliconCloud.Color
+    icon: SiliconCloudColor,
   },
   // BAAI models (Beijing Academy of Artificial Intelligence)
   {
     keywords: ['baai', 'bge', 'bge-large', 'bge-small', 'bge-base', 'bge-m3', 'bge-reranker'],
-    icon: BAAI
+    icon: BAAI,
   },
   // Sentence Transformers / HuggingFace models
   {
-    keywords: ['sentence-transformers', 'all-mpnet', 'all-minilm', 'msmarco', 'distilbert', 'bert-base', 'huggingface', 'hf', 'instructor', 'e5-large', 'e5-base', 'e5-small'],
-    icon: HuggingFace.Color
+    keywords: [
+      'sentence-transformers',
+      'all-mpnet',
+      'all-minilm',
+      'msmarco',
+      'distilbert',
+      'bert-base',
+      'huggingface',
+      'hf',
+      'instructor',
+      'e5-large',
+      'e5-base',
+      'e5-small',
+    ],
+    icon: HuggingFaceColor,
   },
   // Cohere embedding models
   {
     keywords: ['embed-english', 'embed-multilingual', 'cohere'],
-    icon: Cohere.Color
+    icon: CohereColor,
   },
   // Voyage AI models
   {
-    keywords: ['voyage', 'voyage-large', 'voyage-code', 'voyage-lite', 'voyage-law', 'voyage-multilingual', 'voyage-finance', 'rerank'],
-    icon: Voyage.Color
+    keywords: [
+      'voyage',
+      'voyage-large',
+      'voyage-code',
+      'voyage-lite',
+      'voyage-law',
+      'voyage-multilingual',
+      'voyage-finance',
+      'rerank',
+    ],
+    icon: VoyageColor,
   },
   // Jina AI models
   {
     keywords: ['jina', 'jina-embeddings'],
-    icon: Jina
+    icon: Jina,
   },
   // Mistral models
   {
     keywords: ['mistral', 'mixtral'],
-    icon: Mistral.Color
+    icon: MistralColor,
   },
   // Perplexity models
   {
     keywords: ['perplexity', 'pplx'],
-    icon: Perplexity.Color
+    icon: PerplexityColor,
   },
   // Together AI models
   {
     keywords: ['together', 'togetherai'],
-    icon: Together.Color
+    icon: TogetherColor,
   },
   // Alibaba models
   {
     keywords: ['text2vec', 'gte-large', 'gte-base', 'gte-small', 'alibaba'],
-    icon: Alibaba.Color
+    icon: AlibabaColor,
   },
   // MiniMax models
   {
     keywords: ['minimax'],
-    icon: OpenAI
+    icon: OpenAI,
   },
   // LangChain models
   {
     keywords: ['langchain', 'langchain-community'],
-    icon: LangChain
+    icon: LangChain,
   },
   // LlamaIndex models
   {
     keywords: ['llamaindex', 'llama-index'],
-    icon: LlamaIndex
-  }
+    icon: LlamaIndex,
+  },
 ];
 
-const DefaultModelIcon = OpenAI
+const DefaultModelIcon = OpenAI;
 
-export function ModelIcon({ modelName, className = "w-6 h-6" }: ModelIconProps) {
+export function ModelIcon({ modelName, className = 'w-6 h-6' }: ModelIconProps) {
   const normalizedModelName = modelName.toLowerCase();
 
   const matchedIcon = MODEL_ICON_MAP.find(({ keywords }) =>
-    keywords.some(keyword => normalizedModelName.includes(keyword))
+    keywords.some((keyword) => normalizedModelName.includes(keyword))
   );
 
   const IconComponent = matchedIcon?.icon || DefaultModelIcon;

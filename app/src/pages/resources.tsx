@@ -1,19 +1,20 @@
-import { RootStore } from "@/store";
-import { ResourceStore } from "@/store/resourceStore";
-import { observer } from "mobx-react-lite";
-import { useMemo, useCallback } from "react";
-import { ScrollArea } from "@/components/Common/ScrollArea";
+import { Breadcrumbs, Button } from '@heroui/react';
+import { RootStore } from '@/store';
+import { ResourceStore } from '@/store/resourceStore';
+import { observer } from 'mobx-react-lite';
+import { useMemo, useCallback } from 'react';
+import { ScrollArea } from '@/components/Common/ScrollArea';
 import { Icon } from '@/components/Common/Iconify/icons';
-import { useTranslation } from "react-i18next";
-import { DragDropContext, Droppable } from 'react-beautiful-dnd-next';
-import { toJS } from "mobx";
-import { MemoizedResourceItem } from "@/components/BlinkoResource/ResourceItem";
-import { ResourceMultiSelectPop } from "@/components/BlinkoResource/ResourceMultiSelectpop";
-import { Breadcrumbs, BreadcrumbItem, Button } from "@heroui/react";
-import { AnimatePresence, motion } from "framer-motion";
-import { LoadingAndEmpty } from "@/components/Common/LoadingAndEmpty";
-import { PhotoProvider } from "react-photo-view";
-import { useNavigate } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
+import { DragDropContext, Droppable } from '@hello-pangea/dnd';
+import { toJS } from 'mobx';
+import { MemoizedResourceItem } from '@/components/BlinkoResource/ResourceItem';
+import { ResourceMultiSelectPop } from '@/components/BlinkoResource/ResourceMultiSelectpop';
+
+import { AnimatePresence, motion } from 'framer-motion';
+import { LoadingAndEmpty } from '@/components/Common/LoadingAndEmpty';
+import { PhotoProvider } from 'react-photo-view';
+import { useNavigate } from 'react-router-dom';
 const Page = observer(() => {
   const navigate = useNavigate();
   const resourceStore = RootStore.Get(ResourceStore);
@@ -21,7 +22,7 @@ const Page = observer(() => {
   const resources = useMemo(() => {
     const allResources = toJS(resourceStore.blinko.resourceList.value) || [];
     // Filter out .folder placeholder files
-    return allResources.filter(resource => resource.name !== '.folder');
+    return allResources.filter((resource) => resource.name !== '.folder');
   }, [resourceStore.blinko.resourceList.value]);
 
   const selectedItems = resourceStore.selectedItems;
@@ -29,7 +30,7 @@ const Page = observer(() => {
   const handleMoveSelectedToParent = useCallback(async () => {
     if (!resourceStore.currentFolder) return;
     const selectedResources = Array.from(selectedItems)
-      .map(id => resources.find(r => r.id === id))
+      .map((id) => resources.find((r) => r.id === id))
       .filter((item): item is NonNullable<typeof item> => item != null);
 
     if (selectedResources.length > 0) {
@@ -59,18 +60,18 @@ const Page = observer(() => {
                   <motion.div
                     key={resourceStore.currentFolder}
                     initial={{ y: -10, opacity: 0, height: 0 }}
-                    animate={{ y: 0, opacity: 1, height: "auto" }}
+                    animate={{ y: 0, opacity: 1, height: 'auto' }}
                     exit={{ y: -10, opacity: 0, height: 0 }}
                     transition={{
-                      type: "spring",
+                      type: 'spring',
                       stiffness: 500,
                       damping: 30,
-                      duration: 0.15
+                      duration: 0.15,
                     }}
                   >
-                    <Breadcrumbs variant="solid" className="ml-[-8px]" size='lg'>
+                    <Breadcrumbs className="ml-[-8px]">
                       {folderBreadcrumbs.map((folder, index) => (
-                        <BreadcrumbItem
+                        <Breadcrumbs.Item
                           key={folder}
                           onPress={() => {
                             if (index === 0) {
@@ -87,7 +88,7 @@ const Page = observer(() => {
                           }}
                         >
                           {folder}
-                        </BreadcrumbItem>
+                        </Breadcrumbs.Item>
                       ))}
                     </Breadcrumbs>
                   </motion.div>
@@ -101,17 +102,13 @@ const Page = observer(() => {
                 animate={{ x: 0, opacity: 1 }}
                 exit={{ x: 20, opacity: 0 }}
                 transition={{
-                  type: "spring",
+                  type: 'spring',
                   stiffness: 300,
-                  damping: 25
+                  damping: 25,
                 }}
               >
-                <Button
-                  size="sm"
-                  color="primary"
-                  onPress={resourceStore.handleNewFolder}
-                  startContent={<Icon icon="material-symbols:create-new-folder-outline" className="w-5 h-5" />}
-                >
+                <Button size="sm" onPress={resourceStore.handleNewFolder} variant="primary">
+                  {<Icon icon="material-symbols:create-new-folder-outline" className="w-5 h-5" />}
                   {t('new-folder')}
                 </Button>
               </motion.div>
@@ -121,14 +118,14 @@ const Page = observer(() => {
                 animate={{ x: 0, opacity: 1 }}
                 exit={{ x: 20, opacity: 0 }}
                 transition={{
-                  type: "spring",
+                  type: 'spring',
                   stiffness: 300,
-                  damping: 25
+                  damping: 25,
                 }}
               >
                 <Button
                   size="sm"
-                  variant="bordered"
+                  variant="outline"
                   onPress={() => {
                     if (selectedItems.size === resources.length) {
                       resourceStore.clearSelection();
@@ -136,17 +133,17 @@ const Page = observer(() => {
                       resourceStore.selectAllFiles(resources);
                     }
                   }}
-                  startContent={
+                >
+                  {
                     <Icon
                       icon={
                         selectedItems.size === resources.length
-                          ? "material-symbols:deselect"
-                          : "material-symbols:select-all"
+                          ? 'material-symbols:deselect'
+                          : 'material-symbols:select-all'
                       }
                       className="w-5 h-5"
                     />
                   }
-                >
                   {selectedItems.size === resources.length ? t('deselect-all') : t('select-all')}
                 </Button>
               </motion.div>
@@ -157,16 +154,13 @@ const Page = observer(() => {
                   animate={{ x: 0, opacity: 1 }}
                   exit={{ x: 20, opacity: 0 }}
                   transition={{
-                    type: "spring",
+                    type: 'spring',
                     stiffness: 300,
-                    damping: 25
+                    damping: 25,
                   }}
                 >
-                  <Button
-                    variant="light"
-                    onPress={handleMoveSelectedToParent}
-                    startContent={<Icon icon="material-symbols:drive-file-move-outline" className="w-5 h-5" />}
-                  >
+                  <Button variant="ghost" onPress={handleMoveSelectedToParent}>
+                    {<Icon icon="material-symbols:drive-file-move-outline" className="w-5 h-5" />}
                     {t('move-to-parent')}
                   </Button>
                 </motion.div>
@@ -183,11 +177,7 @@ const Page = observer(() => {
             {resources.length > 0 && (
               <Droppable droppableId="resources">
                 {(provided, snapshot) => (
-                  <div
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                    className="py-2 min-h-[200px]"
-                  >
+                  <div ref={provided.innerRef} {...provided.droppableProps} className="py-2 min-h-[200px]">
                     {resources.map((item, index) => (
                       <MemoizedResourceItem
                         key={item.isFolder ? `folder-${item.folderName}` : `file-${item.id}`}
@@ -203,9 +193,7 @@ const Page = observer(() => {
                 )}
               </Droppable>
             )}
-
           </PhotoProvider>
-
         </ScrollArea>
       </DragDropContext>
       <ResourceMultiSelectPop />

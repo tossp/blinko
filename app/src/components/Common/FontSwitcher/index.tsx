@@ -1,12 +1,6 @@
+import { Button, Dropdown, Spinner } from '@heroui/react';
 import { useState, useEffect } from 'react';
-import {
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
-  DropdownSection
-} from "@heroui/dropdown";
-import { Button, Spinner } from '@heroui/react';
+
 import { Icon } from '@/components/Common/Iconify/icons';
 import { api } from '@/lib/trpc';
 import { FontManager, FontMetadata } from '@/lib/fontManager';
@@ -37,7 +31,17 @@ const FontSwitcher = ({ fontname = 'default', onChange }: FontSwitcherProps) => 
         console.error('Failed to fetch fonts:', error);
         // Fallback to default font if API fails
         setFonts([
-          { id: 0, name: 'default', displayName: 'Default (System)', url: null, isLocal: false, weights: [400], category: 'sans-serif', isSystem: true, sortOrder: 0 }
+          {
+            id: 0,
+            name: 'default',
+            displayName: 'Default (System)',
+            url: null,
+            isLocal: false,
+            weights: [400],
+            category: 'sans-serif',
+            isSystem: true,
+            sortOrder: 0,
+          },
         ]);
       } finally {
         setLoading(false);
@@ -73,53 +77,44 @@ const FontSwitcher = ({ fontname = 'default', onChange }: FontSwitcherProps) => 
     }
   };
 
-
-
-  const currentFont = fonts.find(f => f.name === fontname);
+  const currentFont = fonts.find((f) => f.name === fontname);
 
   if (loading) {
     return (
-      <Button variant="flat" isLoading>
-        Loading...
+      <Button variant="tertiary" isPending={true}>
+        {true ? <Spinner color="current" size="sm" /> : null}Loading...
       </Button>
     );
   }
 
   return (
     <Dropdown>
-      <DropdownTrigger>
-        <Button variant="flat">
-          {currentFont?.displayName || fontname || 'Select Font'}
-        </Button>
-      </DropdownTrigger>
-
-      <DropdownMenu
-        className="p-2 max-h-[400px] overflow-y-auto"
-        aria-label="Font selection"
-      >
-        {fonts.map((font) => (
-          <DropdownItem
-            key={font.name}
-            className="flex items-center justify-between cursor-pointer"
-            onClick={() => handleFontSelect(font.name)}
-            endContent={
-              loadingFont === font.name ? (
+      <Button variant="tertiary">{currentFont?.displayName || fontname || 'Select Font'}</Button>
+      <Dropdown.Popover>
+        <Dropdown.Menu className="p-2 max-h-[400px] overflow-y-auto" aria-label="Font selection">
+          {fonts.map((font) => (
+            <Dropdown.Item
+              key={font.name}
+              className="flex items-center justify-between cursor-pointer"
+              id={font.name}
+              onAction={() => handleFontSelect(font.name)}
+            >
+              <span
+                style={{
+                  fontFamily: font.isSystem ? undefined : `"${font.name}", ${font.category}`,
+                }}
+              >
+                {font.displayName}
+              </span>
+              {loadingFont === font.name ? (
                 <Spinner size="sm" />
               ) : fontname === font.name ? (
                 <Icon icon="mingcute:check-fill" width="18" height="18" />
-              ) : null
-            }
-          >
-            <span
-              style={{
-                fontFamily: font.isSystem ? undefined : `"${font.name}", ${font.category}`
-              }}
-            >
-              {font.displayName}
-            </span>
-          </DropdownItem>
-        ))}
-      </DropdownMenu>
+              ) : null}
+            </Dropdown.Item>
+          ))}
+        </Dropdown.Menu>
+      </Dropdown.Popover>
     </Dropdown>
   );
 };

@@ -1,7 +1,8 @@
+import { Button, Slider, Spinner } from '@heroui/react';
 import { useEffect, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { Icon } from '@/components/Common/Iconify/icons';
-import { Button, Slider } from '@heroui/react';
+
 import { RootStore } from '@/store';
 import { ToastPlugin } from '@/store/module/Toast/Toast';
 import dayjs from '@/lib/dayjs';
@@ -137,7 +138,11 @@ const NoteHistoryModal = observer(({ noteId }: NoteHistoryModalProps) => {
 
   return (
     <div className="flex flex-col w-full h-full">
-      <LoadingAndEmpty className="mb-4" isLoading={Store.loading} isEmpty={!Store.historyList.value || Store.historyList.value.length === 0} />
+      <LoadingAndEmpty
+        className="mb-4"
+        isLoading={Store.loading}
+        isEmpty={!Store.historyList.value || Store.historyList.value.length === 0}
+      />
       {Store.historyList.value && Store.historyList.value.length > 0 && (
         <>
           <div className="flex flex-col items-center mb-4 px-4">
@@ -154,16 +159,21 @@ const NoteHistoryModal = observer(({ noteId }: NoteHistoryModalProps) => {
             </div>
 
             <Slider
-              color="primary"
               step={1}
               maxValue={Math.max(0, (Store.historyList.value?.length || 1) - 1)}
               minValue={0}
               value={sliderValue}
               onChange={handleSliderChange}
               className="w-full"
-              showSteps={true}
-              size="sm"
-            />
+              aria-label={'Value'}
+            >
+              <Slider.Output />
+              <Slider.Track>
+                <Slider.Fill />
+                <Slider.Thumb />
+                {true && <Slider.Steps />}
+              </Slider.Track>
+            </Slider>
 
             <div className="w-full mt-2">
               <p className="text-xs text-amber-500 flex items-center">
@@ -178,7 +188,9 @@ const NoteHistoryModal = observer(({ noteId }: NoteHistoryModalProps) => {
           </ScrollArea>
 
           <div className="flex justify-end mt-4">
-            <Button color="primary" isLoading={Store.restoring} onPress={Store.handleRestore} startContent={<Icon icon="material-symbols:settings-backup-restore-rounded" />}>
+            <Button onPress={Store.handleRestore} variant="primary" isPending={Store.restoring}>
+              {Store.restoring ? <Spinner color="current" size="sm" /> : null}
+              {<Icon icon="material-symbols:settings-backup-restore-rounded" />}
               {t('restore-this-version')}
             </Button>
           </div>

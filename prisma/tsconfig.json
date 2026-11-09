@@ -1,22 +1,15 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
+    "target": "ES2023",
+    "types": ["node", "bun-types"],
     "module": "ESNext",
-    "moduleResolution": "Node",
+    "moduleResolution": "bundler",
+    "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "sourceMap": true,
     "outDir": "./dist",
-    "rootDir": ".",
-    "baseUrl": "..",
-    "paths": {
-      "@/*": ["./server/*"],
-      "@prisma/*": ["./prisma/*"],
-      "@shared/*": ["./shared/*"]
-    }
+    "rootDir": ".."
   },
-  "include": ["./**/*"],
-  "references": [
-    { "path": "../server" }
-  ]
+  "include": ["./**/*"]
 } 

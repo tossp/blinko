@@ -1,5 +1,5 @@
 import { prisma } from '../server/prisma'
-import { ncp } from 'ncp'
+import ncp from 'ncp'
 
 export const tag = [
   {
