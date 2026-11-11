@@ -106,8 +106,9 @@
   overflow: hidden;
 }
 
+/* SV carries vditor-reset on the same element, unlike IR/WYSIWYG. */
 .vditor.fullscreen-editor .vditor-ir .vditor-reset,
-.vditor.fullscreen-editor .vditor-sv .vditor-reset,
+.vditor.fullscreen-editor .vditor-sv.vditor-reset,
 .vditor.fullscreen-editor .vditor-wysiwyg .vditor-reset {
   overflow-y: auto;
   overflow-x: hidden;
