@@ -9,8 +9,7 @@ import type { EmbeddingModelV4 } from '@ai-sdk/provider';
 import type { ToolsInput } from '@mastra/core/agent';
 import { deleteVectorRecord } from './vectorRecords';
 import { toMastraModel } from './providers/mastraModel';
-import { embed } from 'ai';
-import { _ } from '@shared/lib/lodash';
+import { queryVectorNotes, type VectorNoteFilter } from './vectorQuery';
 import { webSearchTool } from './tools/webSearch';
 import { webExtra } from './tools/webExtra';
 import { searchBlinkoTool } from './tools/searchBlinko';
@@ -32,78 +31,18 @@ export class AiModelFactory {
     return deleteVectorRecord(targetId);
   }
 
-  static async queryVector(query: string, accountId: number, _topK?: number) {
+  static async queryVector(query: string, accountId: number, _topK?: number, filter?: VectorNoteFilter) {
     const { VectorStore, Embeddings } = await AiModelFactory.GetProvider();
     if (!Embeddings) {
       throw new Error("No embeddings model config")
     }
     const config = await AiModelFactory.globalConfig();
-    const topK = _topK ?? config.embeddingTopK ?? 3;
-    const embeddingMinScore = config.embeddingScore ?? 0.4;
-    const { embedding } = await embed({
-      value: query,
-      model: Embeddings,
+    return queryVectorNotes({
+      query, accountId, vectorStore: VectorStore, embeddings: Embeddings,
+      topK: _topK ?? config.embeddingTopK ?? 3,
+      embeddingMinScore: config.embeddingScore ?? 0.4,
+      filter,
     });
-
-    const result = await VectorStore.query({
-      indexName: 'blinko',
-      queryVector: embedding,
-      topK: topK,
-    });
-    let filteredResults = result.filter(({ score }) => score >= embeddingMinScore);
-
-    const notes =
-      (
-        await prisma.notes.findMany({
-          where: {
-            accountId: accountId,
-            id: {
-              in: _.uniqWith(filteredResults.map((i) => Number(i.metadata?.id))).filter((i) => !!i) as number[],
-            },
-          },
-          include: {
-            tags: { include: { tag: true } },
-            attachments: {
-              orderBy: [{ sortOrder: 'asc' }, { id: 'asc' }],
-            },
-            references: {
-              select: {
-                toNoteId: true,
-                toNote: {
-                  select: {
-                    content: true,
-                    createdAt: true,
-                    updatedAt: true,
-                  },
-                },
-              },
-            },
-            referencedBy: {
-              select: {
-                fromNoteId: true,
-                fromNote: {
-                  select: {
-                    content: true,
-                    createdAt: true,
-                    updatedAt: true,
-                  },
-                },
-              },
-            },
-            _count: {
-              select: {
-                comments: true,
-                histories: true,
-              },
-            },
-          },
-        })
-      ).map((i) => {
-        return { ...i, score: filteredResults.find((t) => Number(t.metadata?.id) == i.id)?.score ?? 0 };
-      }) ?? [];
-
-    let aiContext = notes.map((i) => i.content + '\n') || '';
-    return { notes, aiContext: aiContext };
   }
 
   static async rebuildVectorIndex({ vectorStore, isDelete = false }: { vectorStore: LibSQLVector; isDelete?: boolean }) {

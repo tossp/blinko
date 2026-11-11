@@ -14,6 +14,8 @@ for (const suite of [
   'providers/__tests__/scheduled-job.test.ts',
   'providers/__tests__/file-content.test.ts',
   'providers/__tests__/vector-storage.test.ts',
+  'providers/__tests__/rag-recycle.test.ts',
+  'providers/__tests__/post-process-note.test.ts',
   'mcp/__tests__/bridge.test.ts',
 ]) {
   const result = Bun.spawnSync([process.execPath, 'test', path.join('aiServer', suite)], {

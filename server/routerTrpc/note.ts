@@ -1,5 +1,7 @@
 import { withAttachmentShareLinks } from '../lib/attachmentShare';
 import { prepareAttachmentBindings, bindPreparedAttachments } from '../lib/attachmentBinding';
+import { updateNoteWithHistory } from '../lib/noteUpdate';
+import { getNoteWriteGuard } from '../lib/noteWriteGuard';
 
 import { z } from 'zod';
 import { prisma } from '../prisma';
@@ -111,7 +113,7 @@ export const noteRouter = router({
         const cleanedQuery = searchText?.replace(/@/g, '').trim();
         if (cleanedQuery && cleanedQuery.length > 0) {
           if (page == 1) {
-            return await AiService.enhanceQuery({ query: cleanedQuery, ctx });
+            return await AiService.enhanceQuery({ query: cleanedQuery, ctx, filter: { isRecycle } });
           } else {
             return [];
           }
@@ -967,57 +969,9 @@ export const noteRouter = router({
       }
 
       if (id) {
-        const note = await prisma.$transaction(async (tx) => {
-          const existingNote = await tx.notes.findUnique({
-            where: { id },
-            select: {
-              content: true,
-              accountId: true,
-              type: true,
-              isArchived: true,
-              isTop: true,
-              isShare: true,
-              isRecycle: true
-            }
-          });
-
-          if (existingNote && content != null && content !== existingNote.content) {
-            const latestVersion = await tx.noteHistory.findFirst({
-              where: { noteId: id },
-              orderBy: { version: 'desc' },
-              select: { version: true },
-            });
-
-            await tx.noteHistory.create({
-              data: {
-                noteId: id,
-                content: existingNote.content,
-                version: (latestVersion?.version || 0) + 1,
-                accountId: Number(ctx.id),
-                metadata: {
-                  type: existingNote.type,
-                  isArchived: existingNote.isArchived,
-                  isTop: existingNote.isTop,
-                  isShare: existingNote.isShare,
-                  isRecycle: existingNote.isRecycle,
-                },
-              },
-            });
-          }
-
-          // Recheck edit permission in the write, including a concurrently revoked share.
-          const note = await tx.notes.update({
-            where: {
-              id,
-              OR: [
-                { accountId: Number(ctx.id) },
-                { internalShares: { some: { accountId: Number(ctx.id), canEdit: true } } },
-              ],
-            },
-            data: update,
-          });
-          await bindPreparedAttachments(tx, preparedAttachments, Number(ctx.id), note.id, id);
-          return note;
+        const note = await updateNoteWithHistory(prisma, {
+          id, accountId: Number(ctx.id), content, update, preparedAttachments,
+          guard: getNoteWriteGuard(ctx),
         });
         if (content == null) {
           SendWebhook({ ...note, attachments }, isRecycle ? 'delete' : 'update', ctx);

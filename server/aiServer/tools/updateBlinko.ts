@@ -3,6 +3,7 @@ import { NoteType } from '@shared/lib/types';
 import { createTool } from '@mastra/core/tools';
 import { z } from 'zod/v3';
 import { verifyToken } from '@server/lib/helper';
+import { withNoteWriteGuard, AI_NOTE_WRITE_GUARD_CONTEXT_KEY, type NoteWriteGuard } from '@server/lib/noteWriteGuard';
 
 export const updateBlinkoTool = createTool({
   id: 'update-blinko-tool',
@@ -19,6 +20,7 @@ export const updateBlinkoTool = createTool({
   }),
   execute: async (context, { requestContext }) => {
     const accountId = requestContext.get('accountId') || (await verifyToken(context.token ?? ''))?.sub;
+    const guard = requestContext.get(AI_NOTE_WRITE_GUARD_CONTEXT_KEY) as NoteWriteGuard | undefined;
     let noteType: NoteType;
     const typeStr = (context.type || 'blinko').toLowerCase();
 
@@ -38,20 +40,26 @@ export const updateBlinkoTool = createTool({
         break;
     }
     try {
-      const caller = userCaller({
+      const caller = userCaller(withNoteWriteGuard({
         id: String(accountId),
         exp: 0,
         iat: 0,
         name: 'admin',
         sub: String(accountId),
         role: 'superadmin'
-      })
+      }, guard))
       return await caller.notes.upsert({
         content: context.content,
         type: noteType,
         id: context.id
       })
     } catch (error) {
+      // Mastra may turn tool failures into model-visible results rather than
+      // reject generate(). Preserve the failure for the post-processing run.
+      if (guard) {
+        guard.error = error;
+        throw error;
+      }
       console.log(error)
       return error.message
     }
