@@ -4,7 +4,7 @@ import { RootStore } from "@/store"
 import { BlinkoStore } from "@/store/blinkoStore"
 import dayjs from "@/lib/dayjs"
 import { useEffect, useRef } from "react"
-import { NoteType } from "@shared/lib/types"
+import { sendBlinkoNote } from "./sendNote"
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom"
 
 type IProps = {
@@ -147,47 +147,9 @@ export const BlinkoEditor = observer(({ mode, onSended, onHeightChange, isInDial
         isCreateMode ? <div className='text-xs text-ignore ml-2'>Drop to upload files</div> :
           blinko.curSelectedNote?.createdAt ? <div className='text-xs text-desc'>{dayjs(blinko.curSelectedNote.createdAt).format("YYYY-MM-DD hh:mm:ss")}</div> : null
       }
-      onSend={async ({ files, references, noteType, metadata }) => {
-        if (isCreateMode) {
-          console.log("createMode", files, references, noteType, metadata)
-          //@ts-ignore
-          await blinko.upsertNote.call({ type: noteType, references, refresh: false, content: blinko.noteContent, attachments: files.map(i => { return { name: i.name, path: i.uploadPath, size: i.size, type: i.type } }), metadata })
-          blinko.createAttachmentsStorage.clear()
-          blinko.createContentStorage.clear()
-          if (blinko.noteTypeDefault == NoteType.NOTE && searchParams.get('path') != 'notes') {
-            await navigate('/?path=notes')
-            blinko.forceQuery++
-          }
-          if (blinko.noteTypeDefault == NoteType.BLINKO && location.pathname != '/') {
-            await navigate('/')
-            blinko.forceQuery++
-          }
-          blinko.updateTicker++
-        } else {
-          if (!blinko.curSelectedNote) return;
-          await blinko.upsertNote.call({
-            id: blinko.curSelectedNote.id,
-            type: noteType,
-            //@ts-ignore
-            content: blinko.curSelectedNote.content,
-            //@ts-ignore
-            attachments: files.map(i => { return { name: i.name, path: i.uploadPath, size: i.size, type: i.type } }),
-            references,
-            metadata,
-            refresh: true // Ensure list is refreshed after update
-          })
-          try {
-            const index = blinko.editAttachmentsStorage.list?.findIndex(i => i.id == blinko.curSelectedNote!.id)
-            if (index != -1) {
-              blinko.editAttachmentsStorage.remove(index)
-              blinko.editContentStorage.remove(index)
-            }
-          } catch (error) {
-            console.error(error)
-          }
-        }
-        onSended?.()
-      }} />
+      onSend={args => sendBlinkoNote({
+        blinko, isCreateMode, navigate, searchParams, pathname: location.pathname, onSended,
+      }, args)} />
   </div>
 })
 

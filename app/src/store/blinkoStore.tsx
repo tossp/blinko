@@ -182,7 +182,7 @@ export class BlinkoStore implements Store {
 
   upsertNote = new PromiseState({
     eventKey: 'upsertNote',
-    function: async (params: UpsertNoteParams) => {
+    function: async (params: UpsertNoteParams, { clearEditor = true } = {}) => {
       console.log('upsertNote', params);
       const {
         content = null,
@@ -240,7 +240,7 @@ export class BlinkoStore implements Store {
         updatedAt: inputUpdatedAt ? new Date(inputUpdatedAt) : undefined,
         metadata,
       });
-      eventBus.emit('editor:clear');
+      if (clearEditor) eventBus.emit('editor:clear');
       showToast &&
         RootStore.Get(ToastPlugin).success(id ? i18n.t('update-successfully') : i18n.t('create-successfully'));
       refresh && this.updateTicker++;

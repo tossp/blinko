@@ -5,7 +5,7 @@ import { helper } from '@/lib/helper';
 import { FileType, OnSendContentType } from './type';
 import { BlinkoStore } from '@/store/blinkoStore';
 import { api } from '@/lib/trpc';
-import { AiStore } from '@/store/aiStore';
+import { sendEditorContent } from './editorSubmission';
 import { getEditorElements, type ViewMode } from './editorUtils';
 import { makeAutoObservable } from 'mobx';
 import Vditor from 'vditor';
@@ -16,7 +16,6 @@ import { DialogStandaloneStore } from '@/store/module/DialogStandalone';
 import axios from 'axios';
 import { ToastPlugin } from '@/store/module/Toast/Toast';
 import { NoteType } from '@shared/lib/types';
-import { eventBus } from '@/lib/event';
 import { getBlinkoEndpoint } from '@/lib/blinkoEndpoint';
 import axiosInstance from '@/lib/axios';
 
@@ -59,6 +58,7 @@ export class EditorStore {
   noteType!: NoteType;
   currentTagLabel: string = '';
   metadata: any = {};
+  isSending = false;
 
   get showIsEditText() {
     if (this.mode == 'edit') {
@@ -92,7 +92,7 @@ export class EditorStore {
   get canSend() {
     return (
       this.files?.every((i) => !i?.uploadPromise?.loading?.value) &&
-      (this.files?.length != 0 || this.vditor?.getValue() != '')
+      (this.files?.length != 0 || (this.vditor?.getValue() ?? '').trim() != '')
     );
   }
 
@@ -399,26 +399,7 @@ export class EditorStore {
   // ************************************* reference logic  end ************************************************************************************
 
   async handleSend() {
-    if (!this.canSend) return;
-    try {
-      let content = this.vditor?.getValue() ?? '';
-      if (this.mode == 'create' && this.currentTagLabel != '') {
-        this.vditor?.insertValue(`\n\n${this.currentTagLabel} `);
-        this.onChange?.(this.vditor?.getValue() ?? '');
-      }
-      await this.onSend?.({
-        content: this.vditor?.getValue() ?? '',
-        files: this.files.map((i) => ({ ...i, uploadPath: i.uploadPromise.value })),
-        noteType: this.noteType,
-        references: this.references,
-        metadata: this.metadata,
-      });
-      this.clearEditor();
-      RootStore.Get(AiStore).isWriting = false;
-      eventBus.emit('editor:setFullScreen', false);
-    } catch (error) {
-      console.error('Failed to send content:', error);
-    }
+    await sendEditorContent(this);
   }
 
   clearEditor = () => {
