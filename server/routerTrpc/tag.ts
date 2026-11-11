@@ -27,9 +27,10 @@ export const tagRouter = router({
       id: z.number()
     }))
     .output(z.string())
-    .query(async function ({ input }) {
+    .query(async function ({ input, ctx }) {
       const { id } = input
-      const tag = await prisma.tag.findFirst({ where: { id } })
+      const accountId = Number(ctx.id)
+      const tag = await prisma.tag.findFirst({ where: { id, accountId } })
       if (!tag) {
         throw new Error('Tag not found')
       }
@@ -44,7 +45,7 @@ export const tagRouter = router({
         }
         
         const parentTag = await prisma.tag.findFirst({
-          where: { id: currentTag.parent }
+          where: { id: currentTag.parent, accountId }
         });
         
         if (!parentTag) {
@@ -112,9 +113,9 @@ export const tagRouter = router({
       icon: z.string()
     }))
     .output(tagSchema)
-    .mutation(async function ({ input }) {
+    .mutation(async function ({ input, ctx }) {
       const { id, icon } = input
-      return await prisma.tag.update({ where: { id }, data: { icon } })
+      return await prisma.tag.update({ where: { id, accountId: Number(ctx.id) }, data: { icon } })
     }),
   deleteOnlyTag: authProcedure.use(demoAuthMiddleware)
     .meta({
@@ -226,10 +227,10 @@ export const tagRouter = router({
       id: z.number(),
       sortOrder: z.number()
     }))
-    .mutation(async function ({ input }) {
+    .mutation(async function ({ input, ctx }) {
       const { id, sortOrder } = input
       return await prisma.tag.update({
-        where: { id },
+        where: { id, accountId: Number(ctx.id) },
         data: { sortOrder }
       })
     }),

@@ -2,6 +2,7 @@ import { withAttachmentShareLinks } from '../lib/attachmentShare';
 import { prepareAttachmentBindings, bindPreparedAttachments } from '../lib/attachmentBinding';
 import { updateNoteWithHistory } from '../lib/noteUpdate';
 import { getNoteWriteGuard } from '../lib/noteWriteGuard';
+import { queryVisibleNoteReferences } from '../lib/noteReferenceQuery';
 
 import { z } from 'zod';
 import { prisma } from '../prisma';
@@ -1314,57 +1315,7 @@ export const noteRouter = router({
       ),
     )
     .mutation(async function ({ input, ctx }) {
-      const { noteId, type } = input;
-
-      if (type === 'references') {
-        const references = await prisma.noteReference.findMany({
-          where: { fromNoteId: noteId },
-          include: {
-            toNote: {
-              include: {
-                attachments: true,
-                tags: { include: { tag: true } },
-                references: {
-                  select: { toNoteId: true },
-                },
-                referencedBy: {
-                  select: { fromNoteId: true },
-                },
-              },
-            },
-          },
-          orderBy: { createdAt: 'desc' },
-        });
-
-        return references.map((ref) => ({
-          ...ref.toNote,
-          referenceCreatedAt: ref.createdAt,
-        }));
-      } else {
-        const referencedBy = await prisma.noteReference.findMany({
-          where: { toNoteId: noteId },
-          include: {
-            fromNote: {
-              include: {
-                attachments: true,
-                tags: { include: { tag: true } },
-                references: {
-                  select: { toNoteId: true },
-                },
-                referencedBy: {
-                  select: { fromNoteId: true },
-                },
-              },
-            },
-          },
-          orderBy: { createdAt: 'desc' },
-        });
-
-        return referencedBy.map((ref) => ({
-          ...ref.fromNote,
-          referenceCreatedAt: ref.createdAt,
-        }));
-      }
+      return queryVisibleNoteReferences(input.noteId, input.type, Number(ctx.id));
     }),
 
   clearRecycleBin: authProcedure
