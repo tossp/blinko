@@ -307,7 +307,7 @@ const TasksPanel = observer(() => {
                             <Select.Popover>
                               <ListBox>
                                 {helper.cron.cornTimeList.map((item) => (
-                                  <ListBox.Item key={item.value} id={item.value}>
+                                  <ListBox.Item key={item.value} id={item.value} textValue={t(item.label)}>
                                     {t(item.label)}
                                   </ListBox.Item>
                                 ))}

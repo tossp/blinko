@@ -39,7 +39,7 @@ export default function FilterPop() {
       ...blinkoStore.noteListFilterConfig,
       startDate: dateRange.start ? new Date(dateRange.start.toString()) : null,
       endDate: dateRange.end ? new Date(dateRange.end.toString()) : null,
-      tagId: selectedTag ? Number(selectedTag) : null,
+      tagId: tagStatus === 'with' && selectedTag ? Number(selectedTag) : null,
       withoutTag: tagStatus === 'without',
       withFile: selectedCondition === 'hasFile',
       withLink: selectedCondition === 'hasLink',

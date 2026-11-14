@@ -39,7 +39,7 @@ export const UpdateTag = observer(({ onSave, defaultValue = '', type = 'input' }
           <Select.Popover>
             <ListBox>
               {(blinko.tagList.value?.pathTags as string[]).map((tag) => (
-                <ListBox.Item key={tag} id={tag}>
+                <ListBox.Item key={tag} id={tag} textValue={tag}>
                   {tag}
                 </ListBox.Item>
               ))}

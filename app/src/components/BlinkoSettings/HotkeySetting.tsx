@@ -1,4 +1,4 @@
-import { Button, Input, ListBox, Select, Switch, TextField } from '@heroui/react';
+import { Button, Input, Switch, TextField } from '@heroui/react';
 import { observer } from 'mobx-react-lite';
 
 import { RootStore } from '@/store';
@@ -14,7 +14,8 @@ import { enable, isEnabled, disable } from '@tauri-apps/plugin-autostart';
 import { isDesktop, isInTauri, isWindows } from '@/lib/tauriHelper';
 import { CollapsibleCard } from '../Common/CollapsibleCard';
 import { ToastPlugin } from '@/store/module/Toast/Toast';
-import { HotkeyConfig, DEFAULT_HOTKEY_CONFIG, TextSelectionToolbarConfig, DEFAULT_TEXT_SELECTION_TOOLBAR_CONFIG } from '@/../../shared/lib/types';
+import { HotkeyConfig, DEFAULT_HOTKEY_CONFIG } from '@/../../shared/lib/types';
+import { TextSelectionToolbarSettings } from './TextSelectionToolbarSettings';
 
 const HOTKEY_EXAMPLES = {
   'Shift+Space': 'Shift+Space (Recommended)',
@@ -46,7 +47,6 @@ export const HotkeySetting = observer(() => {
   const [autoStartEnabled, setAutoStartEnabled] = useState(false);
   const recordingRef = useRef<HTMLInputElement>(null);
   const recordingAIRef = useRef<HTMLInputElement>(null);
-
 
   // Check if running on Tauri desktop
   const isTauriDesktop = isInTauri() && isDesktop();
@@ -247,7 +247,6 @@ export const HotkeySetting = observer(() => {
     }
   };
 
-
   // Keyboard event handling for quicknote
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (!isRecording) return;
@@ -352,8 +351,6 @@ export const HotkeySetting = observer(() => {
     }
   };
 
-
-
   // Format shortcut display
   const formatShortcut = (shortcut: string) => {
     const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
@@ -396,8 +393,6 @@ export const HotkeySetting = observer(() => {
   // Check if shortcut is not default
   const isQuickNoteNotDefault = hotkeyConfig.quickNote !== DEFAULT_HOTKEY_CONFIG.quickNote;
   const isQuickAINotDefault = hotkeyConfig.quickAI !== DEFAULT_HOTKEY_CONFIG.quickAI;
-
-
 
   // Initialize
   useEffect(() => {
@@ -459,7 +454,6 @@ export const HotkeySetting = observer(() => {
             }
             type="col"
           />
-
         </div>
       </CollapsibleCard>
 
@@ -497,89 +491,10 @@ export const HotkeySetting = observer(() => {
             }
             type="col"
           />
-
         </div>
       </CollapsibleCard>
 
-      {/* Text Selection Toolbar CollapsibleCard */}
-      <CollapsibleCard
-        icon="material-symbols:select-all"
-        title={t('text-selection-toolbar')}
-        className="w-full my-6"
-      >
-        <div className="flex flex-col gap-4">
-          {/* Text selection toolbar enable switch */}
-          <Item
-            leftContent={
-              <ItemWithTooltip
-                content="Enable Text Selection Toolbar"
-                toolTipContent="Show toolbar when text is selected globally on desktop"
-              />
-            }
-            rightContent={
-              <Switch isSelected={hotkeyConfig.textSelectionToolbar?.enabled ?? DEFAULT_TEXT_SELECTION_TOOLBAR_CONFIG.enabled} onChange={(enabled) =>
-                  saveConfig({
-                    textSelectionToolbar: {
-                      ...hotkeyConfig.textSelectionToolbar,
-                      ...DEFAULT_TEXT_SELECTION_TOOLBAR_CONFIG,
-                      enabled
-                    }
-                  })
-                }><Switch.Content><Switch.Control><Switch.Thumb></Switch.Thumb></Switch.Control></Switch.Content></Switch>
-            }
-          />
-
-          {/* Trigger modifier selection */}
-          <Item
-            leftContent={t('trigger-modifier')}
-            rightContent={
-              <Select className="w-32" value={hotkeyConfig.textSelectionToolbar?.triggerModifier ?? DEFAULT_TEXT_SELECTION_TOOLBAR_CONFIG.triggerModifier} onChange={(selectedValue) => {
-                  const modifier = selectedValue as 'ctrl' | 'shift' | 'alt';
-                  saveConfig({
-                    textSelectionToolbar: {
-                      ...hotkeyConfig.textSelectionToolbar,
-                      ...DEFAULT_TEXT_SELECTION_TOOLBAR_CONFIG,
-                      triggerModifier: modifier
-                    }
-                  });
-                }}><Select.Trigger><Select.Value /><Select.Indicator /></Select.Trigger><Select.Popover><ListBox><ListBox.Item key="ctrl" id={"ctrl"}>Ctrl + `</ListBox.Item><ListBox.Item key="shift" id={"shift"}>Shift + `</ListBox.Item><ListBox.Item key="alt" id={"alt"}>Alt + `</ListBox.Item></ListBox></Select.Popover></Select>
-            }
-            type="col"
-          />
-
-          {/* Translation language settings */}
-          <Item
-            leftContent={t('translation-languages')}
-            rightContent={
-              <div className="flex gap-2">
-                <Select className="w-24" value={hotkeyConfig.textSelectionToolbar?.translationFromLang ?? DEFAULT_TEXT_SELECTION_TOOLBAR_CONFIG.translationFromLang} onChange={(selectedValue) => {
-                    const fromLang = selectedValue as string;
-                    saveConfig({
-                      textSelectionToolbar: {
-                        ...hotkeyConfig.textSelectionToolbar,
-                        ...DEFAULT_TEXT_SELECTION_TOOLBAR_CONFIG,
-                        translationFromLang: fromLang
-                      }
-                    });
-                  }}><Select.Trigger><Select.Value /><Select.Indicator /></Select.Trigger><Select.Popover><ListBox><ListBox.Item key="auto" id={"auto"}>Auto</ListBox.Item><ListBox.Item key="en" id={"en"}>English</ListBox.Item><ListBox.Item key="zh" id={"zh"}>Chinese</ListBox.Item><ListBox.Item key="ja" id={"ja"}>Japanese</ListBox.Item><ListBox.Item key="ko" id={"ko"}>Korean</ListBox.Item><ListBox.Item key="fr" id={"fr"}>French</ListBox.Item><ListBox.Item key="de" id={"de"}>German</ListBox.Item><ListBox.Item key="es" id={"es"}>Spanish</ListBox.Item></ListBox></Select.Popover></Select>
-                <span className="text-sm text-gray-500 self-center">→</span>
-                <Select className="w-24" value={hotkeyConfig.textSelectionToolbar?.translationToLang ?? DEFAULT_TEXT_SELECTION_TOOLBAR_CONFIG.translationToLang} onChange={(selectedValue) => {
-                    const toLang = selectedValue as string;
-                    saveConfig({
-                      textSelectionToolbar: {
-                        ...hotkeyConfig.textSelectionToolbar,
-                        ...DEFAULT_TEXT_SELECTION_TOOLBAR_CONFIG,
-                        translationToLang: toLang
-                      }
-                    });
-                  }}><Select.Trigger><Select.Value /><Select.Indicator /></Select.Trigger><Select.Popover><ListBox><ListBox.Item key="en" id={"en"}>English</ListBox.Item><ListBox.Item key="zh" id={"zh"}>Chinese</ListBox.Item><ListBox.Item key="ja" id={"ja"}>Japanese</ListBox.Item><ListBox.Item key="ko" id={"ko"}>Korean</ListBox.Item><ListBox.Item key="fr" id={"fr"}>French</ListBox.Item><ListBox.Item key="de" id={"de"}>German</ListBox.Item><ListBox.Item key="es" id={"es"}>Spanish</ListBox.Item></ListBox></Select.Popover></Select>
-              </div>
-            }
-            type="col"
-          />
-
-        </div>
-      </CollapsibleCard>
+      <TextSelectionToolbarSettings config={hotkeyConfig.textSelectionToolbar} onSave={saveConfig} />
     </div>
   );
 });

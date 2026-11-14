@@ -172,7 +172,7 @@ const UpdateSSOProvider = observer(({ provider }: { provider?: z.infer<typeof ZO
         <Select.Popover>
           <ListBox>
             {Object.entries(OAUTH_TEMPLATES).map(([key, template]) => (
-              <ListBox.Item key={key} id={key}>
+              <ListBox.Item key={key} id={key} textValue={template.name}>
                 {template.icon && <Icon icon={template.icon} width="20" height="20" />}
                 {template.name}
               </ListBox.Item>

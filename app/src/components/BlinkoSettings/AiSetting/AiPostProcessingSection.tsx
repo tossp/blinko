@@ -104,23 +104,23 @@ export const AiPostProcessingSection = observer(() => {
                 </Select.Trigger>
                 <Select.Popover>
                   <ListBox>
-                    <ListBox.Item key="comment" id={'comment'}>
+                    <ListBox.Item key="comment" id={'comment'} textValue={t('add-as-comment')}>
                       {<Icon icon="tabler:message" />}
                       {t('add-as-comment')}
                     </ListBox.Item>
-                    <ListBox.Item key="tags" id={'tags'}>
+                    <ListBox.Item key="tags" id={'tags'} textValue={t('auto-add-tags')}>
                       {<Icon icon="tabler:tags" />}
                       {t('auto-add-tags')}
                     </ListBox.Item>
-                    <ListBox.Item key="smartEdit" id={'smartEdit'}>
+                    <ListBox.Item key="smartEdit" id={'smartEdit'} textValue={t('smart-edit')}>
                       {<Icon icon="tabler:robot" />}
                       {t('smart-edit')}
                     </ListBox.Item>
-                    <ListBox.Item key="both" id={'both'}>
+                    <ListBox.Item key="both" id={'both'} textValue={t('both')}>
                       {<Icon icon="tabler:analyze" />}
                       {t('both')}
                     </ListBox.Item>
-                    <ListBox.Item key="custom" id={'custom'}>
+                    <ListBox.Item key="custom" id={'custom'} textValue={t('custom')}>
                       {<Icon icon="tabler:code" />}
                       {t('custom')}
                     </ListBox.Item>

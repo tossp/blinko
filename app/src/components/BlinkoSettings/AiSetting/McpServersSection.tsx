@@ -108,7 +108,7 @@ const McpServerDialogContent = observer(({ server, onClose }: { server?: McpServ
 
       <TextField value={formData.description}><Label>{t('description')}</Label><TextArea ref={(element) => {  if (element) return autoSizeTextArea(element, { minRows: 2,  }); }} onChange={(e) => setFormData({ ...formData, description: e.target.value })} placeholder="Optional description" rows={2} /></TextField>
 
-      <Select onChange={(selectedValue) => setFormData({ ...formData, type: String(selectedValue ?? '') as any })} value={formData.type}><Label>{t('transport-type')}</Label><Select.Trigger><Select.Value /><Select.Indicator /></Select.Trigger><Select.Popover><ListBox><ListBox.Item key="stdio" id={"stdio"}>stdio (Local Process)</ListBox.Item><ListBox.Item key="sse" id={"sse"}>SSE (Server-Sent Events)</ListBox.Item><ListBox.Item key="streamable-http" id={"streamable-http"}>Streamable HTTP</ListBox.Item></ListBox></Select.Popover></Select>
+      <Select onChange={(selectedValue) => setFormData({ ...formData, type: String(selectedValue ?? '') as any })} value={formData.type}><Label>{t('transport-type')}</Label><Select.Trigger><Select.Value /><Select.Indicator /></Select.Trigger><Select.Popover><ListBox><ListBox.Item key="stdio" id={"stdio"} textValue="stdio (Local Process)">stdio (Local Process)</ListBox.Item><ListBox.Item key="sse" id={"sse"} textValue="SSE (Server-Sent Events)">SSE (Server-Sent Events)</ListBox.Item><ListBox.Item key="streamable-http" id={"streamable-http"} textValue="Streamable HTTP">Streamable HTTP</ListBox.Item></ListBox></Select.Popover></Select>
 
       {formData.type === 'stdio' ? (
         <>

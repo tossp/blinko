@@ -48,6 +48,7 @@ const Analytics = observer(() => {
             <Dropdown.Menu
               aria-label="Select month"
               selectionMode="single"
+              disallowEmptySelection
               selectedKeys={[selectedMonth]}
               className="max-h-[400px]"
               onSelectionChange={(key) => {

@@ -58,7 +58,7 @@ export const LinkAccountModal = observer(() => {
         <Select.Popover>
           <ListBox>
             {accounts.map((account) => (
-              <ListBox.Item key={account.id} id={String(account.id)}>
+              <ListBox.Item key={account.id} id={String(account.id)} textValue={account.nickname}>
                 {account.nickname}
               </ListBox.Item>
             ))}

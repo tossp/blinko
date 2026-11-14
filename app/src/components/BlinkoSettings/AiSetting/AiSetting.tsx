@@ -156,10 +156,10 @@ export default observer(function AiSetting() {
                   </Select.Trigger>
                   <Select.Popover>
                     <ListBox>
-                      <ListBox.Item key="streamable-http" id={'streamable-http'}>
+                      <ListBox.Item key="streamable-http" id={'streamable-http'} textValue="Streamable HTTP (Recommended)">
                         Streamable HTTP (Recommended)
                       </ListBox.Item>
-                      <ListBox.Item key="sse" id={'sse'}>
+                      <ListBox.Item key="sse" id={'sse'} textValue="SSE (Legacy)">
                         SSE (Legacy)
                       </ListBox.Item>
                     </ListBox>
