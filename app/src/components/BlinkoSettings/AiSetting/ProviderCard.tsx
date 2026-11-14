@@ -257,7 +257,7 @@ export default observer(function ProviderCard({ provider }: ProviderCardProps) {
                 <Select.Popover>
                   <ListBox>
                     {availableModels.map((model) => (
-                      <ListBox.Item key={model.id} id={model.id}>
+                      <ListBox.Item key={model.id} id={model.id} textValue={model.name}>
                         {model.name}
                       </ListBox.Item>
                     ))}

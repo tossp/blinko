@@ -233,7 +233,7 @@ export default observer(function ModelDialogContent({ model }: ModelDialogConten
         <Select.Popover>
           <ListBox>
             {(aiSettingStore.aiProviders.value || []).map((provider) => (
-              <ListBox.Item key={provider.id} id={provider.id}>
+              <ListBox.Item key={String(provider.id)} id={String(provider.id)} textValue={provider.title}>
                 {<ProviderIcon provider={provider.provider} className="w-4 h-4" />}
                 {provider.title}
               </ListBox.Item>
@@ -278,6 +278,7 @@ export default observer(function ModelDialogContent({ model }: ModelDialogConten
           </Button>
         </div>
         <ComboBox
+          value={editingModel.modelKey || null}
           inputValue={editingModel.modelKey || ''}
           onInputChange={(value) => {
             // Find matching template for the input value
@@ -320,7 +321,7 @@ export default observer(function ModelDialogContent({ model }: ModelDialogConten
           <ComboBox.Popover>
             <ListBox>
               {getAllAvailableModels().map((model) => (
-                <ListBox.Item key={model.id} id={model.id}>
+                <ListBox.Item key={model.id} id={model.id} textValue={model.id}>
                   {<ModelIcon modelName={model.id} className="w-4 h-4" />}
                   {model.name}
                 </ListBox.Item>
