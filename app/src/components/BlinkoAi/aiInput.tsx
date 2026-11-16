@@ -13,7 +13,6 @@ import { DialogStore } from '@/store/module/Dialog';
 import { AiConversactionList } from './aiConversactionList';
 import { PromiseCall } from '@/store/standard/PromiseState';
 import { BlinkoSelectNote } from '../Common/BlinkoSelectNote';
-import i18n from '@/lib/i18n';
 import { useTranslation } from 'react-i18next';
 import { ScrollArea } from '../Common/ScrollArea';
 import AiSetting from '../BlinkoSettings/AiSetting/AiSetting';
@@ -150,7 +149,7 @@ export const AiInput = observer(({ onSubmit, className, withoutOutline }: AiInpu
       transition={{ duration: 0.3, ease: 'easeInOut' }}
     >
       <div className="relative flex items-end gap-2">
-        <TextField value={aiStore.input} className={`mt-4 mb-10`}>
+        <TextField value={aiStore.input} className="mt-4 mb-10 w-full min-w-0">
           <TextArea
             data-focus-visible="false"
             autoFocus
@@ -158,7 +157,7 @@ export const AiInput = observer(({ onSubmit, className, withoutOutline }: AiInpu
               ((el) => {
                 textareaRef.current = el;
               })(element);
-              if (element) return autoSizeTextArea(element, { maxRows: 40 });
+              if (element) return autoSizeTextArea(element, { minRows: mode === 'inline' ? 1 : 3, maxRows: 40 });
             }}
             onKeyDown={(e) => {
               // Handle Enter key press to submit input, but ignore if user is composing text (e.g. using IME)
@@ -170,15 +169,16 @@ export const AiInput = observer(({ onSubmit, className, withoutOutline }: AiInpu
               }
             }}
             onChange={(e) => (aiStore.input = e.target.value)}
-            rows={mode == 'inline' ? 1 : 20}
+            rows={mode === 'inline' ? 1 : 3}
             placeholder={t('search-blinko-content-or-help-create')}
-            className={`!bg-transparent border-none ${mode == 'inline' ? 'min-h-[20px]' : 'min-h-[120px]'} whitespace-pre-wrap`}
+            style={{ boxShadow: 'none' }}
+            className={`w-full resize-none !bg-transparent border-none ${mode == 'inline' ? 'min-h-[20px]' : 'min-h-[120px]'} whitespace-pre-wrap`}
           />
         </TextField>
         <div className="absolute bottom-3 right-0 w-full px-2 gap-1 flex justify-center items-center !transition-all">
           <>
             {cardIcons.map(
-              (icon, index) =>
+              (icon) =>
                 !icon.isHidden?.() && (
                   <IconButton
                     onClick={icon.onClick}
